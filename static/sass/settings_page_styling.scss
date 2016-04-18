@@ -1,0 +1,25 @@
+.settings-button{
+  padding-top: 10px;
+}
+
+.action-description {
+  color: $primary-text-color;
+  font-size: 14px;
+  text-align: left;
+}
+.settings-table > tbody > tr > th{
+  padding-top: 4px;
+  padding-bottom: 0px;
+}
+.settings-table {
+  margin-bottom: 10px;
+}
+.settings-cell {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: left;
+  width: 60%;
+}
+.settings-cell.settings-description {
+  width: 100%;
+}

@@ -1,0 +1,83 @@
+/*HTML EXAMPLE
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+<div class="checkbox-group">
+    <input type="checkbox" id="checkiz">
+    <label for="checkiz">
+        <span class="check"></span>
+        <span class="box"></span>
+         Checkbox
+     </label>
+</div>
+
+*/
+
+@import "colors";
+
+.checkbox-group {
+    position:relative
+}
+
+/* Hide Checkbox Input */
+.checkbox-group input[type=checkbox] {
+    display:none
+}
+
+/* Style Label */
+.checkbox-group label {
+    padding-left:30px;
+    cursor:pointer;
+}
+
+/* Style span tag */
+.checkbox-group label span {
+    display:block;
+    position:absolute;
+    left:0;
+    -webkit-transition-duration:.2s;
+    -moz-transition-duration:.2s;
+    transition-duration:.2s
+}
+/* Style box */
+.checkbox-group label .box {
+    background: $text-light;
+    height:20px;
+    width:20px;
+    z-index:9;
+    -webkit-transition-delay:.2s;
+    -moz-transition-delay:.2s;
+    transition-delay:.2s
+}
+
+/* Style check icon. give it a border on the bottom and right only and then rotate */
+.checkbox-group label .check {
+    top:0;
+    left:7px;
+    width:7px;
+    height:15px;
+    border:2px solid #fff;
+    border-top:none;
+    border-left:none;
+    opacity:0;
+    z-index:10;
+    -webkit-transform:rotate(180deg);
+    -moz-transform:rotate(180deg);
+    transform:rotate(180deg);
+    -webkit-transition-delay:.1s;
+    -moz-transition-delay:.1s;
+    transition-delay:.1s
+}
+
+/* Change color of box when checkbox is checked */
+input[type=checkbox]:checked ~ label .box {
+    background:$primary-color-dark;
+}
+
+/* Rotate and show check icon when checkbox is checked */
+input[type=checkbox]:checked ~ label .check {
+    opacity:1;
+    -webkit-transform:scale(1) rotate(45deg);
+    -moz-transform:scale(1) rotate(45deg);
+    transform:scale(1) rotate(45deg);
+}

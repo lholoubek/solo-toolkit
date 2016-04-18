@@ -1,0 +1,15 @@
+@font-face {
+  font-family: 'Roboto';
+  src:  url('../assets/fonts/roboto/Roboto-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Material Icons'),
+       local("MaterialIcons-Regular"),
+       url("../assets/fonts/material-design-icons/Material-Design-Icons.woff2") format('woff2'),
+       url("./build/assets/fonts/material-design-icons/Material-Design-Icons.woff") format('woff'),
+       url("./build/assets/fonts/material-design-icons/Material-Design-Icons.ttf") format('truetype');
+}

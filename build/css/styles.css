@@ -1,0 +1,452 @@
+@font-face {
+  font-family: 'Roboto';
+  src: url("../assets/fonts/roboto/Roboto-Regular.woff2") format("woff2"); }
+
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+  src: local("Material Icons"), local("MaterialIcons-Regular"), url("../assets/fonts/material-design-icons/Material-Design-Icons.woff2") format("woff2"), url("./build/assets/fonts/material-design-icons/Material-Design-Icons.woff") format("woff"), url("./build/assets/fonts/material-design-icons/Material-Design-Icons.ttf") format("truetype"); }
+
+#connect-button {
+  color: #1976D2; }
+
+#connect-button.disabled {
+  color: #9E9E9E; }
+
+.mui-btn {
+  color: #1976D2; }
+
+#open-file-button {
+  color: #1976D2; }
+
+#open-file-button:hover {
+  background-color: #ffffff; }
+
+.page-title {
+  padding-top: 10px;
+  padding-bottom: 10px; }
+
+.version-table td {
+  color: #757575; }
+
+.version-table th {
+  color: #616161; }
+
+/*
+HTML EXAMPLE USING THESE
+<h3>Indeterminate</h3>
+<div class="progress">
+  <div class="indeterminate"></div>
+</div>
+
+<br>
+<h3>Determinate</h3>
+<div class="progress">
+  <div class="determinate" style="width: 70%"></div>
+</div>
+
+<br>
+
+<h3 class="dt-loading">dataTable Loading...</h3>
+*/
+/* Progress Bar */
+.progress {
+  position: relative;
+  height: 4px;
+  display: block;
+  width: 100%;
+  background-color: #c0dcf7;
+  border-radius: 2px;
+  background-clip: padding-box;
+  margin: 0.5rem 0 1rem 0;
+  overflow: hidden; }
+  .progress .determinate {
+    position: absolute;
+    background-color: inherit;
+    top: 0;
+    bottom: 0;
+    background-color: #1976D2;
+    transition: width .3s linear; }
+  .progress .indeterminate {
+    background-color: #1976D2; }
+    .progress .indeterminate:before {
+      content: '';
+      position: absolute;
+      background-color: inherit;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      will-change: left, right;
+      animation: indeterminate 2.1s cubic-bezier(0.65, 0.815, 0.735, 0.395) infinite; }
+    .progress .indeterminate:after {
+      content: '';
+      position: absolute;
+      background-color: inherit;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      will-change: left, right;
+      animation: indeterminate-short 2.1s cubic-bezier(0.165, 0.84, 0.44, 1) infinite;
+      animation-delay: 1.15s; }
+
+@-webkit-keyframes indeterminate {
+  0% {
+    left: -35%;
+    right: 100%; }
+  60% {
+    left: 100%;
+    right: -90%; }
+  100% {
+    left: 100%;
+    right: -90%; } }
+
+@-moz-keyframes indeterminate {
+  0% {
+    left: -35%;
+    right: 100%; }
+  60% {
+    left: 100%;
+    right: -90%; }
+  100% {
+    left: 100%;
+    right: -90%; } }
+
+@keyframes indeterminate {
+  0% {
+    left: -35%;
+    right: 100%; }
+  60% {
+    left: 100%;
+    right: -90%; }
+  100% {
+    left: 100%;
+    right: -90%; } }
+
+@-webkit-keyframes indeterminate-short {
+  0% {
+    left: -200%;
+    right: 100%; }
+  60% {
+    left: 107%;
+    right: -8%; }
+  100% {
+    left: 107%;
+    right: -8%; } }
+
+@-moz-keyframes indeterminate-short {
+  0% {
+    left: -200%;
+    right: 100%; }
+  60% {
+    left: 107%;
+    right: -8%; }
+  100% {
+    left: 107%;
+    right: -8%; } }
+
+@keyframes indeterminate-short {
+  0% {
+    left: -200%;
+    right: 100%; }
+  60% {
+    left: 107%;
+    right: -8%; }
+  100% {
+    left: 107%;
+    right: -8%; } }
+
+legend {
+  padding-top: 22px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  color: #616161; }
+
+.progress {
+  margin-top: 15px; }
+
+.mui-textfield {
+  margin-top: 0px;
+  padding-top: 5px;
+  margin-bottom: 4px; }
+
+.mui-textfield > input {
+  color: #616161;
+  font-family: 'Roboto'; }
+
+#open-file-button-container {
+  padding-left: 0px;
+  padding-right: 0px; }
+
+#location-chooser-form {
+  padding-left: 0px;
+  padding-right: 5px; }
+
+.mui-select {
+  margin-right: 7px;
+  margin-left: 7px; }
+  .mui-select select {
+    color: #616161;
+    font-size: 17px; }
+
+.log_collect_option {
+  display: inline-block; }
+
+h4.log_collect_option {
+  font-size: 16px;
+  color: #616161; }
+
+.checkbox-group {
+  margin-left: 20px;
+  color: #616161;
+  font-family: "Roboto";
+  font-size: 16px; }
+
+/*HTML EXAMPLE
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+<div class="checkbox-group">
+    <input type="checkbox" id="checkiz">
+    <label for="checkiz">
+        <span class="check"></span>
+        <span class="box"></span>
+         Checkbox
+     </label>
+</div>
+
+*/
+.checkbox-group {
+  position: relative; }
+
+/* Hide Checkbox Input */
+.checkbox-group input[type=checkbox] {
+  display: none; }
+
+/* Style Label */
+.checkbox-group label {
+  padding-left: 30px;
+  cursor: pointer; }
+
+/* Style span tag */
+.checkbox-group label span {
+  display: block;
+  position: absolute;
+  left: 0;
+  -webkit-transition-duration: .2s;
+  -moz-transition-duration: .2s;
+  transition-duration: .2s; }
+
+/* Style box */
+.checkbox-group label .box {
+  background: #9E9E9E;
+  height: 20px;
+  width: 20px;
+  z-index: 9;
+  -webkit-transition-delay: .2s;
+  -moz-transition-delay: .2s;
+  transition-delay: .2s; }
+
+/* Style check icon. give it a border on the bottom and right only and then rotate */
+.checkbox-group label .check {
+  top: 0;
+  left: 7px;
+  width: 7px;
+  height: 15px;
+  border: 2px solid #fff;
+  border-top: none;
+  border-left: none;
+  opacity: 0;
+  z-index: 10;
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  transform: rotate(180deg);
+  -webkit-transition-delay: .1s;
+  -moz-transition-delay: .1s;
+  transition-delay: .1s; }
+
+/* Change color of box when checkbox is checked */
+input[type=checkbox]:checked ~ label .box {
+  background: #1976D2; }
+
+/* Rotate and show check icon when checkbox is checked */
+input[type=checkbox]:checked ~ label .check {
+  opacity: 1;
+  -webkit-transform: scale(1) rotate(45deg);
+  -moz-transform: scale(1) rotate(45deg);
+  transform: scale(1) rotate(45deg); }
+
+.settings-button {
+  padding-top: 10px; }
+
+.action-description {
+  color: #9E9E9E;
+  font-size: 14px;
+  text-align: left; }
+
+.settings-table > tbody > tr > th {
+  padding-top: 4px;
+  padding-bottom: 0px; }
+
+.settings-table {
+  margin-bottom: 10px; }
+
+.settings-cell {
+  display: table-cell;
+  vertical-align: middle;
+  text-align: left;
+  width: 60%; }
+
+.settings-cell.settings-description {
+  width: 100%; }
+
+h1 {
+  font-family: "Roboto";
+  color: #616161; }
+
+html, body {
+  height: 100%;
+  font-family: "Roboto"; }
+
+/**
+ * Header CSS
+ */
+.sidedrawer-toggle {
+  color: #fff;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 20px;
+  margin-right: 10px; }
+
+.sidedrawer-toggle:hover {
+  color: #fff;
+  text-decoration: none; }
+
+#header {
+  background-color: #616161;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  transition: left 0.2s; }
+
+.mui-appbar {
+  background-color: #1976D2; }
+
+#connect-button {
+  background-color: #ffffff;
+  color: #1976D2; }
+
+#connect-button-holder {
+  display: inline-block;
+  float: right;
+  padding-top: 10px; }
+
+#sidedrawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 200px;
+  left: -200px;
+  overflow: auto;
+  z-index: 2;
+  background-color: #fff;
+  transition: transform 0.2s; }
+
+#content-wrapper {
+  min-height: 100%;
+  overflow-x: hidden;
+  margin-left: 0px;
+  transition: margin-left 0.2s;
+  /* sticky bottom */
+  margin-bottom: -40px;
+  padding-bottom: 40px;
+  background-color: #EEEEEE; }
+
+/**
+ * Footer CSS
+ */
+#footer {
+  height: 40px;
+  margin-left: 0px;
+  transition: margin-left 0.2s;
+  bottom: 0; }
+
+#footer {
+  background-color: #0288D1;
+  color: #fff; }
+
+#footer a {
+  color: #fff;
+  text-decoration: underline; }
+
+@media (min-width: 500px) {
+  #header {
+    left: 200px; }
+  #sidedrawer {
+    transform: translate(200px); }
+  #content-wrapper {
+    margin-left: 200px; }
+  #footer {
+    margin-left: 200px;
+    background-color: #1976D2; }
+  body.hide-sidedrawer #header {
+    left: 0; }
+  body.hide-sidedrawer #sidedrawer {
+    transform: translate(0px); }
+  body.hide-sidedrawer #content-wrapper {
+    margin-left: 0; }
+  body.hide-sidedrawer #footer {
+    margin-left: 0; } }
+
+/**
+ * Toggle Side drawer
+ */
+#sidedrawer.active {
+  transform: translate(200px); }
+
+/**
+ * Side drawer CSS
+ */
+#sidedrawer-brand {
+  background-color: #ffffff;
+  color: #616161;
+  padding-left: 10px; }
+
+#sidedrawer ul {
+  list-style: none; }
+
+#sidedrawer > ul {
+  padding-left: 0px;
+  background-color: #ffffff; }
+
+#sidedrawer strong {
+  display: block;
+  padding: 15px 22px;
+  cursor: pointer; }
+
+#sidedrawer > ul > li {
+  padding-top: 15px;
+  padding-left: 20px;
+  padding-bottom: 15px; }
+
+#sidedrawer .title {
+  font-size: 2.2rem;
+  color: #FFFFFF; }
+
+#sidedrawer .menu-item {
+  font-size: 1.6rem;
+  margin-bottom: 0px;
+  color: #9E9E9E; }
+
+#sidedrawer > ul > li:hover {
+  cursor: pointer; }
+  #sidedrawer > ul > li:hover > p {
+    color: #616161; }
+
+#sidedrawer .menu-item.active {
+  color: #616161; }
+
+li.active {
+  background-color: #EEEEEE; }

@@ -1,0 +1,84 @@
+<div class='template-container'>
+
+  <!--page title-->
+  <div class="page-title">
+    <div class="mui--text-dark-secondary mui--text-display2">Log collection</div>
+  </div>
+
+  <!--Main progress bar-->
+    <div class="mui-col-sm-8 mui-col-md-8 mui-col-lg-8">
+      <div class="progress log-collect-progress-bar">
+        <div class="determinate" style="width: 68%"></div>
+      </div>
+    </div>
+
+    <!-- Log file path chooser -->
+    <div class='mui-col-sm-12 mui-col-md-12 mui-col-lg-12'>
+      <legend>Output location</legend>
+        <form id="location-chooser-form"class="mui-col-sm-6 mui-col-md-6 mui-col-lg-6">
+          <div id="location-chooser-text" class="mui-textfield">
+            <input type="text" placeholder="~/Desktop/logs">
+          </div>
+        </form>
+        <div id="open-file-button-container" class="mui-col-sm-2 mui-col-md-2 mui-col-lg-2">
+          <button id="open-file-button" class="mui-btn mui-btn--flat">choose</button>
+        </div>
+    </div>
+
+    <!-- Options to select -->
+    <div class="mui-col-sm-12 mui-col-md-12 mui-col-lg-8">
+      <legend>Options</legend>
+      <h4 class="log_collect_option">Collect </h4>
+        <form class="log_collect_option">
+        <div class="mui-select">
+          <select>
+            <option>All</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>5</option>
+            <option>10</option>
+          </select>
+        </div>
+        </form>
+      <h4 class="log_collect_option">logs</h4>
+      <div class="checkbox-group log_collect_option">
+          <input type="checkbox" id="solo-logs-option" >
+          <label for="solo-logs-option">
+              <span class="check"></span>
+              <span class="box"></span>
+               Solo logs
+           </label>
+      </div>
+        <div class="checkbox-group log_collect_option">
+           <input type="checkbox" id="controller-log-option" >
+           <label for="controller-log-option">
+               <span class="check"></span>
+               <span class="box"></span>
+                Controller logs
+            </label>
+        </div>
+        <div class="checkbox-group log_collect_option">
+           <input type="checkbox" id="zipfile-log-option" >
+           <label for="zipfile-log-option">
+               <span class="check"></span>
+               <span class="box"></span>
+                Create zipfile
+            </label>
+        </div>
+    </div>
+
+
+    <!-- Flight notes -->
+    <div class="mui-col-sm-6 mui-col-md-6 mui-col-lg-6">
+        <legend>Flight notes</legend>
+        <div class="mui-textfield">
+           <textarea placeholder="Enter notes from flight"></textarea>
+         </div>
+         <div>
+           <button class="mui-btn">Collect logs</button>
+         </div>
+    </div>
+
+<!-- End our template container -->
+</div>

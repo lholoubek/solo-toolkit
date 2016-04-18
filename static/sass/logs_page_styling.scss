@@ -1,0 +1,56 @@
+@import 'colors';
+
+legend {
+  padding-top: 22px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  color: $text-dark;
+}
+
+.progress {
+  margin-top: 15px;
+}
+
+.mui-textfield {
+  margin-top: 0px;
+  padding-top: 5px;
+  margin-bottom: 4px;
+}
+
+.mui-textfield > input {
+  color: $text-dark;
+  font-family: 'Roboto';
+}
+#open-file-button-container {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+#location-chooser-form {
+  padding-left: 0px;
+  padding-right: 5px;
+}
+
+.mui-select {
+  margin-right: 7px;
+  margin-left: 7px;
+  select {
+    color: $text-dark;
+    font-size: 17px;
+  }
+}
+
+.log_collect_option {
+  display: inline-block;
+}
+
+h4.log_collect_option {
+  font-size: 16px;
+  color: $text-dark;
+}
+
+.checkbox-group {
+  margin-left: 20px;
+  color: $text-dark;
+  font-family: "Roboto";
+  font-size: 16px;
+}

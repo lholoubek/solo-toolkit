@@ -1,0 +1,209 @@
+//Import our colors scss
+@import "fonts";
+@import "buttons";
+@import "colors";
+@import "systems_page_styling";
+@import "progress_bar";
+@import "logs_page_styling";
+@import "checkboxes";
+@import "settings_page_styling";
+
+
+h1 {
+  font-family: "Roboto";
+  color: $text-dark;
+}
+
+html, body {
+  height: 100%;
+  font-family: "Roboto";
+}
+
+
+/**
+ * Header CSS
+ */
+.sidedrawer-toggle {
+  color: #fff;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 20px;
+  margin-right: 10px;
+}
+
+.sidedrawer-toggle:hover {
+  color: #fff;
+  text-decoration: none;
+}
+
+#header {
+  background-color: $text-dark;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  transition: left 0.2s;
+}
+.mui-appbar {
+  background-color: $primary-color-dark;
+}
+
+#connect-button{
+  background-color: $white;
+  color: $primary-color-dark;
+}
+#connect-button-holder{
+  display: inline-block;
+  float: right;
+  padding-top: 10px;
+}
+
+#sidedrawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 200px;
+  left: -200px;
+  overflow: auto;
+  z-index: 2;
+  background-color: #fff;
+  transition: transform 0.2s;
+}
+
+
+//Main content styling
+#content-wrapper {
+  min-height: 100%;
+  overflow-x: hidden;
+  margin-left: 0px;
+  transition: margin-left 0.2s;
+
+  /* sticky bottom */
+  margin-bottom: -40px;
+  padding-bottom: 40px;
+  background-color: $hover-overlay;
+}
+
+
+
+/**
+ * Footer CSS
+ */
+ #footer {
+   height: 40px;
+   margin-left: 0px;
+   transition: margin-left 0.2s;
+   bottom: 0;
+ }
+#footer {
+  background-color: #0288D1;
+  color: #fff;
+}
+#footer a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+//Responsive styling
+@media (min-width: 500px) {
+  #header {
+    left: 200px;
+  }
+
+  #sidedrawer {
+    transform: translate(200px);
+  }
+
+  #content-wrapper {
+    margin-left: 200px;
+  }
+
+  #footer {
+    margin-left: 200px;
+    background-color: $primary-color-dark;
+  }
+
+  body.hide-sidedrawer #header {
+    left: 0;
+  }
+
+  body.hide-sidedrawer #sidedrawer {
+    transform: translate(0px);
+  }
+
+  body.hide-sidedrawer #content-wrapper {
+    margin-left: 0;
+  }
+
+  body.hide-sidedrawer #footer {
+    margin-left: 0;
+  }
+}
+
+
+/**
+ * Toggle Side drawer
+ */
+#sidedrawer.active {
+  transform: translate(200px);
+}
+/**
+ * Side drawer CSS
+ */
+#sidedrawer-brand {
+  background-color: $white;
+  color: $text-dark;
+  padding-left: 10px;
+}
+
+
+#sidedrawer ul {
+  list-style: none;
+}
+
+#sidedrawer > ul {
+  padding-left: 0px;
+  background-color: $white;
+}
+
+#sidedrawer strong {
+  display: block;
+  padding: 15px 22px;
+  cursor: pointer;
+}
+
+#sidedrawer > ul > li {
+  padding-top: 15px;
+  padding-left: 20px;
+  padding-bottom: 15px;
+}
+
+
+#sidedrawer .title {
+  font-size: 2.2rem;
+  color: $primary-color-text;
+}
+
+#sidedrawer .menu-item {
+  font-size: 1.6rem;
+  margin-bottom: 0px;
+  color: $primary-text-color;
+
+}
+#sidedrawer > ul > li:hover {
+  //Make text darker on hover
+  > p {
+   color: $text-dark;
+ }
+cursor: pointer;
+}
+
+//active menu item styling
+#sidedrawer .menu-item.active {
+  color: $text-dark;
+}
+li.active {
+  background-color: $hover-overlay;
+
+}

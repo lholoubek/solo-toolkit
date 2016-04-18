@@ -1,0 +1,20 @@
+@import 'colors';
+
+#connect-button {
+  color: $primary-color-dark;
+}
+#connect-button.disabled {
+  color: $text-light;
+}
+
+.mui-btn {
+  color: $primary-color-dark;
+}
+
+
+#open-file-button {
+  color: $primary-color-dark;
+}
+#open-file-button:hover{
+  background-color: $white;
+}
