@@ -301,12 +301,12 @@ input[type=checkbox]:checked ~ label .check {
   width: 100%; }
 
 h1 {
-  font-family: "Roboto";
+  font-family: "Helvetica Neue";
   color: #616161; }
 
 html, body {
   height: 100%;
-  font-family: "Roboto"; }
+  font-family: "Helvetica Neue"; }
 
 /**
  * Header CSS
@@ -343,6 +343,23 @@ html, body {
   float: right;
   padding-top: 10px; }
 
+.connection-info {
+  float: right;
+  line-height: 45%;
+  margin-top: 1%; }
+
+.connection-info p {
+  float: right; }
+
+.controller-connection.active, .solo-connection.active {
+  color: #ffffff; }
+
+.controller-connection {
+  color: #9E9E9E; }
+
+.solo-connection, .controller-connection {
+  color: #B6B6B6; }
+
 #sidedrawer {
   position: fixed;
   top: 0;
@@ -351,7 +368,7 @@ html, body {
   left: -200px;
   overflow: auto;
   z-index: 2;
-  background-color: #fff;
+  background-color: #B6B6B6;
   transition: transform 0.2s; }
 
 #content-wrapper {
@@ -362,7 +379,7 @@ html, body {
   /* sticky bottom */
   margin-bottom: -40px;
   padding-bottom: 40px;
-  background-color: #EEEEEE; }
+  background-color: #ffffff; }
 
 /**
  * Footer CSS

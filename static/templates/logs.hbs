@@ -16,8 +16,8 @@
     <div class='mui-col-sm-12 mui-col-md-12 mui-col-lg-12'>
       <legend>Output location</legend>
         <form id="location-chooser-form"class="mui-col-sm-6 mui-col-md-6 mui-col-lg-6">
-          <div id="location-chooser-text" class="mui-textfield">
-            <input type="text" placeholder="~/Desktop/logs">
+          <div class="mui-textfield">
+            <input id="location-chooser-text" type="text" placeholder="~/Desktop/logs">
           </div>
         </form>
         <div id="open-file-button-container" class="mui-col-sm-2 mui-col-md-2 mui-col-lg-2">
@@ -29,7 +29,7 @@
     <div class="mui-col-sm-12 mui-col-md-12 mui-col-lg-8">
       <legend>Options</legend>
       <h4 class="log_collect_option">Collect </h4>
-        <form class="log_collect_option">
+        <form id="num-logs-select" class="log_collect_option">
         <div class="mui-select">
           <select>
             <option>All</option>
@@ -73,12 +73,15 @@
     <div class="mui-col-sm-6 mui-col-md-6 mui-col-lg-6">
         <legend>Flight notes</legend>
         <div class="mui-textfield">
-           <textarea placeholder="Enter notes from flight"></textarea>
+           <textarea id="flight-notes"placeholder="Enter notes from flight"></textarea>
          </div>
          <div>
-           <button class="mui-btn">Collect logs</button>
+           <button id="collect-logs-button" class="mui-btn">Collect logs</button>
          </div>
     </div>
+
+<!-- Call our logs.js -->
+<script type="text/javascript" src="./build/js/logs.js"></script>
 
 <!-- End our template container -->
 </div>

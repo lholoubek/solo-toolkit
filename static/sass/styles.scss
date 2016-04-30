@@ -10,13 +10,13 @@
 
 
 h1 {
-  font-family: "Roboto";
+  font-family: "Helvetica Neue";
   color: $text-dark;
 }
 
 html, body {
   height: 100%;
-  font-family: "Roboto";
+  font-family: "Helvetica Neue";
 }
 
 
@@ -58,6 +58,23 @@ html, body {
   float: right;
   padding-top: 10px;
 }
+.connection-info {
+  float: right;
+  line-height: 45%;
+  margin-top: 1%;
+}
+.connection-info p {
+  float: right;
+}
+.controller-connection.active, .solo-connection.active {
+  color: $white;
+}
+.controller-connection {
+  color: $text-light;
+}
+.solo-connection, .controller-connection {
+  color: $divider-color;
+}
 
 #sidedrawer {
   position: fixed;
@@ -67,10 +84,9 @@ html, body {
   left: -200px;
   overflow: auto;
   z-index: 2;
-  background-color: #fff;
+  background-color: $divider-color;
   transition: transform 0.2s;
 }
-
 
 //Main content styling
 #content-wrapper {
@@ -82,7 +98,7 @@ html, body {
   /* sticky bottom */
   margin-bottom: -40px;
   padding-bottom: 40px;
-  background-color: $hover-overlay;
+  background-color: $white;
 }
 
 

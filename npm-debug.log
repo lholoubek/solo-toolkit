@@ -10,8 +10,8 @@
 6 silly lifecycle rma-toolkit@0.1.0~predev-build: no script for predev-build, continuing
 7 info lifecycle rma-toolkit@0.1.0~dev-build: rma-toolkit@0.1.0
 8 verbose lifecycle rma-toolkit@0.1.0~dev-build: unsafe-perm in lifecycle true
-9 verbose lifecycle rma-toolkit@0.1.0~dev-build: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/Users/lukasholoubek/Documents/code/rma_tools/electron-test/rma-toolkit/node_modules/.bin:/usr/local/Cellar/node/5.4.0/bin:/Users/lukasholoubek/exec -l /bin/bash/google-cloud-sdk/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/Users/lukasholoubek/Library/Android/sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
-10 verbose lifecycle rma-toolkit@0.1.0~dev-build: CWD: /Users/lukasholoubek/Documents/code/rma_tools/electron-test/rma-toolkit
+9 verbose lifecycle rma-toolkit@0.1.0~dev-build: PATH: /usr/local/lib/node_modules/npm/bin/node-gyp-bin:/Users/lukasholoubek/Documents/code/rma_tools/electron-test/electron-solo/node_modules/.bin:/usr/local/Cellar/node/5.4.0/bin:/Users/lukasholoubek/exec -l /bin/bash/google-cloud-sdk/bin:/opt/local/bin:/opt/local/sbin:/usr/local/bin:/Users/lukasholoubek/Library/Android/sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
+10 verbose lifecycle rma-toolkit@0.1.0~dev-build: CWD: /Users/lukasholoubek/Documents/code/rma_tools/electron-test/electron-solo
 11 silly lifecycle rma-toolkit@0.1.0~dev-build: Args: [ '-c', 'node ./node_modules/gulp/bin/gulp.js' ]
 12 silly lifecycle rma-toolkit@0.1.0~dev-build: Returned: code: 1  signal: null
 13 info lifecycle rma-toolkit@0.1.0~dev-build: Failed to exec dev-build script
@@ -26,7 +26,7 @@
 14 verbose stack     at maybeClose (internal/child_process.js:821:16)
 14 verbose stack     at Process.ChildProcess._handle.onexit (internal/child_process.js:211:5)
 15 verbose pkgid rma-toolkit@0.1.0
-16 verbose cwd /Users/lukasholoubek/Documents/code/rma_tools/electron-test/rma-toolkit
+16 verbose cwd /Users/lukasholoubek/Documents/code/rma_tools/electron-test/electron-solo
 17 error Darwin 15.4.0
 18 error argv "/usr/local/Cellar/node/5.4.0/bin/node" "/usr/local/bin/npm" "run" "dev-build"
 19 error node v5.4.0

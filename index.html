@@ -5,14 +5,14 @@
   <link rel="stylesheet" type="text/css" href="./build/css/styles.css" media="screen"/>
   <head>
     <meta charset="UTF-8">
-    <title>3DR RMA Toolkit</title>
+    <title>Solo Toolkit</title>
         <header id="header">
             <div class="mui-appbar mui--appbar-line-height">
               <div class="mui-container-fluid">
                 <a class="sidedrawer-toggle mui--visible-xs-inline-block js-show-sidedrawer">☰</a>
                 <a class="sidedrawer-toggle mui--hidden-xs js-hide-sidedrawer">☰</a>
                   <div id="connect-button-holder">
-                    <button id="connect-button" class="mui-btn mui-btn--flat" style=" float:right">Connect</button>
+                    <button id="connect-button" class="mui-btn mui-btn--flat" style="float:right">Connect</button>
                     <div id="connect-progress-bar" class="progress connect-progress">
                       <div class="indeterminate" style="width: 50%"></div>
                     </div>
@@ -23,7 +23,7 @@
   </head>
     <body>
       <div id="sidedrawer" class="mui--no-user-select">
-      <div id="sidedrawer-brand" class="mui--appbar-line-height mui--text-title">RMA Toolkit</div>
+      <div id="sidedrawer-brand" class="mui--appbar-line-height mui--text-title">Solo Toolkit</div>
           <div class="mui-divider"></div>
           <ul>
             <li id="system_info_button" class="">
@@ -50,11 +50,19 @@
       </div>
 
         <footer id="footer">
-          <div class="mui-container-fluid">Find an issue? <a>Report it</a></div>
+          <div class="mui-container-fluid">
+            <div class="connection-info">
+              <p class="solo-connection"> Solo:<span id="solo-connection-status"> disconnected</span></p>
+            </br>
+              <p class="controller-connection"> Controller:<span id="controller-connection-status"> disconnected</span></p>
+            </div>
+          </div>
         </footer>
       </body>
 
 </html>
 <script type="text/javascript">window.$ = window.jQuery = require('jquery');</script>
+<script type="text/javascript" src="./build/js/libs/mui.js"></script>
+<script type="text/javascript" src="./build/js/templates.js"></script>
 <script type="text/javascript" src="./build/js/state.js"></script>
 <script type="text/javascript" src="./build/js/button_handler.js"></script>

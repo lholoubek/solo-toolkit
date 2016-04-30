@@ -3,6 +3,7 @@
 const electron = require('electron');
 const app = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
+const dialog = electron.dialog;
 var client = require('electron-connect').client;
 const ipcMain = require('electron').ipcMain;
 
@@ -24,8 +25,6 @@ ipcMain.on('reboot-command', function(event, command) {
   event.sender.send('reboot-reply', 'Acking the reboot command');
 });
 
-
-
 ipcMain.on('open-dir-dialog', function(event, arg) {
     var dirPath = dialog.showOpenDialog(mainWindow, { properties: [ 'openDirectory', 'multiSelections' ]})
     event.sender.send('open-dir-dialog-reply', dirPath);
@@ -43,7 +42,7 @@ app.on('ready', function() {
   client.create(mainWindow);
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
