@@ -1,8 +1,24 @@
+const events = require('events').EventEmitter;
+const fs = require('fs');
+
 $('#collect-logs-button').on('click', ()=>{
   //First get the settings to determine what logs we need to get from where
   var logs_options = build_logs_options();
-  console.log(logs_options);
+  //Check to see if we have SSH connections to use for pulling logs
+  var haveConnections = checkConnections(logs_options);
+  if (!haveConnections){
+    if (!logs_options.solo_logs && !logs_options.controller_logs){
+      display_overlay("Select controller or Solo",
+      "You haven't selected a device to pull logs from. ");
+    } else {
+    display_overlay("Check connections", "You're not connected to the device to pull logs from.");
+    }
+  } else {
+    //Pull logs based on the options
+    pull_logs(solo, options, progressUpdater);
 
+
+  }
 });
 
 //Set up our output path directory chooser
@@ -50,4 +66,27 @@ function build_logs_options(){
   logs_options.flight_notes = notes;
 
   return logs_options;
+}
+
+function checkConnections(options){
+  //Takes a log options and confirms we have a connection to the devices necessary to pull logs
+  //If no device selected or no connection, displays error to user
+  if (options.solo_logs && options.controller_logs) {
+    //we want logs from both
+    return solo.controllerConnected && solo.soloConnected ? true : false;
+  } else if (options.solo_logs) {
+    //we want just solo logs
+    return solo.soloConnected ? true : false;
+  } else if (options.controller_logs){
+    //we want just controller logs
+    return solo.controllerConnected ? true :  false;
+  } else {
+    return false;
+  }
+}
+
+function updateLogsProgress(newVal){
+  //Updates progress bar to reflect newVal
+  var logs_progress_bar = $('#logs-progress-bar');
+  newVal > 100 ? logs_progress_bar.width(100) : logs_progress_bar.width(newVal);
 }
