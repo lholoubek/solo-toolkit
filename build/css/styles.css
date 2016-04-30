@@ -14,14 +14,23 @@
 #connect-button.disabled {
   color: #9E9E9E; }
 
-.mui-btn {
-  color: #1976D2; }
+.btn-primary {
+  color: #1976D2;
+  background-color: #EEEEEE; }
+
+.btn-primary:hover {
+  color: #1976D2;
+  background-color: #EEEEEE; }
+
+.btn-secondary {
+  color: #1976D2;
+  background-color: #ffffff; }
+
+.btn-secondary:hover {
+  background-color: #EEEEEE; }
 
 #open-file-button {
   color: #1976D2; }
-
-#open-file-button:hover {
-  background-color: #ffffff; }
 
 .page-title {
   padding-top: 10px;
@@ -368,7 +377,7 @@ html, body {
   left: -200px;
   overflow: auto;
   z-index: 2;
-  background-color: #B6B6B6;
+  background-color: #EEEEEE;
   transition: transform 0.2s; }
 
 #content-wrapper {
@@ -427,7 +436,7 @@ html, body {
  * Side drawer CSS
  */
 #sidedrawer-brand {
-  background-color: #ffffff;
+  background-color: #EEEEEE;
   color: #616161;
   padding-left: 10px; }
 
@@ -436,7 +445,7 @@ html, body {
 
 #sidedrawer > ul {
   padding-left: 0px;
-  background-color: #ffffff; }
+  background-color: #EEEEEE; }
 
 #sidedrawer strong {
   display: block;
@@ -463,7 +472,7 @@ html, body {
     color: #616161; }
 
 #sidedrawer .menu-item.active {
-  color: #616161; }
+  color: #1976D2; }
 
 li.active {
-  background-color: #EEEEEE; }
+  background-color: #ffffff; }

@@ -84,7 +84,7 @@ html, body {
   left: -200px;
   overflow: auto;
   z-index: 2;
-  background-color: $divider-color;
+  background-color: $hover-overlay;
   transition: transform 0.2s;
 }
 
@@ -168,7 +168,7 @@ html, body {
  * Side drawer CSS
  */
 #sidedrawer-brand {
-  background-color: $white;
+  background-color: $hover-overlay;
   color: $text-dark;
   padding-left: 10px;
 }
@@ -180,7 +180,7 @@ html, body {
 
 #sidedrawer > ul {
   padding-left: 0px;
-  background-color: $white;
+  background-color: $hover-overlay;
 }
 
 #sidedrawer strong {
@@ -217,9 +217,9 @@ cursor: pointer;
 
 //active menu item styling
 #sidedrawer .menu-item.active {
-  color: $text-dark;
+  color: $primary-color-dark;
 }
 li.active {
-  background-color: $hover-overlay;
+  background-color: $white;
 
 }

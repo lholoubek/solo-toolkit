@@ -40,11 +40,8 @@ function build_logs_options() {
   }
   //Check how many logs the user wants collected
   var num = $('#num-logs-select option:selected').text();
-  if (num.toLowerCase() === "all") {
-    logs_options.collect_all_logs = true;
-  } else {
-    logs_options.num_logs = parseInt(num);
-  }
+  num.toLowerCase() === "all" ? logs_options.collect_all_logs = true : logs_options.num_logs = parseInt(num);
+
   //check whether we need to create a zipfile
   if ($('#zipfile-log-option').prop('checked')) {
     logs_options.create_zip = true;

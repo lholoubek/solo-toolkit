@@ -12,7 +12,7 @@ solo.on('updated_versions', function () {
   //Re-load the system info page when we get updated version info
   if ($('#system_info_button').hasClass('active')) {
     //if the system info mode is active, reload it to show the new data
-    load_system_info();
+    view_system_info();
   }
 });
 
@@ -41,7 +41,7 @@ function successConnecting(device) {
   $("#" + device + "-connection-status").html(" connected");
   $("." + device + "-connection").addClass("active");
   connectButtonConnected(); //Update the connect button
-  load_system_info();
+  view_system_info();
 };
 function failureConnecting(device) {
   console.log("Error or disconnection from " + device);
@@ -78,17 +78,6 @@ function connection_error_message(device_name) {
   //mui.overlay('off');
 };
 
-var checkbox = $('#zipfile-log-option');
-
-//Right now this is set up to toggle my checkboxes
-connect_button.on('click', function () {
-  if (checkbox.prop('checked') === true) {
-    checkbox.prop('checked', false);
-  } else {
-    checkbox.prop('checked', true);
-  }
-});
-
 //OVERLAYS
 var overlay_options = {
   'keyboard': true, // teardown when <esc> key is pressed (default: true)
@@ -124,6 +113,16 @@ function getDirectory(input_element) {
   });
 };
 
+$(document).ready(function load_templates() {
+  //Renders all templates on initialization and drops them into their divs
+  $('#system-view').html(system_info_template(solo.versions));
+  $('#logs-view').html(logs_template());
+  $('#settings-view').html(settings_template());
+
+  //switches the view to system info page on first run
+  view_system_info();
+});
+
 //SIDEBAR
 //Toggle the active class on sidebar items
 var remove_all_active_sidebar = function remove_all_active_sidebar() {
@@ -139,13 +138,16 @@ var remove_all_active_sidebar = function remove_all_active_sidebar() {
 
 var system_info_button = $('#system_info_button');
 system_info_button.click(function () {
-  load_system_info();
+  view_system_info();
 });
-function load_system_info() {
+function view_system_info() {
   //If the info page is active, render the menu with the latest versions from the solo object
-  console.log('load_system_info()');
+  console.log('view_system_info()');
   var html = system_info_template(solo.versions);
-  $('#template-container').html(html);
+  $("#logs-view").hide();
+  $('#settings-view').hide();
+  $('#system-view').html(html);
+  $('#system-view').show();
   remove_all_active_sidebar();
   system_info_button.addClass('active');
   $('#system_info_button > p').addClass('active');
@@ -157,7 +159,10 @@ log_collection_button.click(function () {
 });
 function load_log_collection() {
   console.log("load_log_collection()");
-  $('#template-container').html(logs_template());
+  //Hide other views and show this one
+  $('#system-view').hide();
+  $('#settings-view').hide();
+  $("#logs-view").show();
   remove_all_active_sidebar();
   log_collection_button.addClass('active');
   $('#log_collection_button > p').addClass('active');
@@ -169,7 +174,9 @@ system_settings_button.click(function () {
 });
 function load_settings() {
   console.log("load_settings()");
-  $('#template-container').html(settings_template());
+  $('#system-view').hide();
+  $("#logs-view").hide();
+  $('#settings-view').show();
   remove_all_active_sidebar();
   system_settings_button.addClass('active');
   $('#system_settings_button > p').addClass('active');
@@ -201,10 +208,4 @@ jQuery(function ($) {
 
   $('.js-show-sidedrawer').on('click', showSidedrawer);
   $('.js-hide-sidedrawer').on('click', hideSidedrawer);
-});
-
-$(document).ready(function () {
-  //Load the system info page on Load
-  load_system_info();
-  //Compile our templates
 });

@@ -7,14 +7,26 @@
   color: $text-light;
 }
 
-.mui-btn {
+.btn-primary {
   color: $primary-color-dark;
+  background-color: $hover-overlay;
 }
+
+.btn-primary:hover {
+  color: $primary-color-dark;
+  background-color: $hover-overlay;
+}
+
+.btn-secondary {
+  color: $primary-color-dark;
+  background-color: $white;
+}
+.btn-secondary:hover {
+  background-color: $hover-overlay;
+}
+
 
 
 #open-file-button {
   color: $primary-color-dark;
-}
-#open-file-button:hover{
-  background-color: $white;
 }
