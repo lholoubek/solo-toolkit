@@ -88,6 +88,7 @@ var Device = function (_EventEmitter) {
       console.log("Connection to Solo closed");
       disconnectCallback('solo');
     });
+
     return _this;
   }
 
@@ -132,8 +133,9 @@ var Device = function (_EventEmitter) {
           }
         });
         file.on('end', function () {
-          controllerVersion = data.split('\n')[0].trim();
+          var controllerVersion = data.split('\n')[0].trim();
           console.log("pulled controller version: " + controllerVersion);
+          console.log(self);
           self.versions.controller_version = controllerVersion;
           self.emit('updated_versions');
         });

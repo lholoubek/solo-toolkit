@@ -1,8 +1,141 @@
 'use strict';
 
-$('#collect-logs-button').on('click', function () {
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var events = require('events').EventEmitter;
+var fs = require('fs');
+var process = require('process');
+var async = require('async');
+
+var LogPuller = function (_EventEmitter) {
+  _inherits(LogPuller, _EventEmitter);
+
+  function LogPuller(options, progressCallback) {
+    _classCallCheck(this, LogPuller);
+
+    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(LogPuller).call(this));
+
+    console.log("Created new logpuller");
+    _this.isCancelled = false;
+    _this.options = {};
+    var lp = _this;
+    return _this;
+  }
+
+  _createClass(LogPuller, [{
+    key: 'set_log_options',
+    value: function set_log_options(options) {
+      this.options = options;
+    }
+  }, {
+    key: 'start_log_pull',
+    value: function start_log_pull() {
+      //This method does a few things:
+      // - Emits event to notify UI that log pulling has started
+      // - Calls pull_logs for Solo and/or controller, depending on selected option
+
+      console.log("Collecting logs!");
+      console.log("Options in start_log_pull() - " + this.options);
+      console.log('emitting start-pull');
+      this.emit('start-pull'); //notify UI that the log pull has started
+
+      if (lp.options.controller_logs && !lp.isCancelled) {
+        //if the user wants controller logs, call pull_logs() with controller connection
+        console.log("Calling pull_logs() for controller");
+        lp.pull_logs(solo.controller_connection);
+      }
+
+      if (lp.options.solo_logs && !lp.isCancelled) {
+        //if the user wants Solo logs, call pull_logs() with solo connection
+        console.log("Calling pull_logs() for Solo");
+        lp.pull_logs(solo.solo_connection);
+      }
+    }
+  }, {
+    key: 'pull_logs',
+    value: function pull_logs(connection) {
+      //Takes an sftp connection and pulls logs for that device
+      connection.sftp(function (err, sftp) {
+        console.log("Trying to connect to pull logs");
+        if (err) {
+          lp.cancel();
+          throw err;
+        }
+        sftp.readdir('/log', function (err, list) {
+          if (err) throw err;
+
+          //TODO:
+          //Take list and filter using helper function below based on user's selected options
+          //use async.whilst() to rip through the list and download all files, while checking to make sure job hasn't been cancelled
+        });
+
+        //TEST CODE TO PULL A FILE
+        // sftp.fastGet("/VERSION",process.env.HOME + "/Desktop/VERSION", (err)=>{
+        //   if (err) {
+        //     throw err;
+        //     console.log("Something blew up transferring files");
+        //   }
+        // })
+      });
+    }
+  }, {
+    key: 'cancel',
+    value: function cancel() {
+      //Cancels any current logpull operation
+      console.log("LogPuller.cancel()");
+      this.emit('cancelled');
+      this.isCancelled = true;
+    }
+  }, {
+    key: 'filter_log_list',
+    value: function filter_log_list(item) {
+      //Helper method that takes a list of all files in the /log dir on Solo or Artoo and returns array of filenames based on user selected options
+
+    }
+  }]);
+
+  return LogPuller;
+}(EventEmitter);
+
+;
+
+var logPuller = new LogPuller(updateLogsProgress);
+
+logPuller.on('start-pull', function () {
+  //Listen for 'start-pull' even from LogPuller and swap button
+  //When the log puller work begins, swap the button to cancel and attach an event handler
+  console.log("received start-pull");
+  //$('#collect-logs-button').html('Cancel');
+  $('#collect-logs-button').unbind('click');
+  $('#collect-logs-button').html("cancel");
+  $('#collect-logs-button').bind('click', function () {
+    logPuller.cancel();
+  });
+});
+
+logPuller.on('cancelled', function () {
+  $('#collect-logs-button').unbind('click');
+  $('#collect-logs-button').html('Collect logs');
+  $('#collect-logs-button').on('click', start_log_pull);
+});
+
+//Begin log pulling when the button is clicked
+$('#collect-logs-button').on('click', start_log_pull);
+function start_log_pull() {
   //First get the settings to determine what logs we need to get from where
   var logs_options = build_logs_options();
+
+  //DEBUGGING only - DELETE THIS WHEN NOT DEBUGGING
+  //solo.soloConnected = true;
+  //_____________________
+
+  //Check to see if we have SSH connections to use for pulling logs
   var haveConnections = checkConnections(logs_options);
   if (!haveConnections) {
     if (!logs_options.solo_logs && !logs_options.controller_logs) {
@@ -10,12 +143,15 @@ $('#collect-logs-button').on('click', function () {
     } else {
       display_overlay("Check connections", "You're not connected to the device to pull logs from.");
     }
-    return;
   } else {
-    console.log("We'd pull logs here!");
+    logPuller.set_log_options(logs_options);
+    process.nextTick(function () {
+      logPuller.start_log_pull(); //Should pull from devices specified in
+    });
+
     return;
   }
-});
+};
 
 //Set up our output path directory chooser
 $('#open-file-button').on('click', function () {

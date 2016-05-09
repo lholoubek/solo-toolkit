@@ -19,10 +19,10 @@ connect_button.on('click', connectButtonClicked);
 
 function connectButtonClicked(){
   console.log("clicked " + connect_button.html() + " button!");
-  if (solo.controllerConnected === false && solo.soloConnected === false){
+  if (!solo.controllerConnected && !solo.soloConnected){
     console.log("Solo connected: " + solo.soloConnected + " Controller connected: " + solo.controllerConnected);
     solo.connect_to_controller();
-    solo.connect_to_solo();
+    //If controller connects successfully, connection to Solo is attempted.
     connectButtonDisabled();
     connect_button.prop("disabled", true);
     $("#connect-progress-bar").show();
@@ -37,20 +37,27 @@ function successConnecting(device){
   $("#" + device + "-connection-status").html(" connected");
   $("." + device + "-connection").addClass("active");
   connectButtonConnected(); //Update the connect button
-  view_system_info();
+  if (device === "controller"){
+    //We're connected to controller successfully, so connect to Solo
+    solo.connect_to_solo();
+  };
 };
 function failureConnecting(device){
   console.log("Error or disconnection from " + device);
   $("#" + device + "-connection-status").html(" disconnected");
   $("." + device + "-connection").removeClass("active");
   connection_error_message(device);
-  connectButtonEnabled();
+  if (device === "controller"){
+    connectButtonEnabled();
+  }
 };
 function successDisconnecting(device){
   console.log("Successfully disconnected from " + device);
   $("#" + device + "-connection-status").html(" disconnected");
   $("." + device + "-connection").removeClass("active");
-  connectButtonEnabled();
+  if (device === "controller"){ //If we're not connected to controller, good chance we're not going to be connected to Solo
+    connectButtonEnabled();
+  }
 }
 
 function connectButtonDisabled(){
@@ -70,7 +77,11 @@ function connectButtonConnected(){
 }
 
 function connection_error_message(device_name){
-  display_overlay("This is a test heading", "This is test body text for the modal.");
+  if (device_name === "controller") {
+      display_overlay("Could not connect to controller", "No connection to controller available. Check your wifi connection.");
+    } else {
+      display_overlay("Could not connect to Solo", "No connection to Solo is available. Try power cycling Solo.");
+    }
   //mui.overlay('off');
 };
 
