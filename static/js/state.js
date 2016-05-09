@@ -4,7 +4,8 @@ const EventEmitter = require('events');
 class Device extends EventEmitter{
   constructor(successConnectCallback, disconnectCallback, failureConnectCallback){
     super();
-    self = this;
+    var self = this;
+    //self = this;
     this.controllerConnected = false;
     this.soloConnected = false;
     this.versions = {
@@ -24,7 +25,8 @@ class Device extends EventEmitter{
         username: 'root',
         password: 'TjSDBkAu',
         readyTimeout: 2000
-      }
+    }
+
     this.controller_connection.on('ready', function(er) {
         if(er){
           console.log("Connection ready but error with controller");
@@ -38,7 +40,7 @@ class Device extends EventEmitter{
     this.controller_connection.on('error', function(er){
         console.log("Error connecting to controller");
         console.log(er);
-        this.end(); //end the connection if we have an error
+        self.controller_connection.end(); //end the connection if we have an error
         failureConnectCallback("controller");
     });
     this.controller_connection.on('close', function(){
@@ -52,7 +54,8 @@ class Device extends EventEmitter{
         username: 'root',
         password: 'TjSDBkAu',
         readyTimeout: 2000
-      }
+    }
+
     this.solo_connection.on('ready', function(er) {
         if(er){
           console.log("Error connecting to solo");
@@ -66,39 +69,40 @@ class Device extends EventEmitter{
     this.solo_connection.on('error', function(er){
         console.log("Error connecting to solo");
         console.log(er);
-        this.end();
         failureConnectCallback("solo");
+        self.solo_connection.end();
     });
+
     this.solo_connection.on('close', function(){
         console.log("Connection to Solo closed");
         disconnectCallback('solo');
     });
-
   }
 
   connect_to_controller() {
     console.log("connect_to_controller called");
     this.controller_connection.connect(this.controller_connection_params);
-  }
+  };
   connect_to_solo(){
     console.log("Connect to solo called");
     this.solo_connection.connect(this.solo_connection_params);
-  }
+  };
   disconnect(){
     console.log("disconnect()");
-    if (self.controllerConnected === true){
-      self.controller_connection.end();
-      self.controllerConnected = false;
+    if (this.controllerConnected === true){
+      this.controller_connection.end();
+      this.controllerConnected = false;
     }
-    if (self.soloConnected === true) {
-      self.solo_connection.end();
-      self.soloConnected = false;
+    if (this.soloConnected === true) {
+      this.solo_connection.end();
+      this.soloConnected = false;
     }
   }
 
   get_controller_version(){
     console.log("get_controller_version()");
     var controllerVersion = '';
+    var self = this;
     this.controller_connection.sftp(function(err, sftp) {
       if (err) throw err;
       var file = sftp.createReadStream('/VERSION');
@@ -112,7 +116,7 @@ class Device extends EventEmitter{
       file.on('end', function() {
         var controllerVersion = data.split('\n')[0].trim();
         console.log("pulled controller version: " + controllerVersion);
-        console.log(self);
+        console.log(this);
         self.versions.controller_version = controllerVersion;
         self.emit('updated_versions');
       });
@@ -121,6 +125,7 @@ class Device extends EventEmitter{
 
   get_solo_version(){
     console.log("get_solo_version()");
+    var self = this;
     var solo_version = '';
     var pixhawk_version = '';
     var gimbal_version = '';

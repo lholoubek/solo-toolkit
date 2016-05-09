@@ -19,7 +19,8 @@ var Device = function (_EventEmitter) {
 
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Device).call(this));
 
-    self = _this;
+    var self = _this;
+    //self = this;
     _this.controllerConnected = false;
     _this.soloConnected = false;
     _this.versions = {
@@ -40,6 +41,7 @@ var Device = function (_EventEmitter) {
       password: 'TjSDBkAu',
       readyTimeout: 2000
     };
+
     _this.controller_connection.on('ready', function (er) {
       if (er) {
         console.log("Connection ready but error with controller");
@@ -53,7 +55,7 @@ var Device = function (_EventEmitter) {
     _this.controller_connection.on('error', function (er) {
       console.log("Error connecting to controller");
       console.log(er);
-      this.end(); //end the connection if we have an error
+      self.controller_connection.end(); //end the connection if we have an error
       failureConnectCallback("controller");
     });
     _this.controller_connection.on('close', function () {
@@ -68,6 +70,7 @@ var Device = function (_EventEmitter) {
       password: 'TjSDBkAu',
       readyTimeout: 2000
     };
+
     _this.solo_connection.on('ready', function (er) {
       if (er) {
         console.log("Error connecting to solo");
@@ -81,14 +84,14 @@ var Device = function (_EventEmitter) {
     _this.solo_connection.on('error', function (er) {
       console.log("Error connecting to solo");
       console.log(er);
-      this.end();
       failureConnectCallback("solo");
+      self.solo_connection.end();
     });
+
     _this.solo_connection.on('close', function () {
       console.log("Connection to Solo closed");
       disconnectCallback('solo');
     });
-
     return _this;
   }
 
@@ -108,13 +111,13 @@ var Device = function (_EventEmitter) {
     key: 'disconnect',
     value: function disconnect() {
       console.log("disconnect()");
-      if (self.controllerConnected === true) {
-        self.controller_connection.end();
-        self.controllerConnected = false;
+      if (this.controllerConnected === true) {
+        this.controller_connection.end();
+        this.controllerConnected = false;
       }
-      if (self.soloConnected === true) {
-        self.solo_connection.end();
-        self.soloConnected = false;
+      if (this.soloConnected === true) {
+        this.solo_connection.end();
+        this.soloConnected = false;
       }
     }
   }, {
@@ -122,6 +125,7 @@ var Device = function (_EventEmitter) {
     value: function get_controller_version() {
       console.log("get_controller_version()");
       var controllerVersion = '';
+      var self = this;
       this.controller_connection.sftp(function (err, sftp) {
         if (err) throw err;
         var file = sftp.createReadStream('/VERSION');
@@ -135,7 +139,7 @@ var Device = function (_EventEmitter) {
         file.on('end', function () {
           var controllerVersion = data.split('\n')[0].trim();
           console.log("pulled controller version: " + controllerVersion);
-          console.log(self);
+          console.log(this);
           self.versions.controller_version = controllerVersion;
           self.emit('updated_versions');
         });
@@ -145,6 +149,7 @@ var Device = function (_EventEmitter) {
     key: 'get_solo_version',
     value: function get_solo_version() {
       console.log("get_solo_version()");
+      var self = this;
       var solo_version = '';
       var pixhawk_version = '';
       var gimbal_version = '';

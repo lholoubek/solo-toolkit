@@ -309,6 +309,19 @@ input[type=checkbox]:checked ~ label .check {
 .settings-cell.settings-description {
   width: 100%; }
 
+.modal-heading {
+  padding-top: 15px;
+  text-align: center;
+  color: #616161;
+  margin-left: 10px; }
+
+.modal-body {
+  padding-left: 10px;
+  color: #616161; }
+
+#modal-button {
+  margin-left: 80%; }
+
 h1 {
   font-family: "Helvetica Neue";
   color: #616161; }

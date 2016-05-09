@@ -7,10 +7,11 @@ const _ = require('underscore');
 class LogPuller extends EventEmitter{
   constructor(options, progressCallback) {
     super();
+    let self = this;
     console.log("Created new logpuller");
     this.isCancelled = false;
     this.options = {};
-    var lp = this;
+
   }
   set_log_options(options){
     this.options = options;
@@ -23,16 +24,17 @@ class LogPuller extends EventEmitter{
     console.log("Collecting logs!");
     console.log("Options in start_log_pull() - " + this.options);
     console.log('emitting start-pull');
-    this.emit('start-pull');  //notify UI that the log pull has started
+    //this.emit('start-pull');  //notify UI that the log pull has started
+    self.emit('start-pull');  //notify UI that the log pull has started
 
-    if (lp.options.controller_logs && !lp.isCancelled){ //if the user wants controller logs, call pull_logs() with controller connection
+    if (self.options.controller_logs && !lp.isCancelled){ //if the user wants controller logs, call pull_logs() with controller connection
       console.log("Calling pull_logs() for controller");
-      lp.pull_logs(solo.controller_connection);
+      self.pull_logs(solo.controller_connection);
     }
 
-    if (lp.options.solo_logs && !lp.isCancelled){ //if the user wants Solo logs, call pull_logs() with solo connection
+    if (self.options.solo_logs && !self.isCancelled){ //if the user wants Solo logs, call pull_logs() with solo connection
       console.log("Calling pull_logs() for solo");
-      lp.pull_logs(solo.solo_connection);
+      self.pull_logs(solo.solo_connection);
     }
   };
 
@@ -41,26 +43,28 @@ class LogPuller extends EventEmitter{
     connection.sftp(function(err, sftp){
       console.log("Trying to connect to pull logs");
       if (err) {
-        lp.cancel();
+        self.cancel();
         throw err;
       }
       sftp.readdir('/log', (err, list)=>{
         if (err) {
-          lp.cancel();
+          self.cancel();
           throw err;
         }
 
         console.log("Pre filtered list: " + list.toString());
-        var filtered_list = _.filter(list, lp.file_list_filter);
+        var filtered_list = _.filter(list, self.file_list_filter);
+        console.log("Filtered list: " + filtered_list.toString());
         var count = 0;
         var length = filtered_list.length;
+        console.log("Number of files to collect: " + length);
 
         async.whilst(
-          count < length && !lp.isCancelled, //if we haven't pulled all the files yet and
+          count < length && !self.isCancelled, //if we haven't pulled all the files yet and
           function(callback){
             count++;
             //Pull the next file from the filter_list and sftp it over
-            sftp.fastGet("/log/" + filtered_list[count].filename, process.env.HOME + lp.options.output_path, (err)=>{
+            sftp.fastGet("/log/" + filtered_list[count].filename, process.env.HOME + self.options.output_path, (err)=>{
               if (err) {
                 console.log("Something blew up transferring files");
                 callback(err);
@@ -71,7 +75,7 @@ class LogPuller extends EventEmitter{
           },
           function(){
             console.log("logpull complete");
-            lp.cancel();
+            self.cancel();
         });
       });
     });
@@ -94,10 +98,10 @@ class LogPuller extends EventEmitter{
 
     if (name.includes('.')){
       //We have a filename.
-      if (lp.collect_all_logs){
+      if (self.collect_all_logs){
         return true;
       } else {
-        var max_lognum = lp.options.num_logs;
+        var max_lognum = self.options.num_logs;
         //TODO - IMPLEMENT PARSER TO EXTRACT LOGNAMES AND RETURN ONLY IF < max_lognum
         return true;
       }

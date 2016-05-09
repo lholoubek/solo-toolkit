@@ -12,6 +12,7 @@ var events = require('events').EventEmitter;
 var fs = require('fs');
 var process = require('process');
 var async = require('async');
+var _ = require('underscore');
 
 var LogPuller = function (_EventEmitter) {
   _inherits(LogPuller, _EventEmitter);
@@ -21,10 +22,11 @@ var LogPuller = function (_EventEmitter) {
 
     var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(LogPuller).call(this));
 
+    var self = _this;
     console.log("Created new logpuller");
     _this.isCancelled = false;
     _this.options = {};
-    var lp = _this;
+
     return _this;
   }
 
@@ -43,18 +45,19 @@ var LogPuller = function (_EventEmitter) {
       console.log("Collecting logs!");
       console.log("Options in start_log_pull() - " + this.options);
       console.log('emitting start-pull');
-      this.emit('start-pull'); //notify UI that the log pull has started
+      //this.emit('start-pull');  //notify UI that the log pull has started
+      self.emit('start-pull'); //notify UI that the log pull has started
 
-      if (lp.options.controller_logs && !lp.isCancelled) {
+      if (self.options.controller_logs && !lp.isCancelled) {
         //if the user wants controller logs, call pull_logs() with controller connection
         console.log("Calling pull_logs() for controller");
-        lp.pull_logs(solo.controller_connection);
+        self.pull_logs(solo.controller_connection);
       }
 
-      if (lp.options.solo_logs && !lp.isCancelled) {
+      if (self.options.solo_logs && !self.isCancelled) {
         //if the user wants Solo logs, call pull_logs() with solo connection
-        console.log("Calling pull_logs() for Solo");
-        lp.pull_logs(solo.solo_connection);
+        console.log("Calling pull_logs() for solo");
+        self.pull_logs(solo.solo_connection);
       }
     }
   }, {
@@ -64,24 +67,39 @@ var LogPuller = function (_EventEmitter) {
       connection.sftp(function (err, sftp) {
         console.log("Trying to connect to pull logs");
         if (err) {
-          lp.cancel();
+          self.cancel();
           throw err;
         }
         sftp.readdir('/log', function (err, list) {
-          if (err) throw err;
+          if (err) {
+            self.cancel();
+            throw err;
+          }
 
-          //TODO:
-          //Take list and filter using helper function below based on user's selected options
-          //use async.whilst() to rip through the list and download all files, while checking to make sure job hasn't been cancelled
+          console.log("Pre filtered list: " + list.toString());
+          var filtered_list = _.filter(list, self.file_list_filter);
+          console.log("Filtered list: " + filtered_list.toString());
+          var count = 0;
+          var length = filtered_list.length;
+          console.log("Number of files to collect: " + length);
+
+          async.whilst(count < length && !self.isCancelled, //if we haven't pulled all the files yet and
+          function (callback) {
+            count++;
+            //Pull the next file from the filter_list and sftp it over
+            sftp.fastGet("/log/" + filtered_list[count].filename, process.env.HOME + self.options.output_path, function (err) {
+              if (err) {
+                console.log("Something blew up transferring files");
+                callback(err);
+              } else {
+                updateLogsProgress(int(count / length)); //update the progress bar on the way through
+              }
+            });
+          }, function () {
+            console.log("logpull complete");
+            self.cancel();
+          });
         });
-
-        //TEST CODE TO PULL A FILE
-        // sftp.fastGet("/VERSION",process.env.HOME + "/Desktop/VERSION", (err)=>{
-        //   if (err) {
-        //     throw err;
-        //     console.log("Something blew up transferring files");
-        //   }
-        // })
       });
     }
   }, {
@@ -89,14 +107,32 @@ var LogPuller = function (_EventEmitter) {
     value: function cancel() {
       //Cancels any current logpull operation
       console.log("LogPuller.cancel()");
+      updateLogsProgress(0);
       this.emit('cancelled');
       this.isCancelled = true;
     }
   }, {
-    key: 'filter_log_list',
-    value: function filter_log_list(item) {
+    key: 'file_list_filter',
+    value: function file_list_filter(filename) {
       //Helper method that takes a list of all files in the /log dir on Solo or Artoo and returns array of filenames based on user selected options
+      //General algo here -
+      // If it's a directory (which we know if '.' is not in the filename), return false.
+      // If we want all logs, return anything with a number in it
+      // If we don't want all logs, parse out the int at the end of the file and
+      var name = filename.filename;
 
+      if (name.includes('.')) {
+        //We have a filename.
+        if (self.collect_all_logs) {
+          return true;
+        } else {
+          var max_lognum = self.options.num_logs;
+          //TODO - IMPLEMENT PARSER TO EXTRACT LOGNAMES AND RETURN ONLY IF < max_lognum
+          return true;
+        }
+      } else {
+        return false;
+      }
     }
   }]);
 

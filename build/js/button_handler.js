@@ -100,11 +100,15 @@ var overlay_options = {
 function display_overlay(heading, body) {
   var modal_dialog = document.createElement('div');
   modal_dialog.style.width = '400px';
-  modal_dialog.style.height = '300px';
+  modal_dialog.style.height = 'fit-content';
   modal_dialog.style.margin = '100px auto';
   modal_dialog.style.backgroundColor = '#fff';
   modal_dialog.innerHTML = modal_template({ modal_heading: heading, modal_body: body });
   mui.overlay('on', modal_dialog);
+  $("#modal-button").on("click", function () {
+    console.log("close dialog button clicked");
+    mui.overlay('off', modal_dialog);
+  });
 };
 
 //FILE DIALOGS
