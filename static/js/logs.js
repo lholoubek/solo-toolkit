@@ -7,7 +7,7 @@ const _ = require('underscore');
 class LogPuller extends EventEmitter{
   constructor(options, progressCallback) {
     super();
-    let self = this;
+    //var self = this;
     console.log("Created new logpuller");
     this.isCancelled = false;
     this.options = {};
@@ -20,26 +20,43 @@ class LogPuller extends EventEmitter{
     //This method does a few things:
     // - Emits event to notify UI that log pulling has started
     // - Calls pull_logs for Solo and/or controller, depending on selected option
+    var self = this;
+
+    console.log("start_log_pull");
 
     console.log("Collecting logs!");
-    console.log("Options in start_log_pull() - " + this.options);
     console.log('emitting start-pull');
-    //this.emit('start-pull');  //notify UI that the log pull has started
-    self.emit('start-pull');  //notify UI that the log pull has started
+    this.create_log_folder();
+    this.emit('start-pull');  //notify UI that the log pull has started
 
-    if (self.options.controller_logs && !lp.isCancelled){ //if the user wants controller logs, call pull_logs() with controller connection
+    if (this.options.controller_logs && !this.isCancelled){ //if the user wants controller logs, call pull_logs() with controller connection
       console.log("Calling pull_logs() for controller");
-      self.pull_logs(solo.controller_connection);
+      var controller_log_folder_path = this.options.log_folder_name + "/controller";
+      fs.mkdir(controller_log_folder_path, (err)=>{
+        if(!err){
+          this.pull_logs(solo.controller_connection, controller_log_folder_path);
+        } else {
+          console.log("error creating folder to store logs");
+          console.log(err);
+        }
+      });
     }
 
-    if (self.options.solo_logs && !self.isCancelled){ //if the user wants Solo logs, call pull_logs() with solo connection
+    if (this.options.solo_logs && !this.isCancelled){ //if the user wants Solo logs, call pull_logs() with solo connection
       console.log("Calling pull_logs() for solo");
-      self.pull_logs(solo.solo_connection);
+      var solo_log_folder_path = this.options.log_folder_name + "/solo";
+      fs.mkdir(this.options.log_folder_name + "/solo", ()=>{
+        this.pull_logs(solo.solo_connection, solo_log_folder_path);
+      });
     }
   };
 
-  pull_logs(connection){
-    //Takes an sftp connection and pulls logs for that device
+  pull_logs(connection, log_folder_path){
+    //params: ssh connection object, path
+    //using passed connection, sets up sftp connection
+    //pulls log files into correct path
+    var self = this;
+
     connection.sftp(function(err, sftp){
       console.log("Trying to connect to pull logs");
       if (err) {
@@ -52,34 +69,60 @@ class LogPuller extends EventEmitter{
           throw err;
         }
 
-        console.log("Pre filtered list: " + list.toString());
-        var filtered_list = _.filter(list, self.file_list_filter);
-        console.log("Filtered list: " + filtered_list.toString());
+        var filtered_list = _.filter(list, self.file_list_filter, self);  //need to pass self as context here because file_list_filter accesses options
+        var file_list = _.map(filtered_list, (val)=>{return val.filename}, self);
         var count = 0;
-        var length = filtered_list.length;
+        var length = file_list.length;
+
+        //DEBUGGING
+        console.log("Filtered list: " + file_list.toString());
         console.log("Number of files to collect: " + length);
+        console.log("Dropping files here: " + log_folder_path);
+        //
 
         async.whilst(
-          count < length && !self.isCancelled, //if we haven't pulled all the files yet and
+          ()=>{
+            if (count < length && !self.isCancelled) {  //if we haven't pulled all the files and the job hasn't been cancelled
+              console.log("continuing in the whilst loop...");
+              return true;
+            } else {
+              console.log("breaking whilst loop...");
+              return false;
+            }
+          },
           function(callback){
             count++;
-            //Pull the next file from the filter_list and sftp it over
-            sftp.fastGet("/log/" + filtered_list[count].filename, process.env.HOME + self.options.output_path, (err)=>{
+            console.log("Count: " + count);
+            var filename = file_list[count];
+            console.log("Pulling: " + filename);
+            //Pull the next file from filter_list and sftp it over
+            sftp.fastGet("/log/" + filename, log_folder_path + "/" + filename, {concurrency:1},function(err){
               if (err) {
                 console.log("Something blew up transferring files");
+                console.log(err);
                 callback(err);
               } else{
-                updateLogsProgress(int(count/length)); //update the progress bar on the way through
+                var progress = Math.round(count/length*100);
+                console.log("Progress: " + progress);
+                updateLogsProgress(progress); //update the progress bar on the way through
+                callback(null);
               }
             });
           },
-          function(){
-            console.log("logpull complete");
+          function(err){
+            if (err){
+              console.log("Logpull complete (final callback called) but with error: ");
+              console.log(err);
+            } else {
+                console.log("logpull completed successfully!");
+            }
             self.cancel();
         });
-      });
     });
-  }
+  });
+};
+
+
   cancel(){
     //Cancels any current logpull operation
     console.log("LogPuller.cancel()");
@@ -95,27 +138,40 @@ class LogPuller extends EventEmitter{
     // If we want all logs, return anything with a number in it
     // If we don't want all logs, parse out the int at the end of the file and
     var name = filename.filename;
-
     if (name.includes('.')){
       //We have a filename.
-      if (self.collect_all_logs){
+      if (this.options.collect_all_logs){
         return true;
       } else {
-        var max_lognum = self.options.num_logs;
+        var max_lognum = this.options.num_logs;
         //TODO - IMPLEMENT PARSER TO EXTRACT LOGNAMES AND RETURN ONLY IF < max_lognum
         return true;
       }
     } else {
       return false;
     }
-  }
+  };
+
+  create_log_folder(){
+    //Creates a log folder on the local OS for the log files
+    console.log("create_log_folder() called - trying to create a folder for the logs");
+    console.log("folder name: " + this.options.log_folder_name);
+    fs.mkdir(this.options.log_folder_name, (e)=>{
+      if(e){
+        console.log(e);
+      } else {
+        return //yeah, yeah, I know I'm blocking on this
+      };
+    });
+  };
+  //end of class
 };
 
 var logPuller = new LogPuller(updateLogsProgress);
 
 logPuller.on('start-pull', ()=>{
-  //Listen for 'start-pull' even from LogPuller and swap button
-  //When the log puller work begins, swap the button to cancel and attach an event handler
+  //Listen for 'start-pull' event from LogPuller and swap button
+  //When the log puller work begins, swap the button to cancel and attach an event handler for cancellation
   console.log("received start-pull");
   //$('#collect-logs-button').html('Cancel');
   $('#collect-logs-button').unbind('click');
@@ -172,6 +228,7 @@ function build_logs_options(){
   //Creates logs_options object, parses the DOM, and fills out corresponding fields in the object, then returns it
   var logs_options = {
     output_path:"",
+    log_folder_name: "",
     solo_logs:false,
     controller_logs:false,
     collect_all_logs:false,
@@ -179,10 +236,11 @@ function build_logs_options(){
     create_zip:false,
     flight_notes:""
   };
+
   //Get the output path
   var path = $('#location-chooser-text').val();
   //TODO - Make this work across systems and pull a default path from a user default
-  path.length < 1 ? logs_options.output_path = "~/Desktop" : logs_options.output_path = path
+  path.length < 1 ? logs_options.output_path = process.env.HOME + "/Desktop" : logs_options.output_path = path;
 
   //Check if the user wants to collect Solo logs
   if ($('#solo-logs-option').prop('checked')){
@@ -204,11 +262,17 @@ function build_logs_options(){
   var notes = $('#flight-notes').val();
   logs_options.flight_notes = notes;
 
+  //Create the name for the log folder using today's date
+  var date = new Date();
+  logs_options.log_folder_name =logs_options.output_path +"/" + date.getFullYear() + "_" + (date.getMonth() + 1).toString() + "_" + date.getDate() + "_logs";
+
   return logs_options;
 }
 
 function checkConnections(options){
-  //Takes a log options and confirms we have a connection to the devices necessary to pull logs
+  //Takes a log options object and confirms we have a connection to the devices necessary to pull logs
+  //Input: object (log options)
+  //Returns: bool
   //If no device selected or no connection, displays error to user
   if (options.solo_logs && options.controller_logs) {
     //we want logs from both
@@ -226,6 +290,7 @@ function checkConnections(options){
 
 function updateLogsProgress(newVal){
   //Updates progress bar to reflect newVal
+  console.log("updating progress bar. New val: " + newVal);
   var logs_progress_bar = $('#logs-progress-bar');
   newVal > 100 ? logs_progress_bar.width(100) : logs_progress_bar.width(newVal);
 }

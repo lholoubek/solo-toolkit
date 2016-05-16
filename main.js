@@ -6,6 +6,7 @@ const BrowserWindow = electron.BrowserWindow;  // Module to create native browse
 const dialog = electron.dialog;
 var client = require('electron-connect').client;
 const ipcMain = require('electron').ipcMain;
+//const remote = electron.remote;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -17,7 +18,7 @@ app.on('window-all-closed', function() {
   // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform != 'darwin') {
     app.quit();
-  }
+  };
 });
 
 //print out that we've received the reboot command

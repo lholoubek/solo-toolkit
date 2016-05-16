@@ -1,3 +1,4 @@
+console.log("Running state.js");
 var Client = require('ssh2').Client;
 const EventEmitter = require('events');
 

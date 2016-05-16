@@ -1,7 +1,8 @@
 'use strict';
 
-var remote = require('remote');
-var dialog = remote.require('dialog');
+console.log("running button_handler.js");
+
+//NOTE - REMOVED THESE BECAUSE "remote" was blowing up after updating to electorn 1.0.1 and node 6.1.
 
 var ipcRenderer = require('electron').ipcRenderer;
 
