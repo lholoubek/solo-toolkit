@@ -30,6 +30,10 @@
   font-size: 4.5em;
   padding-top: 3%; }
 
+.sidebar-icon {
+  display: inline;
+  color: #9E9E9E; }
+
 #connect-button {
   color: #1976D2; }
 
@@ -409,7 +413,6 @@ html, body {
   bottom: 0;
   width: 200px;
   left: -200px;
-  overflow: auto;
   z-index: 2;
   background-color: #EEEEEE;
   transition: transform 0.2s; }
