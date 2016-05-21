@@ -4,170 +4,13 @@ const process = require('process');
 const async = require('async');
 const _ = require('underscore');
 
-class LogPuller extends EventEmitter{
-  constructor(options, progressCallback) {
-    super();
-    //var self = this;
-    console.log("Created new logpuller");
-    this.isCancelled = false;
-    this.options = {};
+const LogPuller = require('./build/js/LogPuller');
 
-  }
-  set_log_options(options){
-    this.options = options;
-  }
-  start_log_pull(){
-    //This method does a few things:
-    // - Emits event to notify UI that log pulling has started
-    // - Calls pull_logs for Solo and/or controller, depending on selected option
-    var self = this;
+//removed class from here into separate module
+//probably need to set up require() to look in build folder to import LogPuller as a module (instead of calling siwht <script> tag)
 
-    console.log("start_log_pull");
-
-    console.log("Collecting logs!");
-    console.log('emitting start-pull');
-    this.create_log_folder();
-    this.emit('start-pull');  //notify UI that the log pull has started
-
-    if (this.options.controller_logs && !this.isCancelled){ //if the user wants controller logs, call pull_logs() with controller connection
-      console.log("Calling pull_logs() for controller");
-      var controller_log_folder_path = this.options.log_folder_name + "/controller";
-      fs.mkdir(controller_log_folder_path, (err)=>{
-        if(!err){
-          this.pull_logs(solo.controller_connection, controller_log_folder_path);
-        } else {
-          console.log("error creating folder to store logs");
-          console.log(err);
-        }
-      });
-    }
-
-    if (this.options.solo_logs && !this.isCancelled){ //if the user wants Solo logs, call pull_logs() with solo connection
-      console.log("Calling pull_logs() for solo");
-      var solo_log_folder_path = this.options.log_folder_name + "/solo";
-      fs.mkdir(this.options.log_folder_name + "/solo", ()=>{
-        this.pull_logs(solo.solo_connection, solo_log_folder_path);
-      });
-    }
-  };
-
-  pull_logs(connection, log_folder_path){
-    //params: ssh connection object, path
-    //using passed connection, sets up sftp connection
-    //pulls log files into correct path
-    var self = this;
-
-    connection.sftp(function(err, sftp){
-      console.log("Trying to connect to pull logs");
-      if (err) {
-        self.cancel();
-        throw err;
-      }
-      sftp.readdir('/log', (err, list)=>{
-        if (err) {
-          self.cancel();
-          throw err;
-        }
-
-        var filtered_list = _.filter(list, self.file_list_filter, self);  //need to pass self as context here because file_list_filter accesses options
-        var file_list = _.map(filtered_list, (val)=>{return val.filename}, self);
-        var count = 0;
-        var length = file_list.length;
-
-        //DEBUGGING
-        console.log("Filtered list: " + file_list.toString());
-        console.log("Number of files to collect: " + length);
-        console.log("Dropping files here: " + log_folder_path);
-        //
-
-        async.whilst(
-          ()=>{
-            if (count < length && !self.isCancelled) {  //if we haven't pulled all the files and the job hasn't been cancelled
-              console.log("continuing in the whilst loop...");
-              return true;
-            } else {
-              console.log("breaking whilst loop...");
-              return false;
-            }
-          },
-          function(callback){
-            count++;
-            console.log("Count: " + count);
-            var filename = file_list[count];
-            console.log("Pulling: " + filename);
-            //Pull the next file from filter_list and sftp it over
-            sftp.fastGet("/log/" + filename, log_folder_path + "/" + filename, {concurrency:1},function(err){
-              if (err) {
-                console.log("Something blew up transferring files");
-                console.log(err);
-                callback(err);
-              } else{
-                var progress = Math.round(count/length*100);
-                console.log("Progress: " + progress);
-                updateLogsProgress(progress); //update the progress bar on the way through
-                callback(null);
-              }
-            });
-          },
-          function(err){
-            if (err){
-              console.log("Logpull complete (final callback called) but with error: ");
-              console.log(err);
-            } else {
-                console.log("logpull completed successfully!");
-            }
-            self.cancel();
-        });
-    });
-  });
-};
-
-
-  cancel(){
-    //Cancels any current logpull operation
-    console.log("LogPuller.cancel()");
-    updateLogsProgress(0);
-    this.emit('cancelled');
-    this.isCancelled = true;
-  };
-
-  file_list_filter(filename){
-    //Helper method that takes a list of all files in the /log dir on Solo or Artoo and returns array of filenames based on user selected options
-    //General algo here -
-    // If it's a directory (which we know if '.' is not in the filename), return false.
-    // If we want all logs, return anything with a number in it
-    // If we don't want all logs, parse out the int at the end of the file and
-    var name = filename.filename;
-    if (name.includes('.')){
-      //We have a filename.
-      if (this.options.collect_all_logs){
-        return true;
-      } else {
-        var max_lognum = this.options.num_logs;
-        //TODO - IMPLEMENT PARSER TO EXTRACT LOGNAMES AND RETURN ONLY IF < max_lognum
-        return true;
-      }
-    } else {
-      return false;
-    }
-  };
-
-  create_log_folder(){
-    //Creates a log folder on the local OS for the log files
-    console.log("create_log_folder() called - trying to create a folder for the logs");
-    console.log("folder name: " + this.options.log_folder_name);
-    fs.mkdir(this.options.log_folder_name, (e)=>{
-      if(e){
-        console.log(e);
-      } else {
-        return //yeah, yeah, I know I'm blocking on this
-      };
-    });
-  };
-  //end of class
-};
-
-var logPuller = new LogPuller(updateLogsProgress);
+var logPuller = new LogPuller();
+logPuller.set_progress_callback(updateLogsProgress); //pass this the update callback
 
 logPuller.on('start-pull', ()=>{
   //Listen for 'start-pull' event from LogPuller and swap button
@@ -185,6 +28,7 @@ logPuller.on('cancelled', ()=>{
   $('#collect-logs-button').unbind('click');
   $('#collect-logs-button').html('Collect logs');
   $('#collect-logs-button').on('click', start_log_pull);
+  console.log("cancelled event concluded");
 });
 
 //Begin log pulling when the button is clicked
@@ -193,9 +37,8 @@ function start_log_pull(){
   //First get the settings to determine what logs we need to get from where
   var logs_options = build_logs_options();
 
-  //DEBUGGING only - DELETE THIS WHEN NOT DEBUGGING
-  //solo.soloConnected = true;
-  //_____________________
+  //User starting a log pull - make sure it isn't cancelled yet
+  logPuller.isCancelled = false;
 
   //Check to see if we have SSH connections to use for pulling logs
   var haveConnections = checkConnections(logs_options);
@@ -292,5 +135,5 @@ function updateLogsProgress(newVal){
   //Updates progress bar to reflect newVal
   console.log("updating progress bar. New val: " + newVal);
   var logs_progress_bar = $('#logs-progress-bar');
-  newVal > 100 ? logs_progress_bar.width(100) : logs_progress_bar.width(newVal);
+  newVal > 100 ? logs_progress_bar.width(100) : logs_progress_bar.width(newVal + "%");
 }

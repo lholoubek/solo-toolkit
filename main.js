@@ -35,8 +35,15 @@ ipcMain.on('open-dir-dialog', function(event, arg) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
+
+  //Set basic window options
+  var window_options = {
+    "minWidth": 770,
+    "minHeight": 450,
+  };
+
   // Create the browser window.
-  mainWindow = new BrowserWindow({width: 800, height: 600});
+  mainWindow = new BrowserWindow(window_options);
 
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/index.html');

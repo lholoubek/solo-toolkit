@@ -1,3 +1,5 @@
+@import "colors";
+
 @font-face {
   font-family: 'Roboto';
   src:  url('../assets/fonts/roboto/Roboto-Regular.woff2') format('woff2');
@@ -7,9 +9,29 @@
   font-family: 'Material Icons';
   font-style: normal;
   font-weight: 400;
-  src: local('Material Icons'),
-       local("MaterialIcons-Regular"),
-       url("../assets/fonts/material-design-icons/Material-Design-Icons.woff2") format('woff2'),
-       url("./build/assets/fonts/material-design-icons/Material-Design-Icons.woff") format('woff'),
-       url("./build/assets/fonts/material-design-icons/Material-Design-Icons.ttf") format('truetype');
+  src: url("../assets/fonts/material-design-icons/material-icons.woff2") format('woff2');
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.error-icon {
+  text-align: center;
+  display: block;
+  color: $text-light;
+  font-size: 4.5em;
+  padding-top: 3%;
 }

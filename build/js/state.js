@@ -12,7 +12,7 @@ console.log("Running state.js");
 var Client = require('ssh2').Client;
 var EventEmitter = require('events');
 
-var Device = function (_EventEmitter) {
+module.exports = function (_EventEmitter) {
   _inherits(Device, _EventEmitter);
 
   function Device(successConnectCallback, disconnectCallback, failureConnectCallback) {
@@ -154,6 +154,8 @@ var Device = function (_EventEmitter) {
       var solo_version = '';
       var pixhawk_version = '';
       var gimbal_version = '';
+
+      //TODO - Pull this and the similar code above into a helper function (DRY)
       this.solo_connection.sftp(function (err, sftp) {
         if (err) throw err;
         var file = sftp.createReadStream('/VERSION');
