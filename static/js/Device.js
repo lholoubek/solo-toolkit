@@ -10,7 +10,7 @@ module.exports = class Device extends EventEmitter{
     this.controllerConnected = false;
     this.soloConnected = false;
     this.versions = {
-      solo_version: " – ",
+      sololink_version: " – ",
       gimbal_version: " – ",
       pixhawk_version: " – ",
       controller_version: " – ",
@@ -35,7 +35,7 @@ module.exports = class Device extends EventEmitter{
             console.log('Controller :: ready');
             self.controllerConnected = true;
             successConnectCallback("controller");
-            self.get_controller_info();
+            self.get_controller_version();
         }
     });
     this.controller_connection.on('error', function(er){
@@ -64,9 +64,12 @@ module.exports = class Device extends EventEmitter{
             console.log('Solo :: ready');
             self.soloConnected = true;
             //When the Solo connection has been established, get the versions
-            self.get_vehicle_versions(()=>{
+            self.get_sololink_version(()=>{
               successConnectCallback("solo");  //Once we've parsed the vehicle versions, update!
             });
+            self.get_pixhawk_version();
+            self.get_gimbal_version();
+            self.get_wifi_info();
         }
     });
     this.solo_connection.on('error', function(er){
@@ -106,7 +109,7 @@ module.exports = class Device extends EventEmitter{
     //takes SSH connection and returns response from sololink_config
     console.log("sololink_config_request ", command);
     var version = '';
-    this.controller_connection.exec(command, function(err, stream){
+    connection.exec(command, function(err, stream){
       stream.on('data', function(data, stderr){
         if(stderr){
           console.log(command + " failed: " + stderr);
@@ -117,9 +120,20 @@ module.exports = class Device extends EventEmitter{
     });
   }
 
-  get_controller_info(){
-    console.log("get_controller_info()");
-    var controllerVersion = '';
+  get_wifi_info(){
+    console.log("get_controller_version()");
+    var self = this;
+    this.sololink_config_request(this.controller_connection, 'sololink_config --get-wifi-ssid', function(ssid){
+      self.versions.ssid = ssid;
+      self.sololink_config_request(self.controller_connection, 'sololink_config --get-wifi-password', function(password){
+        self.versions.password = password;
+        self.emit('updated_versions');
+      });
+    });
+  }
+
+  get_controller_version(){
+    console.log("get_controller_version()");
     var self = this;
     var command = 'sololink_config --get-version artoo';
     this.sololink_config_request(this.controller_connection, command, function(version){
@@ -128,62 +142,48 @@ module.exports = class Device extends EventEmitter{
     });
   };
 
-
-  get_vehicle_info(callback){
-    console.log("get_vehicle_info()");
+  get_sololink_version(callback){
+    //This one takes a callback so we can tell UI that Solo is connected
+    console.log("get_sololink_version()");
+    var command = 'sololink_config --get-version sololink';
     var self = this;
-    var components = {
-      solo:{
-        filename:'/VERSION'
-      },
-      pixhawk:{
-        filename:'/PIX_VERSION'
-      },
-      gimbal:{
-        filename:'/AXON_VERSION'
-      }
-    };
-
-    function update_parsed_versions(components){
-      //This gets called when final version number is parsed
-      //Handed components object. Passes those
-      console.log("update_versions()");
-      console.log(components);
-
-      self.versions.solo_version = components.solo.version;
-      self.versions.pixhawk_version = components.pixhawk.version;
-      self.versions.gimbal_version = components.gimbal.version;
-      console.log("versions", self.versions);
+    this.sololink_config_request(this.solo_connection, command, function(version){
+      self.versions.sololink_version = version;
       self.emit('updated_versions');
-      if(callback){
-        callback();
-      };
-    };
+      callback();
+    });
+  }
 
-    var component_names = Object.keys(components);
-    component_names.forEach((component_name)=>{
-      var filename = components[component_name].filename;
-      this.solo_connection.sftp(function(err, sftp){
-        if (err) throw err;
-        var file = sftp.createReadStream(filename);
-        var data = '';
-        var chunk = '';
-        file.on('readable', function() {
-          while ((chunk=file.read()) != null) {
-              data += chunk;
-          }
-        });
-        file.on('end', function() {
-          var component_version = data.split('\n')[0].trim(); //just the value on the first line
-          console.log("pulled version: " + component_version + " for " + filename);
-          components[component_name].version = component_version;
-          if (components.solo.version && components.pixhawk.version && components.gimbal.version){
-            //This is a mess. We're checking to make sure we have a version for each before we move one because we can't verify which file will get pulled and parsed first.
-            //This sucks. Fix it.
-            //TODO - def need to update this to handle this situation better.
-            update_parsed_versions(components);
-          }
-        });
+  get_pixhawk_version(){
+    console.log("get_pixhawk_version()");
+    var self = this;
+    var command = 'sololink_config --get-version pixhawk';
+    this.sololink_config_request(this.solo_connection, command, function(version){
+      self.versions.pixhawk_version = version;
+      self.emit('updated_versions');
+    });
+  }
+
+
+  get_gimbal_version(callback){
+    console.log("get_gimbal_version()");
+    var self = this;
+    var filename = '/AXON_VERSION';
+    var gimbal_version = '';
+    this.solo_connection.sftp(function(err, sftp){
+      if (err) throw err;
+      var file = sftp.createReadStream(filename);
+      var data = '';
+      var chunk = '';
+      file.on('readable', function() {
+        while ((chunk=file.read()) != null) {
+            data += chunk;
+        }
+      });
+      file.on('end', function() {
+        var gimbal_version = data.split('\n')[0].trim(); //just the value on the first line
+        self.versions.gimbal_version = gimbal_version;
+        self.emit('updated_versions');
       });
     });
   };
