@@ -9,15 +9,22 @@
 @import "settings_page_styling";
 @import "modal";
 
-
 h1 {
   font-family: "Roboto";
   color: $text-dark;
 }
 
+html {
+  overflow:hidden;
+}
+
 html, body {
   height: 100%;
   font-family: "Roboto";
+}
+
+body {
+  overflow: auto; //prevent rubber band scrolling
 }
 
 /**
@@ -82,7 +89,6 @@ html, body {
   bottom: 0;
   width: 200px;
   left: -200px;
-  overflow: auto;
   z-index: 2;
   background-color: $hover-overlay;
   transition: transform 0.2s;
@@ -173,9 +179,15 @@ html, body {
   padding-left: 10px;
 }
 
-
 #sidedrawer ul {
   list-style: none;
+}
+
+.sidebar-button {
+  color: $primary-text-color;
+}
+.sidebar-button.active {
+  color: $primary-color-dark;
 }
 
 #sidedrawer > ul {
@@ -195,7 +207,6 @@ html, body {
   padding-bottom: 15px;
 }
 
-
 #sidedrawer .title {
   font-size: 2.2rem;
   color: $primary-color-text;
@@ -204,9 +215,14 @@ html, body {
 #sidedrawer .menu-item {
   font-size: 1.6rem;
   margin-bottom: 0px;
-  color: $primary-text-color;
-
+  //color: $primary-text-color;
+  color: inherit;
 }
+
+.sidedrawer-icon {
+  color: inherit;
+}
+
 #sidedrawer > ul > li:hover {
   //Make text darker on hover
   > p {
@@ -221,5 +237,4 @@ cursor: pointer;
 }
 li.active {
   background-color: $white;
-
 }

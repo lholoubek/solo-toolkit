@@ -1,5 +1,6 @@
 'use strict';
 const fs = require('fs');
+const EventEmitter = require('events');
 
 //Export LogPuller as a module
 module.exports = class LogPuller extends EventEmitter{

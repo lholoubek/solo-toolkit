@@ -351,9 +351,15 @@ h1 {
   font-family: "Roboto";
   color: #616161; }
 
+html {
+  overflow: hidden; }
+
 html, body {
   height: 100%;
   font-family: "Roboto"; }
+
+body {
+  overflow: auto; }
 
 /**
  * Header CSS
@@ -480,6 +486,12 @@ html, body {
 #sidedrawer ul {
   list-style: none; }
 
+.sidebar-button {
+  color: #9E9E9E; }
+
+.sidebar-button.active {
+  color: #1976D2; }
+
 #sidedrawer > ul {
   padding-left: 0px;
   background-color: #EEEEEE; }
@@ -501,7 +513,10 @@ html, body {
 #sidedrawer .menu-item {
   font-size: 1.6rem;
   margin-bottom: 0px;
-  color: #9E9E9E; }
+  color: inherit; }
+
+.sidedrawer-icon {
+  color: inherit; }
 
 #sidedrawer > ul > li:hover {
   cursor: pointer; }

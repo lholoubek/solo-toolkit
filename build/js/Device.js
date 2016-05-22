@@ -78,8 +78,10 @@ module.exports = function (_EventEmitter) {
       } else {
         console.log('Solo :: ready');
         self.soloConnected = true;
-        self.get_solo_version();
-        successConnectCallback("solo");
+        //When the Solo connection has been established, get the versions
+        self.get_vehicle_versions(function () {
+          successConnectCallback("solo"); //Once we've parsed the vehicle versions, update!
+        });
       }
     });
     _this.solo_connection.on('error', function (er) {
@@ -147,30 +149,64 @@ module.exports = function (_EventEmitter) {
       });
     }
   }, {
-    key: 'get_solo_version',
-    value: function get_solo_version() {
-      console.log("get_solo_version()");
-      var self = this;
-      var solo_version = '';
-      var pixhawk_version = '';
-      var gimbal_version = '';
+    key: 'get_vehicle_versions',
+    value: function get_vehicle_versions(callback) {
+      var _this2 = this;
 
-      //TODO - Pull this and the similar code above into a helper function (DRY)
-      this.solo_connection.sftp(function (err, sftp) {
-        if (err) throw err;
-        var file = sftp.createReadStream('/VERSION');
-        var data = '';
-        var chunk = '';
-        file.on('readable', function () {
-          while ((chunk = file.read()) != null) {
-            data += chunk;
-          }
-        });
-        file.on('end', function () {
-          var solo_version = data.split('\n')[0].trim();
-          console.log("pulled solo version: " + solo_version);
-          self.versions.solo_version = solo_version;
-          self.emit('updated_versions');
+      console.log("get_vehicle_versions()");
+      var self = this;
+      var components = {
+        solo: {
+          filename: '/VERSION'
+        },
+        pixhawk: {
+          filename: '/PIX_VERSION'
+        },
+        gimbal: {
+          filename: '/AXON_VERSION'
+        }
+      };
+
+      function update_parsed_versions(components) {
+        //This gets called when final version number is parsed
+        //Handed components object. Passes those
+        console.log("update_versions()");
+        console.log(components);
+
+        self.versions.solo_version = components.solo.version;
+        self.versions.pixhawk_version = components.pixhawk.version;
+        self.versions.gimbal_version = components.gimbal.version;
+        console.log("versions", self.versions);
+        self.emit('updated_versions');
+        if (callback) {
+          callback();
+        };
+      };
+
+      var component_names = Object.keys(components);
+      component_names.forEach(function (component_name) {
+        var filename = components[component_name].filename;
+        _this2.solo_connection.sftp(function (err, sftp) {
+          if (err) throw err;
+          var file = sftp.createReadStream(filename);
+          var data = '';
+          var chunk = '';
+          file.on('readable', function () {
+            while ((chunk = file.read()) != null) {
+              data += chunk;
+            }
+          });
+          file.on('end', function () {
+            var component_version = data.split('\n')[0].trim(); //just the value on the first line
+            console.log("pulled version: " + component_version + " for " + filename);
+            components[component_name].version = component_version;
+            if (components.solo.version && components.pixhawk.version && components.gimbal.version) {
+              //This is a mess. We're checking to make sure we have a version for each before we move one because we can't verify which file will get pulled and parsed first.
+              //This sucks. Fix it.
+              //TODO - def need to update this to handle this situation better.
+              update_parsed_versions(components);
+            }
+          });
         });
       });
     }

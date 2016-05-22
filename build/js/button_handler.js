@@ -4,7 +4,7 @@ console.log("running button_handler.js");
 var ipcRenderer = require('electron').ipcRenderer;
 var Device = require('./build/js/Device');
 
-//SOLO/CONTROLLER CONNECTIONS
+//Solo + controller device
 var solo = new Device(successConnecting, successDisconnecting, failureConnecting);
 
 solo.on('updated_versions', function () {

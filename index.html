@@ -25,30 +25,33 @@
         </header>
   </head>
     <body>
+
+      <!-- Begin sidedrawer -->
       <div id="sidedrawer" class="mui--no-user-select">
       <div id="sidedrawer-brand" class="mui--appbar-line-height mui--text-title">Solo Toolkit</div>
           <div class="mui-divider"></div>
           <ul>
             <li id="system_info_button" class="sidebar-button ">
               <div class="mui-row">
-                <i class="mui-col-sm-1 sidebar-icon material-icons">assignment</i>
+                <i class="mui-col-sm-1 sidedrawer-icon material-icons">assignment</i>
                 <p  class="mui-col-sm-10 menu-item ui--text-title">System info</p>
               </div>
             </li>
             <li id="log_collection_button" class='sidebar-button active'>
               <div  class="mui-row">
-                <i style="color:inherit" class="mui-col-sm-1 sidebar-icon material-icons">timeline</i>
-                <p style="color:inherit" class="mui-col-sm-10 menu-item ui--text-title">Log collection</p>
+                <i class="mui-col-sm-1 sidedrawer-icon material-icons">timeline</i>
+                <p class="mui-col-sm-10 menu-item ui--text-title">Log collection</p>
               </div>
             </li>
             <li id="system_settings_button" class="sidebar-button ">
               <div class="mui-row">
-                <i class="mui-col-sm-1 sidebar-icon material-icons">build</i>
+                <i class="mui-col-sm-1 sidedrawer-icon material-icons">build</i>
                 <p  class="mui-col-sm-10 menu-item ui--text-title ">System settings</p>
               </div>
             </li>
           </ul>
-      </div>
+      </div> <!-- End sidedrawer -->
+
       <div id="content-wrapper">
         <div class="mui--appbar-height"></div>
           <div class="mui-container-fluid">
@@ -78,5 +81,4 @@
 <script type="text/javascript">window.$ = window.jQuery = require('jquery');</script>
 <script type="text/javascript" src="./build/js/libs/mui.js"></script>
 <script type="text/javascript" src="./build/js/templates.js"></script>
-<script type="text/javascript" src="./build/js/state.js"></script>
 <script type="text/javascript" src="./build/js/button_handler.js"></script>
