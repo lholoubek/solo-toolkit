@@ -35,7 +35,7 @@ module.exports = class Device extends EventEmitter{
             console.log('Controller :: ready');
             self.controllerConnected = true;
             successConnectCallback("controller");
-            self.get_controller_version();
+            self.get_controller_info();
         }
     });
     this.controller_connection.on('error', function(er){
@@ -102,32 +102,35 @@ module.exports = class Device extends EventEmitter{
     }
   }
 
-  get_controller_version(){
-    console.log("get_controller_version()");
+  sololink_config_request(connection, command, callback){
+    //takes SSH connection and returns response from sololink_config
+    console.log("sololink_config_request ", command);
+    var version = '';
+    this.controller_connection.exec(command, function(err, stream){
+      stream.on('data', function(data, stderr){
+        if(stderr){
+          console.log(command + " failed: " + stderr);
+        }
+        version = data.toString().trim();
+        callback(version);
+      });
+    });
+  }
+
+  get_controller_info(){
+    console.log("get_controller_info()");
     var controllerVersion = '';
     var self = this;
-    this.controller_connection.sftp(function(err, sftp) {
-      if (err) throw err;
-      var file = sftp.createReadStream('/VERSION');
-      var data = '';
-      var chunk = '';
-      file.on('readable', function() {
-        while ((chunk=file.read()) != null) {
-            data += chunk;
-        }
-      });
-      file.on('end', function() {
-        var controllerVersion = data.split('\n')[0].trim();
-        console.log("pulled controller version: " + controllerVersion);
-        console.log(this);
-        self.versions.controller_version = controllerVersion;
-        self.emit('updated_versions');
-      });
+    var command = 'sololink_config --get-version artoo';
+    this.sololink_config_request(this.controller_connection, command, function(version){
+      self.versions.controller_version = version;
+      self.emit('updated_versions');
     });
   };
 
-  get_vehicle_versions(callback){
-    console.log("get_vehicle_versions()");
+
+  get_vehicle_info(callback){
+    console.log("get_vehicle_info()");
     var self = this;
     var components = {
       solo:{
