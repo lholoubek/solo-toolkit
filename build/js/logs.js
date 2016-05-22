@@ -12,7 +12,7 @@ var LogPuller = require('./build/js/LogPuller');
 //probably need to set up require() to look in build folder to import LogPuller as a module (instead of calling siwht <script> tag)
 
 var logPuller = new LogPuller();
-logPuller.set_progress_callback(updateLogsProgress); //pass this the update callback
+logPuller.set_progress_callback(updateLogsProgress); //pass this the status bar update callback
 
 logPuller.on('start-pull', function () {
   //Listen for 'start-pull' event from LogPuller and swap button

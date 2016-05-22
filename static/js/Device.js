@@ -93,6 +93,7 @@ module.exports = class Device extends EventEmitter{
     console.log("Connect to solo called");
     this.solo_connection.connect(this.solo_connection_params);
   };
+
   disconnect(){
     console.log("disconnect()");
     if (this.controllerConnected === true){
@@ -165,7 +166,9 @@ module.exports = class Device extends EventEmitter{
   }
 
 
-  get_gimbal_version(callback){
+  get_gimbal_version(){
+    //We can't get gimbal version from sololink_config :(
+    //Pull it from a file instead
     console.log("get_gimbal_version()");
     var self = this;
     var filename = '/AXON_VERSION';

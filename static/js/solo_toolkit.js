@@ -30,6 +30,7 @@ function connectButtonClicked(){
   }
 };
 
+//Connection status callbacks
 function successConnecting(device){
   console.log("Connected successfully to " + device);
   //Update the connection info in the bottom right of the app

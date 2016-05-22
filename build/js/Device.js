@@ -192,7 +192,9 @@ module.exports = function (_EventEmitter) {
     }
   }, {
     key: 'get_gimbal_version',
-    value: function get_gimbal_version(callback) {
+    value: function get_gimbal_version() {
+      //We can't get gimbal version from sololink_config :(
+      //Pull it from a file instead
       console.log("get_gimbal_version()");
       var self = this;
       var filename = '/AXON_VERSION';

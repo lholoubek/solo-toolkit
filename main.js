@@ -6,6 +6,7 @@ const BrowserWindow = electron.BrowserWindow;  // Module to create native browse
 const dialog = electron.dialog;
 var client = require('electron-connect').client;
 const ipcMain = require('electron').ipcMain;
+const globalShortcut = require('electron').globalShortcut;
 //const remote = electron.remote;
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -51,6 +52,13 @@ app.on('ready', function() {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  //Create a keyboard shortcut to open the dev tools
+  globalShortcut.register('Command+T', ()=>{
+    console.log("Shortcut pressed. Opening DevTools...");
+    mainWindow.webContents.openDevTools();
+  });
+
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
