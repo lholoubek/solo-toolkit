@@ -1,6 +1,7 @@
 'use strict';
 const fs = require('fs');
 const EventEmitter = require('events');
+const lh = require('./LogfileHelpers');
 
 //Export LogPuller as a module
 module.exports = class LogPuller extends EventEmitter{
@@ -25,24 +26,22 @@ module.exports = class LogPuller extends EventEmitter{
     var self = this;
 
     console.log("start_log_pull");
-
-    console.log("Collecting logs!");
     console.log('emitting start-pull');
     this.create_log_folder();
     this.emit('start-pull');  //notify UI that the log pull has started
 
-
+    //TODO - this is very procedural and not very async-y. Update this to take advantage of async and speed it up
     //Pull logs from controller
     if (this.options.controller_logs && !this.isCancelled){ //if the user wants controller logs, call pull_logs() with controller connection
       console.log("Calling pull_logs() for controller");
       var controller_log_folder_path = this.options.log_folder_name + "/controller";
       fs.mkdir(controller_log_folder_path, (err)=>{
-        if(!err){
-          this.pull_logs(solo.controller_connection, controller_log_folder_path);
-        } else {
-          console.log("error creating folder to store logs");
-          console.log(err);
+        if (err){
+          if(err.code == 'EEXIST') {
+            console.log("controller log folder already exists.");
+          }
         }
+        this.pull_logs(solo.controller_connection, controller_log_folder_path);
       });
     }
 
@@ -50,7 +49,12 @@ module.exports = class LogPuller extends EventEmitter{
     if (this.options.solo_logs && !this.isCancelled){
       console.log("Calling pull_logs() for solo");
       var solo_log_folder_path = this.options.log_folder_name + "/solo";
-      fs.mkdir(this.options.log_folder_name + "/solo", ()=>{
+      fs.mkdir(solo_log_folder_path, (err)=>{
+        if (err){
+          if(err.code == 'EEXIST') {
+            console.log("solo log folder already exists.");
+          }
+        }
         this.pull_logs(solo.solo_connection, solo_log_folder_path);
       });
     }
@@ -138,19 +142,13 @@ module.exports = class LogPuller extends EventEmitter{
 
   file_list_filter(filename){
     //Helper method that takes a list of all files in the /log dir on Solo or Artoo and returns array of filenames based on user selected options
-    //General algo here -
-    // If it's a directory (which we know if '.' is not in the filename), return false.
-    // If we want all logs, return anything with a number in it
-    // If we don't want all logs, parse out the int at the end of the file and
-    var name = filename.filename;
-    if (name.includes('.')){
-      //We have a filename.
-      if (this.options.collect_all_logs){
+    if(lh.is_logfile(filename)){
+      if(this.options.collect_all_logs){
+        return true;
+      } else if (lh.log_less_than_max(filename,this.options.num_logs)) {
         return true;
       } else {
-        var max_lognum = this.options.num_logs;
-        //TODO - IMPLEMENT PARSER TO EXTRACT LOGNAMES AND RETURN ONLY IF < max_lognum
-        return true;
+        return false;
       }
     } else {
       return false;
@@ -163,7 +161,9 @@ module.exports = class LogPuller extends EventEmitter{
     console.log("folder name: " + this.options.log_folder_name);
     fs.mkdir(this.options.log_folder_name, (e)=>{
       if(e){
-        console.log(e);
+        if(e.code = 'EEXIST'){
+          console.log("Log folder already exists...");
+        }
       } else {
         return //yeah, yeah, I know I'm blocking on this
       };

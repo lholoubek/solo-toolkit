@@ -7,20 +7,20 @@ const _ = require('underscore');
 const LogPuller = require('./build/js/LogPuller');
 
 //removed class from here into separate module
-//probably need to set up require() to look in build folder to import LogPuller as a module (instead of calling siwht <script> tag)
-
 var logPuller = new LogPuller();
-logPuller.set_progress_callback(updateLogsProgress); //pass this the status bar update callback
+logPuller.set_progress_callback(updateLogsProgress); //pass this the status bar update callback`
 
 logPuller.on('start-pull', ()=>{
   //Listen for 'start-pull' event from LogPuller and swap button
   //When the log puller work begins, swap the button to cancel and attach an event handler for cancellation
+  //Also disable the interface so users can't change options while logs are being pulled
   console.log("received start-pull");
-  //$('#collect-logs-button').html('Cancel');
   $('#collect-logs-button').unbind('click');
   $('#collect-logs-button').html("cancel");
-  $('#collect-logs-button').bind('click', ()=>{
-    logPuller.cancel()
+  logs_options_enabled(false);
+  process.nextTick(()=>{$('#collect-logs-button').bind('click', ()=>{
+      logPuller.cancel()
+    });
   });
 });
 
@@ -28,16 +28,17 @@ logPuller.on('cancelled', ()=>{
   $('#collect-logs-button').unbind('click');
   $('#collect-logs-button').html('Collect logs');
   $('#collect-logs-button').on('click', start_log_pull);
+  //Re-enabled logs options
+  logs_options_enabled(true);
   console.log("cancelled event concluded");
 });
 
 //Begin log pulling when the button is clicked
-$('#collect-logs-button').on('click', start_log_pull);
-function start_log_pull(){
+$('#collect-logs-button').on('click', ()=>{
   //First get the settings to determine what logs we need to get from where
   var logs_options = build_logs_options();
 
-  //User starting a log pull - make sure it isn't cancelled yet
+  //Make sure cancelled is false - user just started this (not cancelled yet)
   logPuller.isCancelled = false;
 
   //Check to see if we have SSH connections to use for pulling logs
@@ -57,7 +58,8 @@ function start_log_pull(){
 
     return
   }
-};
+});
+
 
 //Set up our output path directory chooser
 $('#open-file-button').on('click', function(){
@@ -68,6 +70,7 @@ $('#open-file-button').on('click', function(){
 });
 
 function build_logs_options(){
+  //@return {object} logs_options – logs options selected by the user, parsed from the DOM
   //Creates logs_options object, parses the DOM, and fills out corresponding fields in the object, then returns it
   var logs_options = {
     output_path:"",
@@ -114,22 +117,29 @@ function build_logs_options(){
 
 function checkConnections(options){
   //Takes a log options object and confirms we have a connection to the devices necessary to pull logs
-  //Input: object (log options)
-  //Returns: bool
+  //@param {object} options log options object
+  //@returns {bool}
   //If no device selected or no connection, displays error to user
-  if (options.solo_logs && options.controller_logs) {
-    //we want logs from both
+  if (options.solo_logs && options.controller_logs) { //we want logs from both controller and solo
     return solo.controllerConnected && solo.soloConnected ? true : false;
-  } else if (options.solo_logs) {
-    //we want just solo logs
+  } else if (options.solo_logs) { //we want just solo logs
     return solo.soloConnected ? true : false;
-  } else if (options.controller_logs){
-    //we want just controller logs
+  } else if (options.controller_logs){  //we want just controller logs
     return solo.controllerConnected ? true :  false;
   } else {
     return false;
   }
 }
+
+function logs_options_enabled(enabled){
+  //@param {bool} enabled - specify whether the interface should be enabled or disabled
+  $('.option-heading').find('form').prop("disabled", !enabled);
+  $('.option-heading').find('input').prop('disabled', !enabled);
+  $('.option-heading').find('select').prop('disabled', !enabled);
+  $('.option-heading').find('option').prop('disabled', !enabled);
+  $('.option-heading').find('button').prop('disabled', !enabled);
+  $('.option-heading').find('textarea').prop('disabled', !enabled);
+};
 
 function updateLogsProgress(newVal){
   //Updates progress bar to reflect newVal

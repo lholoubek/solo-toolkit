@@ -54,9 +54,11 @@ app.on('ready', function() {
   mainWindow.webContents.openDevTools();
 
   //Create a keyboard shortcut to open the dev tools
-  globalShortcut.register('Command+T', ()=>{
-    console.log("Shortcut pressed. Opening DevTools...");
-    mainWindow.webContents.openDevTools();
+  globalShortcut.register('Command+D+T', ()=>{
+    if (mainWindow.isFocused()){
+      console.log("Shortcut pressed. Opening DevTools...");
+      mainWindow.webContents.openDevTools();
+    };
   });
 
 
@@ -67,4 +69,9 @@ app.on('ready', function() {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
+});
+
+app.on('will-quit', () => {
+  // Unregister all shortcuts.
+  globalShortcut.unregisterAll();
 });

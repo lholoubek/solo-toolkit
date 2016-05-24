@@ -1,6 +1,7 @@
 console.log("running button_handler.js");
 const ipcRenderer = require('electron').ipcRenderer;
 const Device = require('./build/js/Device');
+const Mousetrap = require('Mousetrap');
 
 //Solo + controller device
 var solo = new Device(successConnecting, successDisconnecting, failureConnecting);
@@ -125,7 +126,6 @@ function getDirectory(input_element){
   });
 };
 
-
 $(document).ready(function load_templates(){
   //Renders all templates on initialization and drops them into their divs
   $('#system-view').html(system_info_template(solo.versions));
@@ -135,6 +135,14 @@ $(document).ready(function load_templates(){
   //switches the view to system info page on first run
   view_system_info();
 });
+
+
+//Attach keyboard shortcuts
+$(document).ready(()=>{
+  //No keyboard shortcuts attached yet
+  //Use Mousetrap to connect keyboard shortcuts
+});
+
 
 //SIDEBAR
 //Toggle the active class on sidebar items

@@ -13,7 +13,7 @@
     </div>
 
     <!-- Log file path chooser -->
-    <div class='mui-col-sm-12 mui-col-md-12 mui-col-lg-12'>
+    <div class='option-heading mui-col-sm-12 mui-col-md-12 mui-col-lg-12'>
       <legend>Output location</legend>
         <form id="location-chooser-form"class="mui-col-sm-6 mui-col-md-6 mui-col-lg-6">
           <div class="mui-textfield">
@@ -26,7 +26,7 @@
     </div>
 
     <!-- Options to select -->
-    <div class="mui-col-sm-12 mui-col-md-12 mui-col-lg-8">
+    <div class="option-heading mui-col-sm-12 mui-col-md-12 mui-col-lg-8">
       <legend>Options</legend>
       <h4 class="log_collect_option">Collect </h4>
         <form id="num-logs-select" class="log_collect_option">
@@ -43,11 +43,11 @@
         </form>
       <h4 class="log_collect_option">logs</h4>
       <div class="checkbox-group log_collect_option">
-          <input type="checkbox" id="solo-logs-option" >
+          <input type="checkbox" id="solo-logs-option">
           <label for="solo-logs-option">
               <span class="check"></span>
               <span class="box"></span>
-               Solo logs
+               Solo
            </label>
       </div>
         <div class="checkbox-group log_collect_option">
@@ -55,7 +55,7 @@
            <label for="controller-log-option">
                <span class="check"></span>
                <span class="box"></span>
-                Controller logs
+                Controller
             </label>
         </div>
         <div class="checkbox-group log_collect_option">
@@ -68,9 +68,8 @@
         </div>
     </div>
 
-
     <!-- Flight notes -->
-    <div class="mui-col-sm-6 mui-col-md-6 mui-col-lg-6">
+    <div class="option-heading mui-col-sm-6 mui-col-md-6 mui-col-lg-6">
         <legend>Flight notes</legend>
         <div class="mui-textfield">
            <textarea id="flight-notes"placeholder="Enter notes from flight"></textarea>
@@ -81,7 +80,6 @@
     </div>
 
 <!-- Call our logs.js -->
-<script type="text/javascript" src="./build/js/LogPuller.js"></script>
 <script type="text/javascript" src="./build/js/logs.js"></script>
 
 <!-- End our template container -->

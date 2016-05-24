@@ -10,6 +10,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var fs = require('fs');
 var EventEmitter = require('events');
+var lh = require('./LogfileHelpers');
 
 //Export LogPuller as a module
 module.exports = function (_EventEmitter) {
@@ -49,12 +50,11 @@ module.exports = function (_EventEmitter) {
       var self = this;
 
       console.log("start_log_pull");
-
-      console.log("Collecting logs!");
       console.log('emitting start-pull');
       this.create_log_folder();
       this.emit('start-pull'); //notify UI that the log pull has started
 
+      //TODO - this is very procedural and not very async-y. Update this to take advantage of async and speed it up
       //Pull logs from controller
       if (this.options.controller_logs && !this.isCancelled) {
         //if the user wants controller logs, call pull_logs() with controller connection
@@ -164,19 +164,13 @@ module.exports = function (_EventEmitter) {
     key: 'file_list_filter',
     value: function file_list_filter(filename) {
       //Helper method that takes a list of all files in the /log dir on Solo or Artoo and returns array of filenames based on user selected options
-      //General algo here -
-      // If it's a directory (which we know if '.' is not in the filename), return false.
-      // If we want all logs, return anything with a number in it
-      // If we don't want all logs, parse out the int at the end of the file and
-      var name = filename.filename;
-      if (name.includes('.')) {
-        //We have a filename.
+      if (lh.is_logfile(filename)) {
         if (this.options.collect_all_logs) {
           return true;
-        } else {
-          var max_lognum = this.options.num_logs;
-          //TODO - IMPLEMENT PARSER TO EXTRACT LOGNAMES AND RETURN ONLY IF < max_lognum
+        } else if (lh.log_less_than_max(filename, this.options.num_logs)) {
           return true;
+        } else {
+          return false;
         }
       } else {
         return false;

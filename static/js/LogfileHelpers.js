@@ -3,36 +3,42 @@
 This module contains functions that help filter lists of logfiles.
 This module should be imported and used by the LogPuller class to filter log file names.
 */
-
-function log_name_filter(num, filelist){
-  var new_list = [];
-  filelist.map((val)=>{
-    //If only one '.' in log, we definitely want it (it's the first log)
-    if(!val.includes('.', val.indexOf('.') + 1)){
-      new_list.push(val);
+module.exports = {
+  log_less_than_max: function (filename, max){
+  //@param {String} filename – Valid logfile name.
+  //@param {int} max – optional maximum lognum that's acceptable. Reject if log exceeds max
+  //@return {bool} – True if this logfile is less than max
+  //If only one '.' in log, we definitely want it (it's the first log)
+  if (max){
+    if(!filename.includes('.', filename.indexOf('.') + 1)){
+      return true;
     } else {
       //Pull the number off the end and compare it
-      var sub_val = val.substring(val.lastIndexOf('.') + 1, val.length);
-      sub_val = parseInt(sub_val);
-      if (!(sub_val > num)){
-        new_list.push(val);
+      var log_num = filename.substring(filename.lastIndexOf('.') + 1, filename.length);
+      log_num = parseInt(log_num);
+      if (!(log_num> max)){
+        return true;
       }
-    }
-  });
-  return new_list;
+    };
+    return false;
+  } else {
+    return true;
+  }
+},
+
+  is_logfile: function(name){
+    //@param {String} name – filename
+    //@return {bool} -
+    //If the file is a logfile, return true. If not (like if it's a dir), return false
+      if (name.includes('log') && name.indexOf('.') > 0){
+        return true;
+      } else {
+        return false;
+      };
+  }
 };
 
-function ignore_non_log(filelist){
-  var new_list = [];
-  filelist.map((val)=>{
-    if (val.includes('log')){
-      new_list.push(val);
-    }
-  });
-  return new_list;
-};
-
-module.exports = {
-  log_name_filter: log_name_filter,
-  ignore_non_log: ignore_non_log
+if (require.main === module){
+  console.log(is_logfile('shotlog.5'));
+  console.log(log_less_than_max('shotlog.log.2',3));
 };

@@ -233,7 +233,7 @@ h4.log_collect_option {
   color: #616161; }
 
 .checkbox-group {
-  margin-left: 20px;
+  margin-left: 10px;
   color: #616161;
   font-family: "Roboto";
   font-size: 16px; }
@@ -261,7 +261,7 @@ h4.log_collect_option {
 
 /* Style Label */
 .checkbox-group label {
-  padding-left: 30px;
+  padding-left: 25px;
   cursor: pointer; }
 
 /* Style span tag */
