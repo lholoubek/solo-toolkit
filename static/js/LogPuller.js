@@ -1,7 +1,9 @@
 'use strict';
 const fs = require('fs');
 const EventEmitter = require('events');
-const lh = require('./LogfileHelpers');
+const helpers = require('./LogfileHelpers');
+const Archiver = require('archiver');
+const Path = require('path');
 
 //Export LogPuller as a module
 module.exports = class LogPuller extends EventEmitter{
@@ -13,9 +15,26 @@ module.exports = class LogPuller extends EventEmitter{
     this.options = {};
   }
   set_log_options(options){
+    //@param {object} options - log puller options
+
+    /*Sample options object:
+    {
+      output_path:"",
+      log_folder_name: "",
+      solo_logs:false,
+      controller_logs:false,
+      collect_all_logs:false,
+      num_logs:0,
+      create_zip:false,
+      flight_notes:""
+    };*/
     this.options = options;
   }
+
   set_progress_callback(progressCallback){
+    //@param {function} progressCallback - function(int)
+    //Callback is called as progress is made on a given task
+    //Currently used to update the progress bar
     this.progressCallback = progressCallback;
   }
 
@@ -31,6 +50,7 @@ module.exports = class LogPuller extends EventEmitter{
     this.emit('start-pull');  //notify UI that the log pull has started
 
     //TODO - this is very procedural and not very async-y. Update this to take advantage of async and speed it up
+    //TODO - Need to modularize this code so we aren't repeating it
     //Pull logs from controller
     if (this.options.controller_logs && !this.isCancelled){ //if the user wants controller logs, call pull_logs() with controller connection
       console.log("Calling pull_logs() for controller");
@@ -45,7 +65,7 @@ module.exports = class LogPuller extends EventEmitter{
       });
     }
 
-    //Once complete, pull logs from Solo if selected
+    //Pull logs from Solo if selected
     if (this.options.solo_logs && !this.isCancelled){
       console.log("Calling pull_logs() for solo");
       var solo_log_folder_path = this.options.log_folder_name + "/solo";
@@ -57,6 +77,25 @@ module.exports = class LogPuller extends EventEmitter{
         }
         this.pull_logs(solo.solo_connection, solo_log_folder_path);
       });
+    }
+
+    //Zip the log files
+    if (this.options.create_zip && !this.isCancelled){
+      console.log("zipping logfiles...");
+      var zipdir_path = Path.dirname(this.options.log_folder_name);  //step up one level from the folder with logs
+      console.log("zipdir_path - ", zipdir_path);
+      var zipdir = this.options.log_folder_name.split()[this.options.log_folder_name.split().length];  //get just the timestamp filename
+      console.log("zipdir - ", zipdir);
+      var zipfile = zipdir_path + zipdir + ".zip";
+      console.log('zipfile - ', zipfile);
+      var zipper = Archiver.create('zip', {});
+
+      var out_stream = fs.createWriteStream(zipfile, {flags: 'w'});
+      out_stream.on('close', ()=>{
+        console.log("write stream finished..");
+      });
+      zipper.pipe(out_stream);
+      zipper.directory(zipdir_path, '/'); //put the files in the root of the zipdir
     }
   };
 
@@ -78,8 +117,8 @@ module.exports = class LogPuller extends EventEmitter{
           throw err;
         }
 
-        var filtered_list = _.filter(list, self.file_list_filter, self);  //need to pass self as context here because file_list_filter accesses options
-        var file_list = _.map(filtered_list, (val)=>{return val.filename}, self);
+        var filtered_list = _.map(list, (val)=>{return val.filename}, self);
+        var file_list = _.filter(filtered_list, self.file_list_filter, self);  //need to pass self as context here because file_list_filter accesses options
         var count = 0;
         var length = file_list.length;
 
@@ -141,11 +180,13 @@ module.exports = class LogPuller extends EventEmitter{
   };
 
   file_list_filter(filename){
+    var self = this;
+    console.log("file_list_filter - ", self, this);
     //Helper method that takes a list of all files in the /log dir on Solo or Artoo and returns array of filenames based on user selected options
-    if(lh.is_logfile(filename)){
-      if(this.options.collect_all_logs){
+    if(helpers.is_logfile(filename)){
+      if(self.options.collect_all_logs){
         return true;
-      } else if (lh.log_less_than_max(filename,this.options.num_logs)) {
+      } else if (helpers.log_less_than_max(filename,self.options.num_logs)) {
         return true;
       } else {
         return false;
@@ -165,9 +206,16 @@ module.exports = class LogPuller extends EventEmitter{
           console.log("Log folder already exists...");
         }
       } else {
-        return //yeah, yeah, I know I'm blocking on this
+        return
       };
     });
   };
+
+  zip_logs_dir(){
+    //Zips logs dir
+
+
+
+  }
   //end of class
 };

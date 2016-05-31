@@ -30,6 +30,7 @@ module.exports = {
     //@param {String} name – filename
     //@return {bool} -
     //If the file is a logfile, return true. If not (like if it's a dir), return false
+    console.log('is_logfile name - ', name + "type: " + typeof(name));
       if (name.includes('log') && name.indexOf('.') > 0){
         return true;
       } else {
