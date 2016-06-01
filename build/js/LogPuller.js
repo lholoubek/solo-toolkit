@@ -60,139 +60,102 @@ module.exports = function (_EventEmitter) {
   }, {
     key: 'start_log_pull',
     value: function start_log_pull() {
-      var _this2 = this;
-
       //This method does a few things:
       // - Emits event to notify UI that log pulling has started
       // - Calls pull_logs for Solo and/or controller, depending on selected option
       var self = this;
-
       console.log("start_log_pull");
       console.log('emitting start-pull');
       this.create_log_folder();
       this.emit('start-pull'); //notify UI that the log pull has started
 
-      //TODO - this is very procedural and not very async-y. Update this to take advantage of async and speed it up
-      //TODO - Need to modularize this code so we aren't repeating it
-      //Pull logs from controller
-      if (this.options.controller_logs && !this.isCancelled) {
-        //if the user wants controller logs, call pull_logs() with controller connection
-        console.log("Calling pull_logs() for controller");
-        var controller_log_folder_path = this.options.log_folder_name + "/controller";
-        fs.mkdir(controller_log_folder_path, function (err) {
-          if (err) {
-            if (err.code == 'EEXIST') {
-              console.log("controller log folder already exists.");
-            }
-          }
-          _this2.pull_logs(solo.controller_connection, controller_log_folder_path);
+      pull_logs(solo.controller_connection, "controller", self.options.controller_log_folder_path, self.options.controller_logs, function () {
+        pull_logs(solo.solo_connection, "solo", self.options.solo_log_folder_path, self.options.solo_logs, function () {
+          zip_logs_dir();
+          console.log("Completed start_log_pull()");
         });
-      }
-
-      //Once complete, pull logs from Solo if selected
-      if (this.options.solo_logs && !this.isCancelled) {
-        console.log("Calling pull_logs() for solo");
-        var solo_log_folder_path = this.options.log_folder_name + "/solo";
-        fs.mkdir(solo_log_folder_path, function (err) {
-          if (err) {
-            if (err.code == 'EEXIST') {
-              console.log("solo log folder already exists.");
-            }
-          }
-          _this2.pull_logs(solo.solo_connection, solo_log_folder_path);
-        });
-      }
-
-      //Once complete, zip the log files
-      if (this.options.create_zip && !this.isCancelled) {
-        console.log("zipping logfiles...");
-        var zipdir_path = Path.dirname(this.options.log_folder_name); //step up one level from the folder with logs
-        console.log("zipdir_path - ", zipdir_path);
-        var zipdir = this.options.log_folder_name.split()[this.options.log_folder_name.split().length]; //get just the timestamp filename
-        console.log("zipdir - ", zipdir);
-        var zipfile = zipdir_path + zipdir + ".zip";
-        console.log('zipfile - ', zipfile);
-        var zipper = Archiver.create('zip', {});
-
-        var out_stream = fs.createWriteStream(zipfile, { flags: 'w' });
-        out_stream.on('close', function () {
-          console.log("write stream finished..");
-        });
-        zipper.pipe(out_stream);
-        zipper.directory(zipdir_path, '/'); //put the files in the root of the zipdir
-      }
+      });
     }
   }, {
     key: 'pull_logs',
-    value: function pull_logs(connection, log_folder_path) {
-      //params: ssh connection object, path
-      //using passed connection, sets up sftp connection
-      //pulls log files into correct path
+    value: function pull_logs(connection, device_name, path, option, cb) {
+      //@param {object} connection - SSH connection
+      //@param {String} log_folder_path - path to log folder
+      //@param {function} callback - callback to call when complete
+      //using passed connection, this function sets up sftp connection
+      //pulls log files into correct path, then calls callback
       var self = this;
 
-      connection.sftp(function (err, sftp) {
-        console.log("Trying to connect to pull logs");
-        if (err) {
-          self.cancel();
-          throw err;
-        }
-        sftp.readdir('/log', function (err, list) {
+      if (!self.isCancelled && option) {
+        var log_folder_path = path; //depending on options, this folder will already exists when it's created with create_log_folders()
+        connection.sftp(function (err, sftp) {
+          console.log("Trying to connect to pull logs");
           if (err) {
             self.cancel();
             throw err;
           }
-
-          var filtered_list = _.map(list, function (val) {
-            return val.filename;
-          }, self);
-          var file_list = _.filter(filtered_list, self.file_list_filter, self); //need to pass self as context here because file_list_filter accesses options
-          var count = 0;
-          var length = file_list.length;
-
-          //DEBUGGING
-          console.log("Filtered list: " + file_list.toString());
-          console.log("Number of files to collect: " + length);
-          console.log("Dropping files here: " + log_folder_path);
-          //
-
-          async.whilst(function () {
-            if (count < length - 1 && !self.isCancelled) {
-              //if we haven't pulled all the files and the job hasn't been cancelled
-              console.log("continuing in the whilst loop...");
-              return true;
-            } else {
-              console.log("breaking whilst loop...");
-              return false;
+          sftp.readdir('/log', function (err, list) {
+            // /log contains logs on solo and controller
+            if (err) {
+              console.log("Couldn't find /log directory to pull files from");
+              self.cancel();
+              throw err;
             }
-          }, function (callback) {
-            count++;
-            console.log("Count: " + count);
-            var filename = file_list[count];
-            console.log("Pulling: " + filename);
-            //Pull the next file from filter_list and sftp it over
-            sftp.fastGet("/log/" + filename, log_folder_path + "/" + filename, { concurrency: 1 }, function (err) {
-              if (err) {
-                console.log("Something blew up transferring files");
-                console.log(err);
-                callback(err);
+
+            var filtered_list = _.map(list, function (val) {
+              return val.filename;
+            }, self);
+            var file_list = _.filter(filtered_list, self.file_list_filter, self); //need to pass self as context here because file_list_filter accesses options
+            var count = 0;
+            var length = file_list.length;
+
+            //DEBUGGING
+            console.log("Filtered list: " + file_list.toString());
+            console.log("Number of files to collect: " + length);
+            console.log("Dropping files here: " + log_folder_path);
+            //
+            async.whilst(function () {
+              if (count < length - 1 && !self.isCancelled) {
+                //if we haven't pulled all the files and the job hasn't been cancelled
+                console.log("continuing in the whilst loop...");
+                return true;
               } else {
-                var progress = Math.round(count / length * 100);
-                console.log("Progress: " + progress);
-                self.progressCallback(progress); //update the progress bar on the way through
-                callback(null);
+                console.log("breaking whilst loop...");
+                return false;
+              }
+            }, function (async_cb) {
+              count++;
+              console.log("Count: " + count);
+              var filename = file_list[count];
+              console.log("Pulling: " + filename);
+              //Pull the next file from filter_list and sftp it over
+              sftp.fastGet("/log/" + filename, log_folder_path + "/" + filename, { concurrency: 1 }, function (err) {
+                if (err) {
+                  console.log("Something blew up transferring files");
+                  console.log(err);
+                  callback(err);
+                } else {
+                  var progress = Math.round(count / length * 100);
+                  console.log("Progress: " + progress);
+                  self.progressCallback(progress); //update the progress bar on the way through
+                  async_cb(null);
+                }
+              });
+            }, function (err) {
+              if (err) {
+                console.log("Logpull complete (final callback called) but with error: ");
+                console.log(err);
+              } else {
+                console.log("logpull completed successfully!");
+                cb();
               }
             });
-          }, function (err) {
-            if (err) {
-              console.log("Logpull complete (final callback called) but with error: ");
-              console.log(err);
-            } else {
-              console.log("logpull completed successfully!");
-            }
-            self.cancel();
           });
         });
-      });
+      } else {
+        console.log("didn't want to collect logs from ", device_name);
+        cb();
+      }
     }
   }, {
     key: 'cancel',
@@ -222,26 +185,54 @@ module.exports = function (_EventEmitter) {
       }
     }
   }, {
-    key: 'create_log_folder',
-    value: function create_log_folder() {
-      //Creates a log folder on the local OS for the log files
+    key: 'create_log_folders',
+    value: function create_log_folders() {
+      //Synchronous log folder creation
+      //Top level folder is provided in options.log_folder_name (timestamp-based)
+      //Creates subfolders as needed for controller and solo logs based on options
       console.log("create_log_folder() called - trying to create a folder for the logs");
       console.log("folder name: " + this.options.log_folder_name);
-      fs.mkdir(this.options.log_folder_name, function (e) {
-        if (e) {
-          if (e.code = 'EEXIST') {
-            console.log("Log folder already exists...");
-          }
+      try {
+        fs.mkdirsync(self.options.output_path);
+        if (this.options.controller_logs) {
+          this.options.controller_log_folder_path = self.options.output_path + "/controller";
+          fs.mkdirsync(this.options.controller_log_folder_path);
+        }
+        if (this.options.solo_logs) {
+          this.options.solo_log_folder_path = self.options.output_path + "/solo";
+          fs.mkdirsync(this.options.solo_log_folder_path);
+        }
+      } catch (err) {
+        if (err.code != 'EEXIST') {
+          console.log("Unknown error trying to create log folder - ", err);
         } else {
-          return; //yeah, yeah, I know I'm blocking on this
-        };
-      });
+          console.log("Log folder already exists. ");
+        }
+      }
+      return;
     }
   }, {
     key: 'zip_logs_dir',
-    value: function zip_logs_dir() {}
-    //Zips logs dir
+    value: function zip_logs_dir() {
+      //Zip the log files
+      if (this.options.create_zip && !this.isCancelled) {
+        console.log("zipping logfiles...");
+        var zipdir_path = Path.dirname(this.options.log_folder_name); //step up one level from the folder with logs
+        console.log("zipdir_path - ", zipdir_path);
+        var zipdir = this.options.log_folder_name.split()[this.options.log_folder_name.split().length]; //get just the timestamp filename
+        console.log("zipdir - ", zipdir);
+        var zipfile = zipdir_path + zipdir + ".zip";
+        console.log('zipfile - ', zipfile);
+        var zipper = Archiver.create('zip', {});
 
+        var out_stream = fs.createWriteStream(zipfile, { flags: 'w' });
+        out_stream.on('close', function () {
+          console.log("write stream finished..");
+        });
+        zipper.pipe(out_stream);
+        zipper.directory(zipdir_path, '/'); //put the files in the root of the zipdir
+      }
+    }
     //end of class
 
   }]);
