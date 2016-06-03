@@ -53,14 +53,6 @@ app.on('ready', function() {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
-  //Create a keyboard shortcut to open the dev tools
-  globalShortcut.register('Command+D+T', ()=>{
-    if (mainWindow.isFocused()){
-      console.log("Shortcut pressed. Opening DevTools...");
-      mainWindow.webContents.openDevTools();
-    };
-  });
-
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {
     // Dereference the window object, usually you would store windows

@@ -34,7 +34,8 @@ logPuller.on('cancelled', ()=>{
 });
 
 //Begin log pulling when the button is clicked
-$('#collect-logs-button').on('click', ()=>{
+$('#collect-logs-button').on('click', start_log_pull);
+function start_log_pull(){
   //First get the settings to determine what logs we need to get from where
   var logs_options = build_logs_options();
 
@@ -58,7 +59,7 @@ $('#collect-logs-button').on('click', ()=>{
 
     return
   }
-});
+};
 
 
 //Set up our output path directory chooser

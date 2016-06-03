@@ -45,13 +45,16 @@ module.exports = class LogPuller extends EventEmitter{
     var self = this;
     console.log("start_log_pull");
     console.log('emitting start-pull');
-    this.create_log_folder();
+    this.create_log_folders(self);
     this.emit('start-pull');  //notify UI that the log pull has started
 
-    pull_logs(solo.controller_connection, "controller", self.options.controller_log_folder_path, self.options.controller_logs, ()=>{
-      pull_logs(solo.solo_connection, "solo", self.options.solo_log_folder_path, self.options.solo_logs, ()=>{
-        zip_logs_dir();
+    self.pull_logs(solo.controller_connection, "controller", self.options.controller_log_folder_path, self.options.controller_logs, ()=>{
+      self.pull_logs(solo.solo_connection, "solo", self.options.solo_log_folder_path, self.options.solo_logs, ()=>{
+        self.zip_logs_dir();
         console.log("Completed start_log_pull()");
+        self.progressCallback(100);
+        setTimeout(1000, self.progressCallback(0));
+        this.emit('cancelled');
       })
     });
   };
@@ -80,14 +83,27 @@ module.exports = class LogPuller extends EventEmitter{
           }
 
           var filtered_list = _.map(list, (val)=>{return val.filename}, self);
-          var file_list = _.filter(filtered_list, self.file_list_filter, self);  //need to pass self as context here because file_list_filter accesses options
+          var file_list = _.filter(filtered_list, (filename)=>{
+            //Helper method that takes a list of all files in the /log dir on Solo or Artoo and returns array of filenames based on user selected options
+            if(helpers.is_logfile(filename)){
+              if(self.options.collect_all_logs){
+                return true;
+              } else if (helpers.log_less_than_max(filename,self.options.num_logs)) {
+                return true;
+              } else {
+                return false;
+              }
+            } else {
+              return false;
+            }
+          }, self);  //need to pass self as context here because file_list_filter accesses options
           var count = 0;
           var length = file_list.length;
 
           //DEBUGGING
-          console.log("Filtered list: " + file_list.toString());
-          console.log("Number of files to collect: " + length);
-          console.log("Dropping files here: " + log_folder_path);
+          // console.log("Filtered list: " + file_list.toString());
+          // console.log("Number of files to collect: " + length);
+          // console.log("Dropping files here: " + log_folder_path);
           //
           async.whilst(
             ()=>{
@@ -124,6 +140,7 @@ module.exports = class LogPuller extends EventEmitter{
                 console.log(err);
               } else {
                   console.log("logpull completed successfully!");
+                  self.progressCallback(100);
                   cb();
               }
             });
@@ -143,40 +160,26 @@ module.exports = class LogPuller extends EventEmitter{
     this.isCancelled = true;
   };
 
-  file_list_filter(filename){
-    var self = this;
-    console.log("file_list_filter - ", self, this);
-    //Helper method that takes a list of all files in the /log dir on Solo or Artoo and returns array of filenames based on user selected options
-    if(helpers.is_logfile(filename)){
-      if(self.options.collect_all_logs){
-        return true;
-      } else if (helpers.log_less_than_max(filename,self.options.num_logs)) {
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  };
 
-  create_log_folders(){
+  create_log_folders(context){
     //Synchronous log folder creation
     //Top level folder is provided in options.log_folder_name (timestamp-based)
     //Creates subfolders as needed for controller and solo logs based on options
+    var self = context;
     console.log("create_log_folder() called - trying to create a folder for the logs");
-    console.log("folder name: " + this.options.log_folder_name);
+    console.log("folder name: " + self.options.log_folder_name);
     try {
-      fs.mkdirsync(self.options.output_path);
+      fs.mkdirSync(self.options.log_folder_name);
       if(this.options.controller_logs){
-        this.options.controller_log_folder_path = self.options.output_path + "/controller";
-        fs.mkdirsync(this.options.controller_log_folder_path);
+        this.options.controller_log_folder_path = self.options.log_folder_name + "/controller";
+        fs.mkdirSync(this.options.controller_log_folder_path);
       }
       if (this.options.solo_logs){
-        this.options.solo_log_folder_path = self.options.output_path + "/solo";
-        fs.mkdirsync(this.options.solo_log_folder_path);
+        this.options.solo_log_folder_path = self.options.log_folder_name + "/solo";
+        fs.mkdirSync(this.options.solo_log_folder_path);
       }
     } catch(err){
+      console.log("err in folder creation: ", err);
       if (err.code != 'EEXIST'){
         console.log("Unknown error trying to create log folder - ", err);
       } else {
@@ -186,24 +189,25 @@ module.exports = class LogPuller extends EventEmitter{
     return;
   };
 
-  zip_logs_dir(){
+  zip_logs_dir(context){
     //Zip the log files
     if (this.options.create_zip && !this.isCancelled){
       console.log("zipping logfiles...");
-      var zipdir_path = Path.dirname(this.options.log_folder_name);  //step up one level from the folder with logs
+      var zipdir_path = this.options.log_folder_name;  //step up one level from the folder with logs
       console.log("zipdir_path - ", zipdir_path);
-      var zipdir = this.options.log_folder_name.split()[this.options.log_folder_name.split().length];  //get just the timestamp filename
+      var zipdir = "/" + this.options.log_folder_name.split("/")[this.options.log_folder_name.split("/").length - 1];  //get just the timestamp filename
       console.log("zipdir - ", zipdir);
-      var zipfile = zipdir_path + zipdir + ".zip";
+      var zipfile = this.options.output_path + zipdir + ".zip";
       console.log('zipfile - ', zipfile);
       var zipper = Archiver.create('zip', {});
 
       var out_stream = fs.createWriteStream(zipfile, {flags: 'w'});
-      out_stream.on('close', ()=>{
-        console.log("write stream finished..");
-      });
+      // out_stream.on('close', ()=>{
+      //   console.log("stream closed...");
+      // });
       zipper.pipe(out_stream);
-      zipper.directory(zipdir_path, '/'); //put the files in the root of the zipdir
+      zipper.directory(zipdir_path, zipdir); //put the files in the root of the zipdir
+      zipper.finalize(()=>{console.log("zipped");})
     }
   }
   //end of class
