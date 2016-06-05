@@ -69,7 +69,7 @@ module.exports = function (_EventEmitter) {
       port: 22,
       username: 'root',
       password: 'TjSDBkAu',
-      readyTimeout: 2000
+      readyTimeout: 500
     };
 
     _this.solo_connection.on('ready', function (er) {

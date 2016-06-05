@@ -54,7 +54,7 @@ module.exports = class Device extends EventEmitter{
         port: 22,
         username: 'root',
         password: 'TjSDBkAu',
-        readyTimeout: 2000
+        readyTimeout: 500
     }
 
     this.solo_connection.on('ready', function(er) {

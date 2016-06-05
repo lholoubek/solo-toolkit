@@ -4,7 +4,7 @@ const Device = require('./build/js/Device');
 const Mousetrap = require('Mousetrap');
 
 //Solo + controller device
-var solo = new Device(successConnecting, successDisconnecting, failureConnecting);
+let solo = new Device(successConnecting, successDisconnecting, failureConnecting);
 
 solo.on('updated_versions', ()=>{
   //Re-load the system info page when we get updated version info
@@ -13,7 +13,7 @@ solo.on('updated_versions', ()=>{
   }
 });
 
-var connect_button = $('#connect-button');
+let connect_button = $('#connect-button');
 $("#connect-progress-bar").hide();
 connect_button.on('click', connectButtonClicked);
 
@@ -79,29 +79,47 @@ function connectButtonConnected(){
 
 function connection_error_message(device_name){
   if (device_name === "controller") {
-      display_overlay("Could not connect to controller", "No connection to controller available. Check your wifi connection.");
+      display_overlay("error","Could not connect to controller", "No connection to controller available. Check your wifi connection.");
     } else {
-      display_overlay("Could not connect to Solo", "No connection to Solo is available. Try power cycling Solo.");
+      display_overlay("error", "Could not connect to Solo", "No connection to Solo is available. Try power cycling Solo.");
     }
   //mui.overlay('off');
 };
 
 
 //OVERLAYS
-var overlay_options = {
+let overlay_options = {
   'keyboard': true, // teardown when <esc> key is pressed (default: true)
   'static': false, // maintain overlay when clicked (default: false)
   'onclose': function() {} // execute function when overlay is closed
 };
 
-function display_overlay(heading, body){
-  var modal_dialog = document.createElement('div');
+function display_overlay(type, heading, body, image){
+  //param (String) type - type of modal (defaults to error)
+  //param {String} heading - heading for the modal
+  //param {String} body - body text for the dialog
+  //param {String} image - optional HTML string with asset to render
+  /*
+  Available types:
+  'error' - error dialog
+  'settings' – settings dialog
+  */
+  let conformed_type = '';
+  switch (type){  //conforms types to Google Icon Font names
+    case "error":
+      conformed_type = "warning";
+    case "settings":
+      conformed_type = "settings";
+  }
+  let modal_dialog = document.createElement('div');
   modal_dialog.style.width = '400px';
   modal_dialog.style.height = 'fit-content';
   modal_dialog.style.margin = '100px auto';
   modal_dialog.style.backgroundColor = '#fff';
-  modal_dialog.innerHTML = modal_template({modal_heading: heading, modal_body: body});
-  mui.overlay('on', modal_dialog);
+  modal_dialog.innerHTML = modal_template({modal_type: conformed_type, modal_heading: heading, modal_body: body});
+  mui.overlay('on', modal_dialog); //this inserts the div into the DOM and makes the optional-el div available to jquery
+  var image = image ? image : "";
+  $('#optional-el').html(image);
   $("#modal-button").on("click", ()=>{
     console.log("close dialog button clicked");
     mui.overlay('off', modal_dialog);
@@ -113,7 +131,7 @@ function getDirectory(input_element){
   //Takes an input html and then requests a dialog chooser
   //When response received from main thread with path, this drops a value in the input
   console.log("getDirectory()");
-  var selected_dir = '';
+  let selected_dir = '';
   ipcRenderer.send('open-dir-dialog');
   //Listen for one return event to get the path back from the main thread
   ipcRenderer.once('open-dir-dialog-reply', function(e, response){
@@ -146,7 +164,7 @@ $(document).ready(()=>{
 
 //SIDEBAR
 //Toggle the active class on sidebar items
-var remove_all_active_sidebar = function(){
+let remove_all_active_sidebar = function(){
   console.log("remove_all_active_sidebar");
   //Generic helper for styling sidebar items
   $("#system_info_button").removeClass('active');
@@ -157,12 +175,12 @@ var remove_all_active_sidebar = function(){
   $('#system_settings_button >p').removeClass('active');
 };
 
-var system_info_button = $('#system_info_button');
+let system_info_button = $('#system_info_button');
 system_info_button.click(()=>{view_system_info()});
 function view_system_info(){
     //If the info page is active, render the menu with the latest versions from the solo object
     console.log('view_system_info()');
-    var html = system_info_template(solo.versions);
+    let html = system_info_template(solo.versions);
     $("#logs-view").hide();
     $('#settings-view').hide();
     $('#system-view').html(html);
@@ -172,7 +190,7 @@ function view_system_info(){
     $('#system_info_button > p').addClass('active');
 };
 
-var log_collection_button = $('#log_collection_button');
+let log_collection_button = $('#log_collection_button');
 log_collection_button.click(()=>{load_log_collection()});
 function load_log_collection(){
   console.log("load_log_collection()");
@@ -185,7 +203,7 @@ function load_log_collection(){
   $('#log_collection_button > p').addClass('active');
 };
 
-var system_settings_button = $('#system_settings_button');
+let system_settings_button = $('#system_settings_button');
 system_settings_button.click(()=>{load_settings()});
 function load_settings(){
   console.log("load_settings()");
@@ -199,19 +217,19 @@ function load_settings(){
 
 //jqury to open and close the sidebar menu
 jQuery(function($) {
-  var $bodyEl = $('body'),
+  let $bodyEl = $('body'),
       $sidedrawerEl = $('#sidedrawer');
 
   function showSidedrawer() {
     // show overlay
-    var options = {
+    let options = {
       onclose: function() {
         $sidedrawerEl
           .removeClass('active')
           .appendTo(document.body);
       }
     };
-    var $overlayEl = $(mui.overlay('on', options));
+    let $overlayEl = $(mui.overlay('on', options));
     // show element
     $sidedrawerEl.appendTo($overlayEl);
     setTimeout(function() {

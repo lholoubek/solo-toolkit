@@ -46,10 +46,10 @@ function start_log_pull(){
   var haveConnections = checkConnections(logs_options);
   if (!haveConnections){
     if (!logs_options.solo_logs && !logs_options.controller_logs){
-      display_overlay("Select controller or Solo",
+      display_overlay("error","Select controller or Solo",
       "You haven't selected a device to pull logs from. ");
     } else {
-      display_overlay("Check connections", "You're not connected to the device to pull logs from.");
+      display_overlay("error","Check connections", "You're not connected to the device to pull logs from.");
     }
   } else {
     logPuller.set_log_options(logs_options);
@@ -107,6 +107,8 @@ function build_logs_options(){
   }
   //Parse the flight notes
   var notes = $('#flight-notes').val();
+  console.log("Flight notes: ", notes);
+
   logs_options.flight_notes = notes;
 
   //Create the name for the log folder using today's date
@@ -140,6 +142,9 @@ function logs_options_enabled(enabled){
   $('.option-heading').find('option').prop('disabled', !enabled);
   $('.option-heading').find('button').prop('disabled', !enabled);
   $('.option-heading').find('textarea').prop('disabled', !enabled);
+
+  //Make sure we keep the cancel button always enabled
+  $('#collect-logs-button').prop('disabled', false);
 };
 
 function updateLogsProgress(newVal){

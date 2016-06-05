@@ -11,6 +11,32 @@
     </div>
   <!--container for settings table-->
   <div class="mui-col-sm-10 mui-col-md-10 mui-col-lg-10">
+    <!-- Calibration Segment -->
+    <legend>Calibration</legend>
+    <div class="settings-table">
+      <table class="mui-table settings-table">
+          <tbody>
+            <!--Pixhawk Param reset row-->
+            <tr>
+              <th><button id="accel-calibration-button" class="btn-primary mui-btn">Accel calibration</button></th>
+              <th>
+                <div class="">
+                  <div class="action-description mui--text-subhead">Recalibrate the accelerometer on Solo</div>
+                </div>
+              </th>
+            </tr>
+            <!--Pixhaw reboot row-->
+            <tr>
+              <th><button id="stick-calibration-button" class="btn-primary mui-btn">Stick calibration</button></th>
+              <th>
+                <div class="settings-cell settings-description">
+                  <div class="action-description mui--text-subhead">Initiate a stick calibration procedure on the Solo controller</div>
+                </div>
+              </th>
+            </tr>
+          </tbody>
+      </table>
+    </div>
       <!-- Pixhawk settings segment -->
       <legend>Pixhawk Settings</legend>
       <div class="settings-table">
@@ -31,32 +57,6 @@
                 <th>
                   <div class="settings-cell settings-description">
                     <div class="action-description mui--text-subhead">Reboot the Pixhawk system (will not completely reboot Solo)</div>
-                  </div>
-                </th>
-              </tr>
-            </tbody>
-        </table>
-      </div>
-      <!-- Calibration Segment -->
-      <legend>Calibration</legend>
-      <div class="settings-table">
-        <table class="mui-table settings-table">
-            <tbody>
-              <!--Pixhawk Param reset row-->
-              <tr>
-                <th><button id="accel-calibration-button" class="btn-primary mui-btn">Accel calibration</button></th>
-                <th>
-                  <div class="">
-                    <div class="action-description mui--text-subhead">Recalibrate the accelerometer on Solo</div>
-                  </div>
-                </th>
-              </tr>
-              <!--Pixhaw reboot row-->
-              <tr>
-                <th><button class="btn-primary mui-btn">Stick calibration</button></th>
-                <th>
-                  <div class="settings-cell settings-description">
-                    <div class="action-description mui--text-subhead">Initiate a stick calibration procedure on the Solo controller</div>
                   </div>
                 </th>
               </tr>
@@ -108,7 +108,5 @@
           </tbody>
       </table>
     </div>
-
-
     <script type="text/javascript" src="./build/js/settings.js"></script>
   </div>

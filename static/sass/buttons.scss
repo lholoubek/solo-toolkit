@@ -16,6 +16,11 @@
   color: $primary-color-dark;
   background-color: $hover-overlay;
 }
+.btn-primary:focus {
+  color: $primary-color-dark;
+  background-color: $hover-overlay;
+  box-shadow: 0px 0px 0px 0px;
+}
 
 .btn-secondary {
   color: $primary-color-dark;
@@ -24,8 +29,6 @@
 .btn-secondary:hover {
   background-color: $hover-overlay;
 }
-
-
 
 #open-file-button {
   color: $primary-color-dark;

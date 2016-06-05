@@ -50,6 +50,7 @@ module.exports = class LogPuller extends EventEmitter{
 
     self.pull_logs(solo.controller_connection, "controller", self.options.controller_log_folder_path, self.options.controller_logs, ()=>{
       self.pull_logs(solo.solo_connection, "solo", self.options.solo_log_folder_path, self.options.solo_logs, ()=>{
+
         self.zip_logs_dir();
         console.log("Completed start_log_pull()");
         self.progressCallback(100);

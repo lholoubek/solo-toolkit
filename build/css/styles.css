@@ -49,6 +49,11 @@
   color: #1976D2;
   background-color: #EEEEEE; }
 
+.btn-primary:focus {
+  color: #1976D2;
+  background-color: #EEEEEE;
+  box-shadow: 0px 0px 0px 0px; }
+
 .btn-secondary {
   color: #1976D2;
   background-color: #ffffff; }
@@ -347,6 +352,12 @@ input[type=checkbox]:checked ~ label .check {
 
 #modal-button {
   margin-left: 80%; }
+
+.settings-image {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 80%; }
 
 h1 {
   font-family: "Roboto";
