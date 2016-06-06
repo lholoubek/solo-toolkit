@@ -1097,7 +1097,7 @@
 
       var pos = ev.target._muiPos;
 
-      // ignore clicks on non-items                                              
+      // ignore clicks on non-items
       if (pos === undefined) return;
 
       // select option
@@ -1655,7 +1655,7 @@
       }, 0);
     }
 
-    /** 
+    /**
      * Get previous active sibling.
      * @param {Element} el - The anchor element.
      */

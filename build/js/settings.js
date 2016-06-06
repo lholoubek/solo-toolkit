@@ -20,10 +20,10 @@ $('#accel-calibration-button').click(function () {
 $('#stick-calibration-button').click(function () {
   console.log("stick_cal called");
   if (solo.controllerConnected) {
-    calibrate_sticks();
+    display_overlay('settings', "Running stick calibration", "Initiating stick calibration on controller...");
+    setTimeout(calibrate_sticks(), 1500);
   } else {
-    //display_overlay("error", "Not connected to controller", "You must connect to your controller before calibrating. Check your wifi connection.");
-    calibrate_sticks();
+    display_overlay("error", "Not connected to controller", "You must connect to your controller before calibrating. Check your wifi connection.");
   }
 });
 
@@ -42,19 +42,32 @@ function accel_calibration() {
 
 function calibrate_sticks() {
   console.log("calibrate_sticks()");
-  solo.controller_connection.exec('runStickCal.sh', function (err, stream) {
+  solo.controller_connection.shell(function (err, stream) {
     console.log("Connecting to stick cal");
     if (err) {
-      display_overlay("error", "Calibration error", "An error occurred while running stick cal");
+      display_overlay("error", "Calibration error", "An error occurred while running stick cal.");
     }
-    display_overlay("settings", "Stick Calibration", "Calibrate your sticks by moving all sticks to every position.", "<img src='./build/assets/img/stick_cal.gif' class='settings-image' alt='stick calibration'>");
-    stream.on("data", function (data) {
-      console.log(data);
+    stream.setEncoding('utf8');
+    // stream.write('runStickCal.sh');
+    stream.once("data", function (data) {
+      console.log("Received data");
+      stream.write("runStickCal.sh\n");
+      setTimeout(function () {
+        console.log("stick cal ran for 20s. Killing connection.");
+        solo.controller_connection.end();
+      }, 20000);
+      display_overlay("settings", "Stick Calibration", "Calibrate your sticks by moving all sticks to every position.", "<img src='./build/assets/img/stick_cal.gif' class='settings-image' alt='stick calibration'>");
+      console.log("attaching event handler");
+      $('#modal-button').off('click');
+      $('#modal-button').on('click', function () {
+        console.log("attempting to end calibration step");
+        stream.write("\x03");
+      });
+    });
+    stream.on('data', function (data) {
+      console.log(data.toString());
     });
   });
 
-  // display_overlay("settings",
-  //                 "Stick Calibration",
-  //                 "Calibrate your sticks by moving all sticks to every position.",
-  //                 "<img src='./build/assets/img/stick_cal.gif' class='settings-image' alt='stick calibration'>");
+  console.log("exec call returned");
 };

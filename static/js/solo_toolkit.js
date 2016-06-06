@@ -58,6 +58,9 @@ function successDisconnecting(device){
   $("." + device + "-connection").removeClass("active");
   if (device === "controller"){ //If we're not connected to controller, good chance we're not going to be connected to Solo
     connectButtonEnabled();
+    solo.controllerConnected = false;
+  } else {
+    solo.soloConnected = false;
   }
 }
 
@@ -105,25 +108,30 @@ function display_overlay(type, heading, body, image){
   'settings' – settings dialog
   */
   let conformed_type = '';
-  switch (type){  //conforms types to Google Icon Font names
-    case "error":
-      conformed_type = "warning";
-    case "settings":
-      conformed_type = "settings";
+  type = type.toLowerCase().trim();
+  if (type == "error"){
+    conformed_type = "warning";
+  } else if (type == 'settings') {
+    conformed_type = "settings";
+  } else {
+    conformed_type = "warning"
   }
   let modal_dialog = document.createElement('div');
+  let modal_options = {
+    static: true
+  }
   modal_dialog.style.width = '400px';
   modal_dialog.style.height = 'fit-content';
   modal_dialog.style.margin = '100px auto';
   modal_dialog.style.backgroundColor = '#fff';
   modal_dialog.innerHTML = modal_template({modal_type: conformed_type, modal_heading: heading, modal_body: body});
-  mui.overlay('on', modal_dialog); //this inserts the div into the DOM and makes the optional-el div available to jquery
+  mui.overlay('on', modal_options, modal_dialog); //this inserts the div into the DOM and makes the optional-el div available to jquery
   var image = image ? image : "";
   $('#optional-el').html(image);
-  $("#modal-button").on("click", ()=>{
+  $("#modal-button").click(()=>{
     console.log("close dialog button clicked");
     mui.overlay('off', modal_dialog);
-  })
+  });
 };
 
 //FILE DIALOGS
