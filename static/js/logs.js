@@ -66,7 +66,7 @@ function start_log_pull(){
 $('#open-file-button').on('click', function(){
   console.log("pressed #open-file-button");
   // mui.overlay('on', overlay_options);
-  var output_path_element = $('#location-chooser-text');
+  var output_path_element = $('#logs-location-text');
   getDirectory(output_path_element);
 });
 
@@ -85,7 +85,7 @@ function build_logs_options(){
   };
 
   //Get the output path
-  var path = $('#location-chooser-text').val();
+  var path = $('#logs-location-text').val();
   //TODO - Make this work across systems and pull a default path from a user default
   path.length < 1 ? logs_options.output_path = process.env.HOME + "/Desktop" : logs_options.output_path = path;
 

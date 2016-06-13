@@ -2,23 +2,24 @@
 
 #connect-button {
   color: $primary-color-dark;
+  background-color: $white;
 }
 #connect-button.disabled {
-  color: $text-light;
+  color: $divider-color;
 }
 
 .btn-primary {
-  color: $primary-color-dark;
-  background-color: $hover-overlay;
+  color: $white;
+  background-color: $primary-color-dark;
 }
 
 .btn-primary:hover {
-  color: $primary-color-dark;
-  background-color: $hover-overlay;
+  color: $white;
+  background-color: $primary-color-dark;
 }
 .btn-primary:focus {
   color: $primary-color-dark;
-  background-color: $hover-overlay;
+  background-color: $divider-color;
   box-shadow: 0px 0px 0px 0px;
 }
 
@@ -27,9 +28,13 @@
   background-color: $white;
 }
 .btn-secondary:hover {
-  background-color: $hover-overlay;
+  background-color: $primary-color-light;
 }
 
 #open-file-button {
-  color: $primary-color-dark;
+  color: $secondary-text-color;
+}
+#open-file-button:hover {
+  background-color: $primary-color-dark;
+  color: $white;
 }

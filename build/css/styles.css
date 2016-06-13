@@ -26,53 +26,88 @@
 .error-icon {
   text-align: center;
   display: block;
-  color: #9E9E9E;
+  color: #727272;
   font-size: 4.5em;
   padding-top: 3%; }
 
 .sidedrawer-icon {
   display: inline;
-  color: #9E9E9E;
+  color: #EEEEEE;
   font-size: 21px; }
 
+.title-text {
+  color: #727272; }
+
+legend {
+  padding-top: 10px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  color: #727272; }
+
+.mui-textfield > input::-webkit-input-placeholder,
+.mui-textfield > textarea::-webkit-input-placeholder {
+  opacity: .30; }
+
+.mui-textfield {
+  color: #727272; }
+
 #connect-button {
-  color: #1976D2; }
+  color: #0288D1;
+  background-color: #ffffff; }
 
 #connect-button.disabled {
-  color: #9E9E9E; }
+  color: #EEEEEE; }
 
 .btn-primary {
-  color: #1976D2;
-  background-color: #EEEEEE; }
+  color: #ffffff;
+  background-color: #0288D1; }
 
 .btn-primary:hover {
-  color: #1976D2;
-  background-color: #EEEEEE; }
+  color: #ffffff;
+  background-color: #0288D1; }
 
 .btn-primary:focus {
-  color: #1976D2;
+  color: #0288D1;
   background-color: #EEEEEE;
   box-shadow: 0px 0px 0px 0px; }
 
 .btn-secondary {
-  color: #1976D2;
+  color: #0288D1;
   background-color: #ffffff; }
 
 .btn-secondary:hover {
-  background-color: #EEEEEE; }
+  background-color: #B3E5FC; }
 
 #open-file-button {
-  color: #1976D2; }
+  color: #727272; }
+
+#open-file-button:hover {
+  background-color: #0288D1;
+  color: #ffffff; }
 
 .page-title {
   padding-top: 10px;
   padding-bottom: 10px; }
 
-.version-table td {
-  color: #757575; }
+.version-table {
+  width: 85%; }
+  .version-table td {
+    color: #727272; }
+  .version-table th {
+    color: #727272;
+    border-bottom: 1px solid #EEEEEE;
+    width: 50%;
+    font-weight: bold; }
+  .version-table tr {
+    color: #727272;
+    border-color: #EEEEEE; }
 
-.version-table th {
-  color: #616161; }
+.mui-table.mui-table--bordered > tbody > tr > td {
+  border-bottom: 1px solid #EEEEEE;
+  border-top: 1px solid #EEEEEE; }
+
+.mui-table > thead > tr > th {
+  border-bottom: 2px solid #EEEEEE; }
 
 /*
 HTML EXAMPLE USING THESE
@@ -97,7 +132,7 @@ HTML EXAMPLE USING THESE
   height: 4px;
   display: block;
   width: 100%;
-  background-color: #c0dcf7;
+  background-color: #a1ddfe;
   border-radius: 2px;
   background-clip: padding-box;
   margin: 0.5rem 0 1rem 0;
@@ -107,10 +142,10 @@ HTML EXAMPLE USING THESE
     background-color: inherit;
     top: 0;
     bottom: 0;
-    background-color: #1976D2;
+    background-color: #0288D1;
     transition: width .3s linear; }
   .progress .indeterminate {
-    background-color: #1976D2; }
+    background-color: #0288D1; }
     .progress .indeterminate:before {
       content: '';
       position: absolute;
@@ -197,37 +232,41 @@ HTML EXAMPLE USING THESE
     left: 107%;
     right: -8%; } }
 
-legend {
-  padding-top: 22px;
-  padding-bottom: 0px;
-  margin-bottom: 0px;
-  color: #616161; }
-
 .progress {
   margin-top: 15px; }
 
 .mui-textfield {
   margin-top: 0px;
   padding-top: 5px;
-  margin-bottom: 4px; }
+  margin-bottom: 4px;
+  color: #727272; }
 
-.mui-textfield > input {
-  color: #616161;
+.mui-textfield > input, mui-textfield > textarea {
+  color: #727272;
   font-family: 'Roboto'; }
+
+.mui-textfield > input:focus, mui-textfield > textarea:focus {
+  color: #727272; }
+
+.mui-textfield > input:focus, .mui-textfield > textarea:focus {
+  color: #727272; }
 
 #open-file-button-container {
   padding-left: 0px;
   padding-right: 0px; }
 
-#location-chooser-form {
+.location-chooser-form {
   padding-left: 0px;
   padding-right: 5px; }
+
+.location-chooser-text {
+  border-bottom-color: #EEEEEE; }
 
 .mui-select {
   margin-right: 7px;
   margin-left: 7px; }
   .mui-select select {
-    color: #616161;
+    color: #727272;
     font-size: 17px; }
 
 .log_collect_option {
@@ -235,13 +274,19 @@ legend {
 
 h4.log_collect_option {
   font-size: 16px;
-  color: #616161; }
+  color: #727272; }
 
 .checkbox-group {
   margin-left: 10px;
-  color: #616161;
+  color: #727272;
   font-family: "Roboto";
   font-size: 16px; }
+
+input::input-placeholder {
+  color: #0288D1; }
+
+input[placeholder] {
+  border-color: #0288D1; }
 
 /*HTML EXAMPLE
 
@@ -280,7 +325,7 @@ h4.log_collect_option {
 
 /* Style box */
 .checkbox-group label .box {
-  background: #9E9E9E;
+  background: #EEEEEE;
   height: 20px;
   width: 20px;
   z-index: 9;
@@ -308,7 +353,7 @@ h4.log_collect_option {
 
 /* Change color of box when checkbox is checked */
 input[type=checkbox]:checked ~ label .box {
-  background: #1976D2; }
+  background: #0288D1; }
 
 /* Rotate and show check icon when checkbox is checked */
 input[type=checkbox]:checked ~ label .check {
@@ -321,7 +366,7 @@ input[type=checkbox]:checked ~ label .check {
   padding-top: 10px; }
 
 .action-description {
-  color: #9E9E9E;
+  color: #727272;
   font-size: 14px;
   text-align: left; }
 
@@ -343,15 +388,19 @@ input[type=checkbox]:checked ~ label .check {
 
 .modal-heading {
   text-align: center;
-  color: #616161;
+  color: #727272;
   margin-left: 10px; }
 
 .modal-body {
   padding-left: 10px;
-  color: #616161; }
+  color: #727272; }
 
-#modal-button {
-  margin-left: 80%; }
+#modal-button-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding-left: 2%;
+  padding-right: 2%; }
 
 .settings-image {
   display: block;
@@ -361,18 +410,20 @@ input[type=checkbox]:checked ~ label .check {
 
 h1 {
   font-family: "Roboto";
-  color: #616161; }
+  color: #727272; }
 
 html {
   overflow: hidden;
-  height: 100%; }
+  height: 100%;
+  background-color: #727272; }
 
 html, body {
   height: 100%;
   font-family: "Roboto"; }
 
 body {
-  overflow: auto; }
+  overflow: auto;
+  color: #727272; }
 
 /**
  * Header CSS
@@ -389,7 +440,7 @@ body {
   text-decoration: none; }
 
 #header {
-  background-color: #616161;
+  background-color: #727272;
   position: fixed;
   top: 0;
   right: 0;
@@ -398,11 +449,7 @@ body {
   transition: left 0.2s; }
 
 .mui-appbar {
-  background-color: #1976D2; }
-
-#connect-button {
-  background-color: #ffffff;
-  color: #1976D2; }
+  background-color: #0288D1; }
 
 #connect-button-holder {
   display: inline-block;
@@ -418,23 +465,12 @@ body {
   float: right; }
 
 .controller-connection.active, .solo-connection.active {
-  color: #ffffff; }
-
-.controller-connection {
-  color: #9E9E9E; }
+  color: #ffffff;
+  opacity: 1; }
 
 .solo-connection, .controller-connection {
-  color: #B6B6B6; }
-
-#sidedrawer {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  width: 200px;
-  left: -200px;
-  z-index: 2;
-  background-color: #EEEEEE;
-  transition: transform 0.2s; }
+  color: #EEEEEE;
+  opacity: .8; }
 
 #content-wrapper {
   min-height: 100%;
@@ -444,7 +480,7 @@ body {
   /* sticky bottom */
   margin-bottom: -40px;
   padding-bottom: 40px;
-  background-color: #ffffff; }
+  background-color: #FFFFFF; }
 
 /**
  * Footer CSS
@@ -472,7 +508,7 @@ body {
     margin-left: 200px; }
   #footer {
     margin-left: 200px;
-    background-color: #1976D2; }
+    background-color: #0288D1; }
   body.hide-sidedrawer #header {
     left: 0; }
   body.hide-sidedrawer #sidedrawer {
@@ -486,24 +522,35 @@ body {
  * Toggle Side drawer
  */
 #sidedrawer.active {
-  transform: translate(200px); }
+  transform: translate(200px);
+  background-color: #8BC34A; }
 
 /**
  * Side drawer CSS
  */
+#sidedrawer {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 200px;
+  left: -200px;
+  z-index: 2;
+  background-color: #EEEEEE;
+  transition: transform 0.2s; }
+
 #sidedrawer-brand {
   background-color: #EEEEEE;
-  color: #616161;
+  color: #727272;
   padding-left: 10px; }
 
 #sidedrawer ul {
   list-style: none; }
 
 .sidebar-button {
-  color: #9E9E9E; }
+  color: #727272; }
 
 .sidebar-button.active {
-  color: #1976D2; }
+  color: #0288D1; }
 
 #sidedrawer > ul {
   padding-left: 0px;
@@ -531,13 +578,32 @@ body {
 .sidedrawer-icon {
   color: inherit; }
 
+#tagline-holder {
+  display: inline;
+  vertical-align: middle; }
+
+.mui--appbar-line-height {
+  line-height: 62px; }
+
 #sidedrawer > ul > li:hover {
   cursor: pointer; }
   #sidedrawer > ul > li:hover > p {
-    color: #616161; }
+    color: #727272; }
 
 #sidedrawer .menu-item.active {
-  color: #1976D2; }
+  color: #FFFFFF; }
 
 li.active {
-  background-color: #ffffff; }
+  background-color: #FFFFFF; }
+
+#logo {
+  width: 60%; }
+
+#tagline {
+  font-size: .7em;
+  display: inline;
+  margin: 0 0 0 0;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  line-height: 140%;
+  vertical-align: -webkit-baseline-middle; }

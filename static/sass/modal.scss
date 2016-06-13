@@ -2,16 +2,27 @@
 
 .modal-heading {
   text-align: center;
-  color: $text-dark;
+  color: $secondary-text-color;
   margin-left: 10px;
 }
 .modal-body{
   padding-left: 10px;
-  color: $text-dark;
+  color: $secondary-text-color;
+}
+
+#modal-button-container{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding-left:  2%;
+  padding-right: 2%;
 }
 #modal-button{
   // margin-bottom: 90%;
-  margin-left: 80%;
+  //margin-left: 80%;
+}
+#optional-button{
+  //margin-left: 50%;
 }
 .settings-image{
   display: block;

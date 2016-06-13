@@ -97,16 +97,25 @@ let overlay_options = {
   'onclose': function() {} // execute function when overlay is closed
 };
 
-function display_overlay(type, heading, body, image){
-  //param (String) type - type of modal (defaults to error)
-  //param {String} heading - heading for the modal
-  //param {String} body - body text for the dialog
-  //param {String} image - optional HTML string with asset to render
-  /*
+function display_overlay(type, heading, body, options){
+  console.log("display_overlay()");
+  /*param (String) type - type of modal (defaults to error)
   Available types:
   'error' - error dialog
   'settings' – settings dialog
+
+  param {String} heading - heading for the modal
+  param {String} body - body text for the dialog
+  param {Object} options - optional options Object
+  Example -
+  {
+    image: "<img src='./build/assets/img/stick_cal.gif' class='settings-image' alt='stick calibration'>",
+    cancel_button: true,   //off by default
+    confirm_button: true,  //true by default
+    button_text: "Confirm"
+  }
   */
+  //determine the type of modal to display (error or setting)
   let conformed_type = '';
   type = type.toLowerCase().trim();
   if (type == "error"){
@@ -126,13 +135,40 @@ function display_overlay(type, heading, body, image){
   modal_dialog.style.backgroundColor = '#fff';
   modal_dialog.innerHTML = modal_template({modal_type: conformed_type, modal_heading: heading, modal_body: body});
   mui.overlay('on', modal_options, modal_dialog); //this inserts the div into the DOM and makes the optional-el div available to jquery
-  var image = image ? image : "";
-  $('#optional-el').html(image);
+  let optional_button = $('#optional-button');
+  let optional_image_el = $("#optional-image-el");
+  if (options){
+    if (!options.cancel_button){
+      console.log("hiding optional cancel button");
+      optional_button.hide();
+    }
+    if (options.button_text){
+      console.log("Trying to set button text");
+      $('#modal-button').html(options.button_text);
+    }
+    if(options.image){
+      optional_image_el.html(options.image);
+    }
+    if(!options.confirm_button){
+      $('#modal-button').hide();
+    }
+  } else {
+    console.log("No options passed to display_overlay");
+    optional_button.hide();
+    optional_image_el.html('');
+  }
+
   $("#modal-button").click(()=>{
     console.log("close dialog button clicked");
-    mui.overlay('off', modal_dialog);
+    clear_overlay(modal_dialog);
   });
 };
+
+function clear_overlay(){
+  console.log("clear_overlay()");
+  //@param {Object} dialog - DOM element used to create an overlay, typically the modal_dialog
+  mui.overlay('off');
+}
 
 //FILE DIALOGS
 function getDirectory(input_element){

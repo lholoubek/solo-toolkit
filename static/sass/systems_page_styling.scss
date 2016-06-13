@@ -5,12 +5,26 @@
 }
 
 .version-table {
+  width: 85%;
   td {
-    color: $text-medium;
+    color: $secondary-text-color;
   }
   th {
-    color: $text-dark;
+    color: $secondary-text-color;
+    border-bottom: 1px solid $divider-color;
+    width: 50%;
+    font-weight: bold;
   }
+  tr {
+    color: $secondary-text-color;
+    border-color: $divider-color;
+  }
+}
 
-
+.mui-table.mui-table--bordered > tbody > tr > td {
+  border-bottom: 1px solid $divider-color;
+  border-top: 1px solid $divider-color;
+}
+.mui-table > thead > tr > th {
+  border-bottom: 2px solid $divider-color;
 }

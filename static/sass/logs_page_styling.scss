@@ -1,12 +1,5 @@
 @import 'colors';
 
-legend {
-  padding-top: 22px;
-  padding-bottom: 0px;
-  margin-bottom: 0px;
-  color: $text-dark;
-}
-
 .progress {
   margin-top: 15px;
 }
@@ -15,26 +8,40 @@ legend {
   margin-top: 0px;
   padding-top: 5px;
   margin-bottom: 4px;
+  color: $secondary-text-color;
 }
 
-.mui-textfield > input {
-  color: $text-dark;
+.mui-textfield > input, mui-textfield > textarea {
+  color: $secondary-text-color;
   font-family: 'Roboto';
 }
+
+.mui-textfield > input:focus, mui-textfield > textarea:focus {
+  color: $secondary-text-color;
+}
+.mui-textfield > input:focus, .mui-textfield > textarea:focus{
+  color: $secondary-text-color;
+}
+
+
 #open-file-button-container {
   padding-left: 0px;
   padding-right: 0px;
 }
-#location-chooser-form {
+.location-chooser-form {
   padding-left: 0px;
   padding-right: 5px;
 }
+.location-chooser-text {
+  border-bottom-color: $divider-color;
+}
+
 
 .mui-select {
   margin-right: 7px;
   margin-left: 7px;
   select {
-    color: $text-dark;
+    color: $secondary-text-color;
     font-size: 17px;
   }
 }
@@ -45,12 +52,22 @@ legend {
 
 h4.log_collect_option {
   font-size: 16px;
-  color: $text-dark;
+  color: $secondary-text-color;
 }
 
 .checkbox-group {
   margin-left: 10px;
-  color: $text-dark;
+  color: $secondary-text-color;
   font-family: "Roboto";
   font-size: 16px;
+}
+
+
+input::input-placeholder {
+  color: $primary-color-dark;
+}
+
+input[placeholder] {
+   //font-weight: bold;
+   border-color: $primary-color-dark;
 }

@@ -31,13 +31,33 @@
 .error-icon {
   text-align: center;
   display: block;
-  color: $text-light;
+  color: $secondary-text-color;
   font-size: 4.5em;
   padding-top: 3%;
 }
 
 .sidedrawer-icon {
   display: inline;
-  color: $text-light;
+  color: $divider-color;
   font-size: 21px;
+}
+
+.title-text {
+  color: $secondary-text-color;
+}
+
+legend {
+  padding-top: 10px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+  color: $secondary-text-color;
+}
+.mui-textfield > input::-webkit-input-placeholder,
+.mui-textfield > textarea::-webkit-input-placeholder {
+  //color: $secondary-text-color;
+  opacity: .30;
+}
+
+.mui-textfield {
+  color: $secondary-text-color;
 }

@@ -11,12 +11,13 @@
 
 h1 {
   font-family: "Roboto";
-  color: $text-dark;
+  color: $secondary-text-color;
 }
 
 html {
   overflow:hidden;
   height: 100%;
+  background-color: $secondary-text-color;
 }
 
 html, body {
@@ -26,6 +27,7 @@ html, body {
 
 body {
   overflow: auto; //prevent rubber band scrolling
+  color: $secondary-text-color;
 }
 
 /**
@@ -45,7 +47,7 @@ body {
 }
 
 #header {
-  background-color: $text-dark;
+  background-color: $secondary-text-color;
   position: fixed;
   top: 0;
   right: 0;
@@ -57,10 +59,6 @@ body {
   background-color: $primary-color-dark;
 }
 
-#connect-button{
-  background-color: $white;
-  color: $primary-color-dark;
-}
 #connect-button-holder{
   display: inline-block;
   float: right;
@@ -76,23 +74,11 @@ body {
 }
 .controller-connection.active, .solo-connection.active {
   color: $white;
-}
-.controller-connection {
-  color: $text-light;
+  opacity: 1;
 }
 .solo-connection, .controller-connection {
   color: $divider-color;
-}
-
-#sidedrawer {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  width: 200px;
-  left: -200px;
-  z-index: 2;
-  background-color: $hover-overlay;
-  transition: transform 0.2s;
+  opacity: .8;
 }
 
 //Main content styling
@@ -105,7 +91,7 @@ body {
   /* sticky bottom */
   margin-bottom: -40px;
   padding-bottom: 40px;
-  background-color: $white;
+  background-color: $primary-color-text;
 }
 
 
@@ -170,13 +156,26 @@ body {
  */
 #sidedrawer.active {
   transform: translate(200px);
+  background-color: $accent-color;
 }
 /**
  * Side drawer CSS
  */
+
+ #sidedrawer {
+   position: fixed;
+   top: 0;
+   bottom: 0;
+   width: 200px;
+   left: -200px;
+   z-index: 2;
+   background-color: $divider-color;
+   transition: transform 0.2s;
+ }
+
 #sidedrawer-brand {
-  background-color: $hover-overlay;
-  color: $text-dark;
+  background-color: $divider-color;
+  color: $secondary-text-color;
   padding-left: 10px;
 }
 
@@ -185,7 +184,7 @@ body {
 }
 
 .sidebar-button {
-  color: $primary-text-color;
+  color: $secondary-text-color;
 }
 .sidebar-button.active {
   color: $primary-color-dark;
@@ -193,7 +192,7 @@ body {
 
 #sidedrawer > ul {
   padding-left: 0px;
-  background-color: $hover-overlay;
+  background-color: $divider-color;
 }
 
 #sidedrawer strong {
@@ -224,18 +223,41 @@ body {
   color: inherit;
 }
 
+#tagline-holder {
+  display: inline;
+  vertical-align: middle;
+}
+
+.mui--appbar-line-height {
+  line-height: 62px;
+}
+
+
 #sidedrawer > ul > li:hover {
   //Make text darker on hover
   > p {
-   color: $text-dark;
+   color: $secondary-text-color;
  }
 cursor: pointer;
 }
 
 //active menu item styling
 #sidedrawer .menu-item.active {
-  color: $primary-color-dark;
+  color: $primary-color-text;
 }
 li.active {
-  background-color: $white;
+  background-color: $primary-color-text;
+}
+
+#logo {
+    width: 60%;
+}
+#tagline {
+  font-size: .7em;
+  display: inline;
+  margin: 0 0 0 0;
+  padding-top: 0px;
+  padding-bottom: 0px;
+  line-height: 140%;
+  vertical-align: -webkit-baseline-middle;
 }
