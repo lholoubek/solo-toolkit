@@ -138,6 +138,8 @@ function display_overlay(type, heading, body, options){
   let optional_button = $('#optional-button');
   let optional_image_el = $("#optional-image-el");
   if (options){
+    console.log("Overlay options passed: ");
+    console.log(options);
     if (!options.cancel_button){
       console.log("hiding optional cancel button");
       optional_button.hide();
@@ -149,7 +151,7 @@ function display_overlay(type, heading, body, options){
     if(options.image){
       optional_image_el.html(options.image);
     }
-    if(!options.confirm_button){
+    if(options.confirm_button == false){
       $('#modal-button').hide();
     }
   } else {
