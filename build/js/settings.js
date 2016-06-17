@@ -1,7 +1,7 @@
 'use strict';
 
 var readline = require('readline');
-var SettingsHelpers = require('./build/js/SettingsHelpers');
+var sh = require('./build/js/SettingsHelpers');
 
 $('#stick-calibration-button').click(function () {
   console.log("stick_cal called");
@@ -24,7 +24,7 @@ $('#stick-calibration-button').click(function () {
           confirm_button: false
         };
         display_overlay('settings', "Initiating stick calibration...", "Starting stick calibration, please wait...", modal_options);
-        setTimeout(1500, SettingsHelpers.calibrate_sticks(solo.controller_connection));
+        setTimeout(1500, sh.calibrate_sticks(solo.controller_connection));
       });
     })();
   } else {
@@ -33,36 +33,11 @@ $('#stick-calibration-button').click(function () {
 });
 
 $('#factory-reset-button').click(function () {
-  if (solo.controllerConnected) {
-    (function () {
-      '';
-      var connected_devices = solo.soloConnected ? "controller and solo" : "controller only";
-      var modal_options = {
-        cancel_button: true,
-        button_text: "reset"
-      };
-      display_overlay('settings', "Factory reset", "Select reset to initiate factory reset of " + connected_devices, modal_options);
-      var cancel_button = $("#optional-button");
-      var confirm_button = $('#modal-button');
-      cancel_button.click(function () {
-        clear_overlay();
-      });
-      confirm_button.click(function () {
-        console.log("Reset button clicked");
-        modal_options = {
-          cancel_button: false,
-          confirm_button: false
-        };
-        setTimeout(function () {
-          console.log("set timeout called for factory reset");
-          SettingsHelpers.factory_reset(solo.controller_connection, solo.solo_connection);
-        }, 2000);
-        display_overlay('settings', "Initiating factory reset", "Starting factory reset of " + connected_devices + ", please wait...", modal_options);
-      });
-    })();
-  } else {
-    display_overlay("error", "Not connected to controller", "You must connect to your controller before resetting to factory settings. Check your wifi connection.");
-  }
+  sh.reset_check_confirm("factory");
+});
+
+$('#settings-reset-button').click(function () {
+  sh.reset_check_confirm('settings');
 });
 
 //reboot button

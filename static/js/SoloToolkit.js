@@ -2,6 +2,7 @@ console.log("running button_handler.js");
 const ipcRenderer = require('electron').ipcRenderer;
 const Device = require('./build/js/Device');
 const Mousetrap = require('Mousetrap');
+const _ = require('Underscore')
 
 //Solo + controller device
 let solo = new Device(successConnecting, successDisconnecting, failureConnecting);
@@ -129,7 +130,7 @@ function display_overlay(type, heading, body, options){
   let modal_options = {
     static: true
   }
-  modal_dialog.style.width = '400px';
+  modal_dialog.style.width = '50%';
   modal_dialog.style.height = 'fit-content';
   modal_dialog.style.margin = '100px auto';
   modal_dialog.style.backgroundColor = '#fff';
@@ -141,11 +142,9 @@ function display_overlay(type, heading, body, options){
     console.log("Overlay options passed: ");
     console.log(options);
     if (!options.cancel_button){
-      console.log("hiding optional cancel button");
       optional_button.hide();
     }
     if (options.button_text){
-      console.log("Trying to set button text");
       $('#modal-button').html(options.button_text);
     }
     if(options.image){
@@ -290,3 +289,11 @@ jQuery(function($) {
   $('.js-show-sidedrawer').on('click', showSidedrawer);
   $('.js-hide-sidedrawer').on('click', hideSidedrawer);
 });
+
+//IF enabled, this code will print the size of the window when it changes
+// $(document).ready(()=>{
+//   function printSizes(){
+//     console.log("Window size - height: " + window.outerHeight.toString() + " width: " + window.outerWidth.toString());
+//   }
+//   $(window).resize(_.debounce(printSizes, 1000));
+// })
