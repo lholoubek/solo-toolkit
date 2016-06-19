@@ -47,14 +47,58 @@ $('#reboot-button').click(function () {
 //Param reset
 $('#param-reset-button').click(function () {});
 
-//Accel calibration
-$('#accel-calibration-button').click(function () {
-  accel_calibration();
-});
+$('#update-firmware-button').click(function () {
+  //First determine which devices the user wants to update by grabbing value from the select form
+  var option = $('#firmware-devices-select option:selected').text().toLowerCase().trim();
+  var update_devices = { solo: {}, controller: {}, path: '' };
 
-//Accel calibration
-$('#accel-calibration-button').click(function () {
-  accel_calibration();
+  switch (option) {
+    //Determine which devices are being updated by reviewing the user-selected option
+    case "controller and solo":
+      console.log("updating both");
+      if (!solo.controllerConnected) {
+        display_overlay('settings', "Not connected", "Not connected to controller. Connect to controller and Solo to update firmware.");
+        return;
+      } else if (!solo.soloConnected) {
+        display_overlay('settings', "Not connected", "Not connected to Solo. Connect to solo to update Solo firmware.");
+        return;
+      } else {
+        update_devices.solo.update = true;
+        update_devices.controller.update = true;
+      }
+      break;
+    case "solo only":
+      console.log("updating solo only");
+      if (!solo.soloConnected) {
+        display_overlay('settings', "Not connected", "Not connected to controller. Connect to controller and Solo to update Solo firmware.");
+        return;
+      } else {
+        update_devices.solo.update = true;
+        update_devices.controller.update = false;
+      }
+      break;
+    case "controller only":
+      console.log("updating controller only");
+      if (!solo.controllerConnected) {
+        display_overlay('settings', "Not connected", "Not connected to controller. Connect to controller to update controller firmware.");
+        return;
+      } else {
+        update_devices.solo.update = false;
+        update_devices.controller.update = true;
+      }
+      break;
+  }
+
+  update_devices.path = $('#firmware-location').val();
+  console.log("Firmware path: ", update_devices.path);
+  sh.check_firmware_path(update_devices, function (invalid_path_message) {
+    console.log("Path is invalid");
+    display_overlay("error", "Firmware update", invalid_path_message);
+    return;
+  }, function () {
+    //called when path is valid and firmware is present
+
+  });
 });
 
 // var reboot = function(event, arg){ //this gets called from the main process; needs to handle an event and an argument

@@ -251,6 +251,10 @@ HTML EXAMPLE USING THESE
 .mui-textfield > input:focus, .mui-textfield > textarea:focus {
   color: #727272; }
 
+.logs-select {
+  padding-top: 15px;
+  margin-bottom: 5px; }
+
 #open-file-button-container {
   padding-left: 0px;
   padding-right: 0px; }
@@ -386,6 +390,13 @@ input[type=checkbox]:checked ~ label .check {
 .settings-cell.settings-description {
   width: 100%; }
 
+.firmware-select {
+  padding-top: 0px;
+  margin-bottom: 5px; }
+
+.firmware-collect-option {
+  display: inline; }
+
 .modal-heading {
   text-align: center;
   color: #727272;
@@ -423,6 +434,7 @@ html, body {
 
 body {
   overflow: auto;
+  overflow-y: auto;
   color: #727272; }
 
 /**
@@ -489,9 +501,7 @@ body {
   height: 40px;
   margin-left: 0px;
   transition: margin-left 0.2s;
-  bottom: 0; }
-
-#footer {
+  bottom: 0;
   background-color: #0288D1;
   color: #fff; }
 

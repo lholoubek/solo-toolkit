@@ -38,8 +38,7 @@ function calibrate_sticks(connection){
 
 function reset_check_confirm(reset_type){
 
-  //if (solo.controllerConnected){
-  if(true){
+  if (solo.controllerConnected){
    let connected_devices = solo.soloConnected ? "controller and Solo" :"controller";
    let reset_message = "Select reset to initiate a " + reset_type + " reset of " + connected_devices;
    display_overlay('settings', reset_type + " reset", reset_message, {cancel_button: true, button_text:"Reset"});
@@ -139,5 +138,31 @@ function send_reset_command(device_name, command, connection, callback){
   })
 }
 
+function firmware_update(update_devices){
+  //@param {Object} devices - object with connections and values for controller and solo, optionally
+  //example - {solo: {update:true, connection:ssh_connection}, controller: {update:true, connection:ssh_connection}}
+  //TODO - eventually add some checking here to see if the resulting update would create mismatched versions
+
+
+}
+
+
+function check_firmware_path(update_devices, path, invalid_callback, valid_callback){
+  //@param {Object} update_devices - object containing info about the devices to be updated.
+  //@param (Function) invalid_callback - called if the path is invalid. Accespts a {String} message to display to the user
+  //This could be called for three reasons: 1) no path specified, 2) Specified path doesn't exist, 3) specified path doesn't have firmware files
+  //@param {Function} valid_callback - called if path is valid and firmware is valid
+  if(update_devices.path == ''){
+    //first failure mode - no path provided
+    invalid_callback("Please select a folder containing valid Solo firmware.");
+  };
+
+
+
+
+}
+
 exports.calibrate_sticks = calibrate_sticks;
 exports.reset_check_confirm = reset_check_confirm;
+exports.firmware_update = firmware_update;
+exports.check_firmware_path = check_firmware_path;

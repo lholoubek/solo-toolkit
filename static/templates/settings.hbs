@@ -94,9 +94,22 @@
 
       <!-- Firmware updates-->
       <legend>Update firmware</legend>
+      <!-- Option checkboxes -->
+      <div>
+        <h4 class="firmware-collect-option">Apply update to </h4>
+          <form id="firmware-devices-select" class="log_collect_option">
+            <div class="mui-select firmware-select">
+              <select>
+                <option>Controller and Solo</option>
+                <option>Solo only</option>
+                <option>Controller only</option>
+              </select>
+            </div>
+          </form>
+      </div>
       <form class="location-chooser-form mui-col-sm-6 mui-col-md-6 mui-col-lg-6">
         <div id="location-chooser-text" class="mui-textfield">
-          <input type="text" placeholder="Select firmware folder ">
+          <input id="firmware-location" type="text" placeholder="Select firmware folder ">
         </div>
       </form>
       <div id="open-file-button-container" class="mui-col-sm-2 mui-col-md-2 mui-col-lg-2">
@@ -108,7 +121,7 @@
             <tbody>
               <!--Pixhawk Param reset row-->
               <tr>
-                <th><button class="btn-primary mui-btn">Flash firmware</button></th>
+                <th><button id="update-firmware-button" class="btn-primary mui-btn">Update firmware</button></th>
                 <th>
                   <div class="">
                     <div class="action-description mui--text-subhead">Flash selected firmware to Solo.</div>
