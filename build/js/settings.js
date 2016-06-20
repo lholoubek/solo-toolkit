@@ -3,6 +3,14 @@
 var readline = require('readline');
 var sh = require('./build/js/SettingsHelpers');
 
+$('#open-firmware-dir').click(function () {
+  console.log("Opening firmware location choose");
+  setTimeout(function () {
+    var output_path_element = $('#firmware-location');
+    getDirectory(output_path_element);
+  }, 300);
+});
+
 $('#stick-calibration-button').click(function () {
   console.log("stick_cal called");
   //DEBUGGING
@@ -52,8 +60,12 @@ $('#update-firmware-button').click(function () {
   var option = $('#firmware-devices-select option:selected').text().toLowerCase().trim();
   var update_devices = { solo: {}, controller: {}, path: '' };
 
+  //DEBUGGING
+  solo.controllerConnected = true;
+
   switch (option) {
     //Determine which devices are being updated by reviewing the user-selected option
+
     case "controller and solo":
       console.log("updating both");
       if (!solo.controllerConnected) {
@@ -90,10 +102,10 @@ $('#update-firmware-button').click(function () {
   }
 
   update_devices.path = $('#firmware-location').val();
+  console.log(update_devices.path.length);
   console.log("Firmware path: ", update_devices.path);
   sh.check_firmware_path(update_devices, function (invalid_path_message) {
-    console.log("Path is invalid");
-    display_overlay("error", "Firmware update", invalid_path_message);
+    display_overlay("error", "Firmware update error", invalid_path_message);
     return;
   }, function () {
     //called when path is valid and firmware is present

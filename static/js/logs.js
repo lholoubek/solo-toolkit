@@ -63,9 +63,8 @@ function start_log_pull(){
 
 
 //Set up our output path directory chooser
-$('#open-file-button').on('click', function(){
-  console.log("pressed #open-file-button");
-  // mui.overlay('on', overlay_options);
+$('#open-logs-dir').on('click', function(){
+  console.log("pressed #open-logs-dir");
   var output_path_element = $('#logs-location-text');
   getDirectory(output_path_element);
 });

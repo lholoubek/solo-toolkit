@@ -78,10 +78,22 @@ legend {
 .btn-secondary:hover {
   background-color: #B3E5FC; }
 
-#open-file-button {
+#open-logs-dir, #open-firmware-dir {
   color: #727272; }
 
-#open-file-button:hover {
+#open-logs-dir:hover, #open-firmware-dir:hover {
+  background-color: #0288D1;
+  color: #ffffff; }
+
+#open-logs-dir:focus, #open-firmware-dir:focus {
+  background-color: #ffffff;
+  color: #727272; }
+
+#open-logs-dir:active, #open-firmware-dir:active {
+  color: #727272;
+  background-color: #ffffff; }
+
+#open-logs-dir:focus:hover, #open-firmware-dir:focus:hover {
   background-color: #0288D1;
   color: #ffffff; }
 

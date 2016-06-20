@@ -31,10 +31,25 @@
   background-color: $primary-color-light;
 }
 
-#open-file-button {
+#open-logs-dir, #open-firmware-dir {
   color: $secondary-text-color;
+
 }
-#open-file-button:hover {
+#open-logs-dir:hover, #open-firmware-dir:hover {
+  background-color: $primary-color-dark;
+  color: $white;
+}
+#open-logs-dir:focus, #open-firmware-dir:focus {
+  background-color: $white;
+  color:$secondary-text-color;
+}
+#open-logs-dir:active, #open-firmware-dir:active {
+  color: $secondary-text-color;
+  background-color: $white;
+
+}
+
+#open-logs-dir:focus:hover, #open-firmware-dir:focus:hover {
   background-color: $primary-color-dark;
   color: $white;
 }

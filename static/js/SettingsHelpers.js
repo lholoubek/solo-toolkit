@@ -1,3 +1,5 @@
+const _ = require('Underscore');
+
 function calibrate_sticks(connection){
   console.log("calibrate_sticks()");
   connection.shell(function(err, stream){
@@ -37,7 +39,6 @@ function calibrate_sticks(connection){
 };
 
 function reset_check_confirm(reset_type){
-
   if (solo.controllerConnected){
    let connected_devices = solo.soloConnected ? "controller and Solo" :"controller";
    let reset_message = "Select reset to initiate a " + reset_type + " reset of " + connected_devices;
@@ -147,20 +148,74 @@ function firmware_update(update_devices){
 }
 
 
-function check_firmware_path(update_devices, path, invalid_callback, valid_callback){
+function check_firmware_path(update_devices, invalid_callback, valid_callback){
   //@param {Object} update_devices - object containing info about the devices to be updated.
   //@param (Function) invalid_callback - called if the path is invalid. Accespts a {String} message to display to the user
   //This could be called for three reasons: 1) no path specified, 2) Specified path doesn't exist, 3) specified path doesn't have firmware files
   //@param {Function} valid_callback - called if path is valid and firmware is valid
-  if(update_devices.path == ''){
+  if(update_devices.path.length < 2){  //error out if we weren't given a path
+    console.log("no path provided");
     //first failure mode - no path provided
     invalid_callback("Please select a folder containing valid Solo firmware.");
+    return;
   };
+  fs.readdir(update_devices.path, (err, file_list)=>{
+    console.log("reading contents of the firmware directory");
+    if (err){
+      invalid_callback("Error retrieving files from specified path. Select a different firmware location.");
+    }
+    let controller_files = update_file_filter('controller', file_list);
+    let solo_files = update_file_filter('solo', file_list);
+    if (update_devices.controller.update && controller_files.length != 2) {  //Make sure we have the right files for the controller
+      invalid_callback("Incorrect update files for controller. Make sure the firmware directory has one .tar.gz file and one md5 file.");
+      return;
+    }
+    if (update_devices.solo.update && solo_files.length != 2){ //Make sure we have the right files for Solo
+      invalid_callback("Incorrect update files for Solo. Make sure the firmware directory has one .tar.gz file and one md5 file.");
+      return;
+    }
+    
+    //We've now verified the firmware update files. Let's call the success callback.
+    //TODO -
 
 
 
+  })
+};
 
+function update_file_filter(device, file_list){
+  //verifies we have a tarball and returns list of files to update the specified devices, parsed from the full file list in the user-provided directory
+  //DOES NOT confirm the versions are the same
+  //@param {String} device - 'controller' or 'solo'
+  //@param (Array) file_list - list of update firmware, probably from fs.readdir on the firmware path
+  //TODO - update this to reject duplicate files. If you have a folder with multiple Solo tarballs, this will return them all
+  //Sample list for debugging -
+  // let list = ['controller_4.0.0.tar.gz', 'controller_5.5.0.tar.gz.md5', 'controller_3.4.3.tar.gz'];
+  let tar_ending = ".gz";
+  let md5_ending = "md5";
+  let update_files = [];
+  let tarball = _.some(file_list, (file)=>{
+    if (file.indexOf(device) >= 0 && file.indexOf(tar_ending, file.length - tar_ending.length) > 0){ //true if at least one file in the list includes the device and tar.gz
+      update_files.push(file);
+      return true;
+    } else return false;
+  });
+  let md5 = _.some(file_list, (file)=>{
+    if (file.indexOf(device) >= 0 && file.indexOf(md5_ending, file.length - md5_ending.length) > 0){ // true if at least one file in the list includes device and md5
+      update_files.push(file);
+      return true;
+    } else return false;
+  });
+  if (tarball && md5) return update_files;
+  else return [];
 }
+
+function version_from_file_list(device, file_list){
+  //returns version parsed from file list
+  ///@param {String} device - "controller" or "solo"
+}
+
+
 
 exports.calibrate_sticks = calibrate_sticks;
 exports.reset_check_confirm = reset_check_confirm;
