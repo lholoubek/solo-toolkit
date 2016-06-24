@@ -81,7 +81,7 @@ function reset(device, reset_type){
   }
   if (device.solo){
     console.log("Trying to reset Solo...");
-    send_reset_command('solo', command, device.solo, (device, err, stream)=>{
+    send_sololink_command('solo', command, device.solo, (device, err, stream)=>{
       if (err){
         display_overlay('error', reset_type + ' reset', reset_type + ' reset on Solo failed.', {cancel_button:false, confirm_button:true});
         return;
@@ -96,7 +96,7 @@ function reset(device, reset_type){
     });
   }
   //TODO - IMPLEMENT OPTIONAL FACTORY RESET OF EACH DEVICE INSTEAD OF ALWAYS RESETTING CONTROLLER
-  send_reset_command('controller', command, device.controller, (device_name, err, stream)=>{
+  send_sololink_command('controller', command, device.controller, (device_name, err, stream)=>{
       if(err){
         display_overlay('error', reset_type + ' reset', reset_type + ' reset on Controller failed.', {cancel_button:false, confirm_button:true});
         return
@@ -124,29 +124,19 @@ function factory_reset_notify(device_name, command){
                                                                             cancel_button: false});
 }
 
-function send_reset_command(device_name, command, connection, callback){
+function send_sololink_command(device_name, command, connection, callback){
   //@param {String} device - "solo" or 'controller'
   //@param {Object} ssh connection - ssh session with solo or controller
   //@param {function} callback -  callback function accepting stream and error
-  console.log("send_reset_command - ", device_name, command);
+  console.log("send_sololink_command - ", device_name, command);
   connection.exec('sololink_config '+ command, (err, stream)=>{
     if (err) {
-      console.error("Blew up trying to reset " + device_name + " " + command);
+      console.error("Blew up trying to send command to " + device_name + " " + command);
       callback(device_name, err);
     }
-
-    callback(device_name, err, stream);
+    callback(err, stream);
   })
 }
-
-function firmware_update(update_devices){
-  //@param {Object} devices - object with connections and values for controller and solo, optionally
-  //example - {solo: {update:true, connection:ssh_connection}, controller: {update:true, connection:ssh_connection}}
-  //TODO - eventually add some checking here to see if the resulting update would create mismatched versions
-
-
-}
-
 
 function check_firmware_path(update_devices, invalid_callback, valid_callback){
   //@param {Object} update_devices - object containing info about the devices to be updated.
@@ -164,23 +154,23 @@ function check_firmware_path(update_devices, invalid_callback, valid_callback){
     if (err){
       invalid_callback("Error retrieving files from specified path. Select a different firmware location.");
     }
-    let controller_files = update_file_filter('controller', file_list);
-    let solo_files = update_file_filter('solo', file_list);
-    if (update_devices.controller.update && controller_files.length != 2) {  //Make sure we have the right files for the controller
-      invalid_callback("Incorrect update files for controller. Make sure the firmware directory has one .tar.gz file and one md5 file.");
-      return;
+    if(update_devices.controller.update) {
+      controller.files = update_file_filter('controller', file_list);
+      if (update_devices.controller.files.length != 2) {  //Make sure we have the right files for the controller
+        invalid_callback("Incorrect update files for controller. Make sure the firmware directory has one .tar.gz file and one md5 file.");
+        return;
+      }
     }
-    if (update_devices.solo.update && solo_files.length != 2){ //Make sure we have the right files for Solo
-      invalid_callback("Incorrect update files for Solo. Make sure the firmware directory has one .tar.gz file and one md5 file.");
-      return;
+    if(update_devices.solo.update) {
+      update_devices.solo.files = update_file_filter('solo', file_list);
+      if (update_devices.solo.files.length != 2){ //Make sure we have the right files for Solo
+        invalid_callback("Incorrect update files for Solo. Make sure the firmware directory has one .tar.gz file and one md5 file.");
+        return;
+      }
     }
-    
-    //We've now verified the firmware update files. Let's call the success callback.
-    //TODO -
-
-
-
-  })
+    //We know the files are there and valid. Call the valid callback with the new update_devices object
+    valid_callback(update_devices)
+  });
 };
 
 function update_file_filter(device, file_list){
@@ -193,31 +183,53 @@ function update_file_filter(device, file_list){
   // let list = ['controller_4.0.0.tar.gz', 'controller_5.5.0.tar.gz.md5', 'controller_3.4.3.tar.gz'];
   let tar_ending = ".gz";
   let md5_ending = "md5";
-  let update_files = [];
+  let update_files = {tarball:'', md5:''};
   let tarball = _.some(file_list, (file)=>{
     if (file.indexOf(device) >= 0 && file.indexOf(tar_ending, file.length - tar_ending.length) > 0){ //true if at least one file in the list includes the device and tar.gz
-      update_files.push(file);
+      if (update_files.tarball.length <1) update_files.tarball = file;  // prevent duplication
       return true;
     } else return false;
   });
   let md5 = _.some(file_list, (file)=>{
     if (file.indexOf(device) >= 0 && file.indexOf(md5_ending, file.length - md5_ending.length) > 0){ // true if at least one file in the list includes device and md5
-      update_files.push(file);
+      if (update_files.md5.length <1) update_files.md5 = file; // prevent duplication if we have multiple files
       return true;
     } else return false;
   });
   if (tarball && md5) return update_files;
-  else return [];
+  else return {};
+}
+
+function create_updater_handlers(updater, progress_updater, error_messager){
+  // @param {Object} Updater - instance of the Updater class
+  // this function sets up event handlers for various Updater events
+  updater.on('transfer-error', ()=>{
+    error_messager('Error transferring update files to ' + updater.name);
+    progress_updater(0, "Error");
+    setTimeout(progress_updater(0, ''), 2000); // Clear the "Error" message after two seconds
+  });
+  updater.on('update-set-up', ()=>{
+    progress_updater(0, 'Device configured');
+  });
+  updater.on('update-error', (message)=>{
+    error_messager("Error initiating update on " + updater.name);
+  });
+  updater.on('update-started', ()=>{
+    progress_updater(0, updater.name + " update started.");
+  });
+  updater.on('progress', (newVal, message)=>{
+    progress_updater(newVal, message);
+  });
 }
 
 function version_from_file_list(device, file_list){
   //returns version parsed from file list
   ///@param {String} device - "controller" or "solo"
+
 }
-
-
 
 exports.calibrate_sticks = calibrate_sticks;
 exports.reset_check_confirm = reset_check_confirm;
-exports.firmware_update = firmware_update;
 exports.check_firmware_path = check_firmware_path;
+exports.send_sololink_command = send_sololink_command;
+exports.create_updater_handlers = create_updater_handlers;

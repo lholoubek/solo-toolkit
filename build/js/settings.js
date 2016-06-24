@@ -2,6 +2,7 @@
 
 var readline = require('readline');
 var sh = require('./build/js/SettingsHelpers');
+var Updater = require("./build/js/Updater");
 
 $('#open-firmware-dir').click(function () {
   console.log("Opening firmware location choose");
@@ -65,7 +66,6 @@ $('#update-firmware-button').click(function () {
 
   switch (option) {
     //Determine which devices are being updated by reviewing the user-selected option
-
     case "controller and solo":
       console.log("updating both");
       if (!solo.controllerConnected) {
@@ -77,6 +77,12 @@ $('#update-firmware-button').click(function () {
       } else {
         update_devices.solo.update = true;
         update_devices.controller.update = true;
+        var SoloUpdater = new Updater('solo');
+        sh.create_updater_handlers(SoloUpdater, update_settings_progress, update_error_message);
+        var ControllerUpdater = new Updater('controller');
+        sh.create_updater_handlers(ControllerUpdater, update_settings_progress, update_error_message);
+        SoloUpdater.next(ControllerUpdater.update()); // We want to update both devices so we need to give SoloUpdater a next callback
+        var first_updater = SoloUpdater;
       }
       break;
     case "solo only":
@@ -87,6 +93,9 @@ $('#update-firmware-button').click(function () {
       } else {
         update_devices.solo.update = true;
         update_devices.controller.update = false;
+        var SoloUpdater = new Updater('solo');
+        sh.create_updater_handlers(SoloUpdater, update_settings_progress, update_error_message);
+        var first_updater = SoloUpdater;
       }
       break;
     case "controller only":
@@ -97,6 +106,9 @@ $('#update-firmware-button').click(function () {
       } else {
         update_devices.solo.update = false;
         update_devices.controller.update = true;
+        var ControllerUpdater = new Updater('controller');
+        sh.create_updater_handlers(ControllerUpdater, update_settings_progress, update_error_message);
+        var first_updater = ControllerUpdater;
       }
       break;
   }
@@ -105,18 +117,30 @@ $('#update-firmware-button').click(function () {
   console.log(update_devices.path.length);
   console.log("Firmware path: ", update_devices.path);
   sh.check_firmware_path(update_devices, function (invalid_path_message) {
-    display_overlay("error", "Firmware update error", invalid_path_message);
+    update_error_message(message);
     return;
-  }, function () {
-    //called when path is valid and firmware is present
-
+  }, function (update_devices) {
+    //called when path is valid and firmware is present. Passed new update_devices object
+    if (update_devices.solo.update) SoloUpdater.set_device(update_devices.solo);
+    if (update_devices.controller.update) ControllerUpdater.set_device(update_device.controller);
+    first_updater.update();
   });
 });
 
-// var reboot = function(event, arg){ //this gets called from the main process; needs to handle an event and an argument
-//   console.log(arg);
-// };
+function update_error_message(message) {
+  display_overlay("error", "Firmware update error", invalid_path_message);
+};
 
 function param_reset() {
   console.log("param_reset called");
+};
+
+function update_settings_progress(newVal, message) {
+  console.log("update_settings_progress", newVal, message);
+  //Updates progress bar to newVal, displays message immediately below progress bar
+  var settings_progress_bar = $('#settings-progress-bar');
+  newVal > 100 ? settings_progress_bar.width(100) : settings_progress_bar.width(newVal + "%");
+  if (message) {
+    $('#settings-progress-message').html(message);
+  } else $('#settings-progress-message').html('');
 };

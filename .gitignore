@@ -1,6 +1,6 @@
 node_modules/
-/build
-build/*
-build/**
-../build/**
+build/js
+build/js/**
+build/css
+build/css/**
 npm-debug.log

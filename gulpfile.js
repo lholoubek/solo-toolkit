@@ -41,6 +41,8 @@ gulp.task('watcher', () => {
   gulp.watch(['./static/sass/*.scss'],['sass-compile', electron.reload]);
   //watch html
   gulp.watch(['./index.html'], electron.reload);
+  //watch templates
+  gulp.watch(['./static/templates/*.hbs'], electron.restart);
 });
 
 gulp.task('default',['sass-compile','js-compile', 'build-templates','watcher']);
