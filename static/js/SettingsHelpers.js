@@ -151,19 +151,20 @@ function check_firmware_path(update_devices, invalid_callback, valid_callback){
   };
   fs.readdir(update_devices.path, (err, file_list)=>{
     console.log("reading contents of the firmware directory");
+    console.log("File list: ", file_list);
     if (err){
       invalid_callback("Error retrieving files from specified path. Select a different firmware location.");
     }
     if(update_devices.controller.update) {
-      controller.files = update_file_filter('controller', file_list);
-      if (update_devices.controller.files.length != 2) {  //Make sure we have the right files for the controller
+      update_devices.controller.files = update_file_filter('controller', file_list);
+      if (!update_devices.controller.files.tarball || !update_devices.controller.files.md5) {  //Make sure we have the right files for the controller
         invalid_callback("Incorrect update files for controller. Make sure the firmware directory has one .tar.gz file and one md5 file.");
         return;
       }
     }
     if(update_devices.solo.update) {
       update_devices.solo.files = update_file_filter('solo', file_list);
-      if (update_devices.solo.files.length != 2){ //Make sure we have the right files for Solo
+      if (!update_devices.solo.files.tarball || !update_devices.solo.files.md5){ //Make sure we have the right files for Solo
         invalid_callback("Incorrect update files for Solo. Make sure the firmware directory has one .tar.gz file and one md5 file.");
         return;
       }
@@ -183,24 +184,23 @@ function update_file_filter(device, file_list){
   // let list = ['controller_4.0.0.tar.gz', 'controller_5.5.0.tar.gz.md5', 'controller_3.4.3.tar.gz'];
   let tar_ending = ".gz";
   let md5_ending = "md5";
-  let update_files = {tarball:'', md5:''};
+  let update_files = {};
   let tarball = _.some(file_list, (file)=>{
     if (file.indexOf(device) >= 0 && file.indexOf(tar_ending, file.length - tar_ending.length) > 0){ //true if at least one file in the list includes the device and tar.gz
-      if (update_files.tarball.length <1) update_files.tarball = file;  // prevent duplication
+      if (!update_files.tarball) update_files.tarball = file;  // prevent duplication
       return true;
     } else return false;
   });
   let md5 = _.some(file_list, (file)=>{
     if (file.indexOf(device) >= 0 && file.indexOf(md5_ending, file.length - md5_ending.length) > 0){ // true if at least one file in the list includes device and md5
-      if (update_files.md5.length <1) update_files.md5 = file; // prevent duplication if we have multiple files
+      if (!update_files.md5) update_files.md5 = file; // prevent duplication if we have multiple files
       return true;
     } else return false;
   });
-  if (tarball && md5) return update_files;
-  else return {};
+  return update_files;
 }
 
-function create_updater_handlers(updater, progress_updater, error_messager){
+function create_updater_handlers(updater, progress_updater, error_messager, complete_message){
   // @param {Object} Updater - instance of the Updater class
   // this function sets up event handlers for various Updater events
   updater.on('transfer-error', ()=>{
@@ -220,6 +220,10 @@ function create_updater_handlers(updater, progress_updater, error_messager){
   updater.on('progress', (newVal, message)=>{
     progress_updater(newVal, message);
   });
+  updater.on('error', (error)=>{
+    error_messager(error);
+  });
+  updater.on("update-complete", complete_message);
 }
 
 function version_from_file_list(device, file_list){

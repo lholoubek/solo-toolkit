@@ -14,7 +14,6 @@ $('#open-firmware-dir').click(function () {
 
 $('#stick-calibration-button').click(function () {
   console.log("stick_cal called");
-  //DEBUGGING
   if (solo.controllerConnected) {
     (function () {
       var modal_options = {
@@ -37,7 +36,7 @@ $('#stick-calibration-button').click(function () {
       });
     })();
   } else {
-    display_overlay("error", "Not connected to controller", "You must connect to your controller before calibrating. Check your wifi connection.");
+    display_overlay("connection", "Not connected to controller", "You must connect to your controller before calibrating. Check your wifi connection.");
   }
 });
 
@@ -61,37 +60,41 @@ $('#update-firmware-button').click(function () {
   var option = $('#firmware-devices-select option:selected').text().toLowerCase().trim();
   var update_devices = { solo: {}, controller: {}, path: '' };
 
-  //DEBUGGING
+  //DEBUGGING!!!!!!!!
   solo.controllerConnected = true;
+  // DEBUGGING!!!!
 
   switch (option) {
     //Determine which devices are being updated by reviewing the user-selected option
     case "controller and solo":
       console.log("updating both");
       if (!solo.controllerConnected) {
-        display_overlay('settings', "Not connected", "Not connected to controller. Connect to controller and Solo to update firmware.");
+        display_overlay('connection', "Not connected", "Not connected to controller. Connect to controller and Solo to update firmware.");
         return;
       } else if (!solo.soloConnected) {
-        display_overlay('settings', "Not connected", "Not connected to Solo. Connect to solo to update Solo firmware.");
+        display_overlay('connection', "Not connected", "Not connected to Solo. Connect to solo to update Solo firmware.");
         return;
       } else {
         update_devices.solo.update = true;
         update_devices.controller.update = true;
+        update_devices.solo.connection = solo.solo_connection;
+        update_devices.controller.connection = solo.controller_connection;
         var SoloUpdater = new Updater('solo');
         sh.create_updater_handlers(SoloUpdater, update_settings_progress, update_error_message);
         var ControllerUpdater = new Updater('controller');
         sh.create_updater_handlers(ControllerUpdater, update_settings_progress, update_error_message);
-        SoloUpdater.next(ControllerUpdater.update()); // We want to update both devices so we need to give SoloUpdater a next callback
+        SoloUpdater.set_next(ControllerUpdater.update()); // We want to update both devices so we need to give SoloUpdater a next callback
         var first_updater = SoloUpdater;
       }
       break;
     case "solo only":
       console.log("updating solo only");
       if (!solo.soloConnected) {
-        display_overlay('settings', "Not connected", "Not connected to controller. Connect to controller and Solo to update Solo firmware.");
+        display_overlay('connection', "Not connected", "Not connected to controller. Connect to controller and Solo to update Solo firmware.");
         return;
       } else {
         update_devices.solo.update = true;
+        update_devices.solo.connection = solo.solo_connection;
         update_devices.controller.update = false;
         var SoloUpdater = new Updater('solo');
         sh.create_updater_handlers(SoloUpdater, update_settings_progress, update_error_message);
@@ -101,42 +104,53 @@ $('#update-firmware-button').click(function () {
     case "controller only":
       console.log("updating controller only");
       if (!solo.controllerConnected) {
-        display_overlay('settings', "Not connected", "Not connected to controller. Connect to controller to update controller firmware.");
+        display_overlay('connection', "Not connected", "Not connected to controller. Connect to controller to update controller firmware.");
         return;
       } else {
         update_devices.solo.update = false;
         update_devices.controller.update = true;
+        update_devices.controller.connection = solo.controller_connection;
         var ControllerUpdater = new Updater('controller');
-        sh.create_updater_handlers(ControllerUpdater, update_settings_progress, update_error_message);
+        sh.create_updater_handlers(ControllerUpdater, update_settings_progress, update_error_message, update_complete);
         var first_updater = ControllerUpdater;
       }
       break;
   }
 
-  update_devices.path = $('#firmware-location').val();
+  update_devices.path = $('#firmware-location').val(); // get the user-selected firmware folder from the form
   console.log(update_devices.path.length);
   console.log("Firmware path: ", update_devices.path);
   sh.check_firmware_path(update_devices, function (invalid_path_message) {
-    update_error_message(message);
+    update_error_message(invalid_path_message);
     return;
   }, function (update_devices) {
     //called when path is valid and firmware is present. Passed new update_devices object
-    if (update_devices.solo.update) SoloUpdater.set_device(update_devices.solo);
-    if (update_devices.controller.update) ControllerUpdater.set_device(update_device.controller);
+    if (update_devices.solo.update) {
+      SoloUpdater.set_device(update_devices.solo);
+      SoloUpdater.set_local_path(update_devices.path);
+    }
+    if (update_devices.controller.update) {
+      ControllerUpdater.set_device(update_devices.controller);
+      ControllerUpdater.set_local_path(update_devices.path);
+    }
     first_updater.update();
   });
 });
 
 function update_error_message(message) {
-  display_overlay("error", "Firmware update error", invalid_path_message);
+  display_overlay("error", "Firmware update error", message);
 };
+
+function update_complete() {
+  display_overlay('');
+}
 
 function param_reset() {
   console.log("param_reset called");
 };
 
 function update_settings_progress(newVal, message) {
-  console.log("update_settings_progress", newVal, message);
+  // console.log("update_settings_progress", newVal, message);
   //Updates progress bar to newVal, displays message immediately below progress bar
   var settings_progress_bar = $('#settings-progress-bar');
   newVal > 100 ? settings_progress_bar.width(100) : settings_progress_bar.width(newVal + "%");

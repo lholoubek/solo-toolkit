@@ -4,7 +4,7 @@ const electron = require('electron');
 const app = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
 const dialog = electron.dialog;
-var client = require('electron-connect').client;
+// var client = require('electron-connect').client;
 const ipcMain = require('electron').ipcMain;
 const globalShortcut = require('electron').globalShortcut;
 //const remote = electron.remote;
@@ -48,7 +48,9 @@ app.on('ready', function() {
 
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/index.html');
-  client.create(mainWindow, {sendBounds: true});
+
+  // Commenting out electron connect code to check if that's causing packaged app to fail
+  // client.create(mainWindow, {sendBounds: true});
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();

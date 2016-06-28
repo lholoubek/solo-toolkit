@@ -49,9 +49,9 @@ function start_log_pull() {
   var haveConnections = checkConnections(logs_options);
   if (!haveConnections) {
     if (!logs_options.solo_logs && !logs_options.controller_logs) {
-      display_overlay("error", "Select controller or Solo", "You haven't selected a device to pull logs from. ");
+      display_overlay("settings", "Select controller or Solo", "You haven't selected a device to pull logs from. ");
     } else {
-      display_overlay("error", "Check connections", "You're not connected to the device to pull logs from.");
+      display_overlay("connection", "Check connections", "You're not connected to the device to pull logs from.");
     }
   } else {
     logPuller.set_log_options(logs_options);

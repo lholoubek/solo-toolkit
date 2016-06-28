@@ -513,6 +513,10 @@ body {
 .progress-bar {
   margin-bottom: 2px; }
 
+#connect-progress-bar {
+  margin-top: 0px;
+  margin-bottom: 0px; }
+
 /**
  * Footer CSS
  */

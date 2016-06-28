@@ -83,9 +83,9 @@ function connectButtonConnected(){
 
 function connection_error_message(device_name){
   if (device_name === "controller") {
-      display_overlay("error","Could not connect to controller", "No connection to controller available. Check your wifi connection.");
+      display_overlay("connection","Could not connect to controller", "No connection to controller available. Check your wifi connection.");
     } else {
-      display_overlay("error", "Could not connect to Solo", "No connection to Solo is available. Try power cycling Solo.");
+      display_overlay("connection", "Could not connect to Solo", "No connection to Solo is available. Try power cycling Solo.");
     }
   //mui.overlay('off');
 };
@@ -119,12 +119,17 @@ function display_overlay(type, heading, body, options){
   //determine the type of modal to display (error or setting)
   let conformed_type = '';
   type = type.toLowerCase().trim();
-  if (type == "error"){
-    conformed_type = "warning";
-  } else if (type == 'settings') {
-    conformed_type = "settings";
-  } else {
-    conformed_type = "warning"
+
+  switch (type){
+    case "error":
+      conformed_type = 'warning';
+      break;
+    case "settings":
+      conformed_type = "settings";
+      break
+    case "connection":
+      conformed_type = "signal_wifi_off";
+      break;
   }
   let modal_dialog = document.createElement('div');
   let modal_options = {
