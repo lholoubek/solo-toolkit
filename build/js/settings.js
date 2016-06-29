@@ -61,7 +61,7 @@ $('#update-firmware-button').click(function () {
   var update_devices = { solo: {}, controller: {}, path: '' };
 
   //DEBUGGING!!!!!!!!
-  solo.controllerConnected = true;
+  // solo.controllerConnected = true;
   // DEBUGGING!!!!
 
   switch (option) {

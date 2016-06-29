@@ -4,10 +4,17 @@ const electron = require('electron');
 const app = electron.app;  // Module to control application life.
 const BrowserWindow = electron.BrowserWindow;  // Module to create native browser window.
 const dialog = electron.dialog;
-// var client = require('electron-connect').client;
+var client = require('electron-connect').client;
 const ipcMain = require('electron').ipcMain;
 const globalShortcut = require('electron').globalShortcut;
-//const remote = electron.remote;
+const Menu = electron.Menu;
+const MenuItem = electron.MenuItem;
+
+// If we're developing the app we'll use electron-connect and open the dev tools by default
+const DEVELOP = (process.env.ELECTRON_DEVELOP === "true");
+console.log("DEVELOP - " + DEVELOP);
+global.sharedConfig = {dev_env:DEVELOP};
+console.log(global.sharedConfig);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -22,21 +29,16 @@ app.on('window-all-closed', function() {
   };
 });
 
-//print out that we've received the reboot command
-ipcMain.on('reboot-command', function(event, command) {
-  event.sender.send('reboot-reply', 'Acking the reboot command');
-});
-
 ipcMain.on('open-dir-dialog', function(event, arg) {
     var dirPath = dialog.showOpenDialog(mainWindow, { properties: [ 'openDirectory', 'multiSelections' ]})
     event.sender.send('open-dir-dialog-reply', dirPath);
 });
 
 
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
-
   //Set basic window options
   var window_options = {
     "minWidth": 770,
@@ -50,10 +52,12 @@ app.on('ready', function() {
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 
   // Commenting out electron connect code to check if that's causing packaged app to fail
-  // client.create(mainWindow, {sendBounds: true});
+  if (DEVELOP) client.create(mainWindow, {sendBounds: true});
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  if (DEVELOP) {
+    mainWindow.webContents.openDevTools();
+  }
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function() {

@@ -199,20 +199,31 @@ module.exports = function (_EventEmitter) {
       var self = this;
       var filename = '/AXON_VERSION';
       var gimbal_version = '';
+
       this.solo_connection.sftp(function (err, sftp) {
-        if (err) throw err;
-        var file = sftp.createReadStream(filename);
-        var data = '';
-        var chunk = '';
-        file.on('readable', function () {
-          while ((chunk = file.read()) != null) {
-            data += chunk;
-          }
-        });
-        file.on('end', function () {
-          var gimbal_version = data.split('\n')[0].trim(); //just the value on the first line
-          self.versions.gimbal_version = gimbal_version;
-          self.emit('updated_versions');
+        if (err) return;
+        sftp.stat(filename, function (err, stat) {
+          if (err) {
+            // No gimbal attached. We don't have a GoPro gimbal
+            console.log("No GoPro gimbal attached");
+            self.versions.gimbal_version = "Not available";
+            self.emit('updated_versions');
+          } else {
+            // The gimbal version file exists. Pull it and parse it.
+            var file = sftp.createReadStream(filename);
+            var data = '';
+            var chunk = '';
+            file.on('readable', function () {
+              while ((chunk = file.read()) != null) {
+                data += chunk;
+              }
+            });
+            file.on('end', function () {
+              var gimbal_version = data.split('\n')[0].trim(); //just the value on the first line
+              self.versions.gimbal_version = gimbal_version;
+              self.emit('updated_versions');
+            });
+          };
         });
       });
     }

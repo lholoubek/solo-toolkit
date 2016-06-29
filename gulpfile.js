@@ -23,9 +23,9 @@ gulp.task('js-compile', () => {
       .pipe(gulp.dest('./build/js'));
 });
 
-//Run use a child process to run build_templates.js to compile handlebars layouts and pages
-gulp.task('build-templates', () => {
-  cmd_exec('node ./build_templates.js');
+gulp.task('move-templates', ()=>{
+  return gulp.src('./static/templates/*')
+  .pipe(gulp.dest('./build/templates'));
 });
 
 gulp.task('start', () => {
@@ -45,4 +45,4 @@ gulp.task('watcher', () => {
   gulp.watch(['./static/templates/*.hbs'], electron.restart);
 });
 
-gulp.task('default',['sass-compile','js-compile', 'build-templates','watcher']);
+gulp.task('default',['sass-compile','js-compile', 'move-templates','watcher']);

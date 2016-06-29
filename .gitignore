@@ -1,7 +1,10 @@
 node_modules/
 build/js
 build/js/**
+# build
 build/css
 build/css/**
+build/templates
+build/templates/*
 npm-debug.log
 SoloToolkit-darwin*

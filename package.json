@@ -1,13 +1,12 @@
 {
-  "name": "Solo Toolkit",
+  "name": "Solo_Toolkit",
   "version": "0.1.0",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev-build": "node ./node_modules/gulp/bin/gulp.js",
-    "predev-build": "ELECTRON_DEBUG=1",
+    "dev-build": "export ELECTRON_DEVELOP=true && node ./node_modules/gulp/bin/gulp.js",
     "build-js": "node ./node_modules/gulp/bin/gulp.js js-compile",
-    "package-mac": "electron-packager . SoloToolkit --platform=darwin --arch=x64 --icon=./build/assets/icon/solo_toolkit.icns",
+    "package-mac": "ELECTRON_DEVELOP=false electron-packager . SoloToolkit --platform=darwin --arch=x64 --icon=./build/assets/icon/solo_toolkit.icns",
     "clean":"rm -rf SoloToolkit-darwin-x64/"
   },
   "devDependencies": {
