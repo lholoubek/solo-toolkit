@@ -18,7 +18,7 @@ var Path = require('path');
 module.exports = function (_EventEmitter) {
   _inherits(LogPuller, _EventEmitter);
 
-  function LogPuller() {
+  function LogPuller(device) {
     _classCallCheck(this, LogPuller);
 
     //var self = this;
@@ -45,16 +45,21 @@ module.exports = function (_EventEmitter) {
         collect_all_logs:false,
         num_logs:0,
         create_zip:false,
-        flight_notes:""
+        log_notes:""
       };*/
       this.options = options;
+    }
+  }, {
+    key: 'set_device',
+    value: function set_device(device) {
+      this.device = device;
     }
   }, {
     key: 'set_progress_callback',
     value: function set_progress_callback(progressCallback) {
       //@param {function} progressCallback - function(int)
       //Callback is called as progress is made on a given task
-      //Currently used to update the progress bar
+      //Currently used to update the progress bar and add message
       this.progressCallback = progressCallback;
     }
   }, {
@@ -68,17 +73,25 @@ module.exports = function (_EventEmitter) {
       var self = this;
       console.log("start_log_pull");
       console.log('emitting start-pull');
-      this.create_log_folders(self);
+      if (this.create_log_folders(self) == false) {
+        this.emit('folder-already-exists');
+        return;
+      };
       this.emit('start-pull'); //notify UI that the log pull has started
 
-      self.pull_logs(solo.controller_connection, "controller", self.options.controller_log_folder_path, self.options.controller_logs, function () {
-        self.pull_logs(solo.solo_connection, "solo", self.options.solo_log_folder_path, self.options.solo_logs, function () {
-
-          self.zip_logs_dir();
-          console.log("Completed start_log_pull()");
-          self.progressCallback(100);
-          setTimeout(1000, self.progressCallback(0));
-          _this2.emit('cancelled');
+      self.pull_logs(self.device.controller_connection, "controller", self.options.controller_log_folder_path, self.options.controller_logs, function () {
+        self.pull_logs(self.device.solo_connection, "solo", self.options.solo_log_folder_path, self.options.solo_logs, function () {
+          // This is the callback called by this.pull_logs when it finishes pulling logs
+          self.add_log_notes(function () {
+            // Add log notes (skips if there are none)
+            self.zip_logs_dir(function () {
+              // zip up the logs folder
+              console.log("Completed start_log_pull()");
+              self.progressCallback(100, "All logs pulled");
+              setTimeout(1000, self.progressCallback(0));
+              _this2.emit('cancelled');
+            });
+          });
         });
       });
     }
@@ -156,7 +169,7 @@ module.exports = function (_EventEmitter) {
                 } else {
                   var progress = Math.round(count / length * 100);
                   console.log("Progress: " + progress);
-                  self.progressCallback(progress); //update the progress bar on the way through
+                  self.progressCallback(progress, 'Transferring log from ' + device_name + ': ' + filename); //update the progress bar on the way through
                   async_cb(null);
                 }
               });
@@ -166,7 +179,7 @@ module.exports = function (_EventEmitter) {
                 console.log(err);
               } else {
                 console.log("logpull completed successfully!");
-                self.progressCallback(100);
+                self.progressCallback(100, "Done transferring logs");
                 cb();
               }
             });
@@ -182,7 +195,8 @@ module.exports = function (_EventEmitter) {
     value: function cancel() {
       //Cancels any current logpull operation
       console.log("LogPuller.cancel()");
-      this.progressCallback(0);
+      this.progressCallback(0, "Log transfer cancelled");
+      setTimeout(2500, this.progressCallback(0, ''));
       this.emit('cancelled');
       this.isCancelled = true;
     }
@@ -192,6 +206,7 @@ module.exports = function (_EventEmitter) {
       //Synchronous log folder creation
       //Top level folder is provided in options.log_folder_name (timestamp-based)
       //Creates subfolders as needed for controller and solo logs based on options
+      // Returns true if successful, false if not
       var self = context;
       console.log("create_log_folder() called - trying to create a folder for the logs");
       console.log("folder name: " + self.options.log_folder_name);
@@ -205,6 +220,7 @@ module.exports = function (_EventEmitter) {
           this.options.solo_log_folder_path = self.options.log_folder_name + "/solo";
           fs.mkdirSync(this.options.solo_log_folder_path);
         }
+        return true;
       } catch (err) {
         console.log("err in folder creation: ", err);
         if (err.code != 'EEXIST') {
@@ -212,12 +228,34 @@ module.exports = function (_EventEmitter) {
         } else {
           console.log("Log folder already exists. ");
         }
+        return false;
       }
-      return;
+    }
+  }, {
+    key: 'add_log_notes',
+    value: function add_log_notes(cb) {
+      var _this3 = this;
+
+      var versions = this.device.versions;
+      var version_strings = ["Sololink: " + versions.sololink_version, "Gimbal: " + versions.gimbal_version, "Pixhawk: " + versions.pixhawk_version, "Controller: " + versions.controller_version];
+
+      var version_message = "Retrieved: " + helpers.generate_date_string() + "\n\nVersions \n–––––––––\n" + version_strings.join("\n");
+      if (this.options.log_notes.length > 1) {
+        version_message += "\n\n Notes\n––––––––\n" + this.options.log_notes;
+      }
+
+      fs.writeFile(this.options.log_folder_name + "/Notes.txt", version_message, function (err) {
+        console.log(_this3.options.log_folder_name + "/Notes.txt");
+        if (err) {
+          console.log("Failed to write notes.txt");
+          console.log(err);
+        }
+        cb();
+      });
     }
   }, {
     key: 'zip_logs_dir',
-    value: function zip_logs_dir(context) {
+    value: function zip_logs_dir(cb) {
       //Zip the log files
       if (this.options.create_zip && !this.isCancelled) {
         console.log("zipping logfiles...");
@@ -237,8 +275,9 @@ module.exports = function (_EventEmitter) {
         zipper.directory(zipdir_path, zipdir); //put the files in the root of the zipdir
         zipper.finalize(function () {
           console.log("zipped");
+          cb();
         });
-      }
+      } else cb();
     }
     //end of class
 

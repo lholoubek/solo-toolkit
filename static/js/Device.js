@@ -164,7 +164,7 @@ module.exports = class Device extends EventEmitter{
       self.emit('updated_versions');
     });
   }
-
+  
   get_gimbal_version(){
     //We can't get gimbal version from sololink_config :(
     //Pull it from a file instead

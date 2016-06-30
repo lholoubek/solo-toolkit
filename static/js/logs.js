@@ -3,6 +3,8 @@ const fs = require('fs');
 const process = require('process');
 const async = require('async');
 const _ = require('underscore');
+const helpers = require('./build/js/LogfileHelpers');
+
 
 const LogPuller = require('./build/js/LogPuller');
 
@@ -27,15 +29,20 @@ logPuller.on('start-pull', ()=>{
 logPuller.on('cancelled', ()=>{
   $('#collect-logs-button').unbind('click');
   $('#collect-logs-button').html('Collect logs');
-  $('#collect-logs-button').on('click', start_log_pull);
+  $('#collect-logs-button').on('click', init_log_pull);
+  $('#collect-logs-button').blur();
   //Re-enabled logs options
   logs_options_enabled(true);
   console.log("cancelled event concluded");
 });
 
+logPuller.on('folder-already-exists', ()=>{
+  display_overlay('error', "Log folder exists", "A duplicate log folder already exists in this location. Rename that folder or select a new location.");
+});
+
 //Begin log pulling when the button is clicked
-$('#collect-logs-button').on('click', start_log_pull);
-function start_log_pull(){
+$('#collect-logs-button').on('click', init_log_pull);
+function init_log_pull(){
   //First get the settings to determine what logs we need to get from where
   var logs_options = build_logs_options();
 
@@ -49,16 +56,18 @@ function start_log_pull(){
       display_overlay("settings","Select controller or Solo",
       "You haven't selected a device to pull logs from. ");
     } else {
-      display_overlay("connection","Check connections", "You're not connected to the device to pull logs from.");
+      display_overlay("connection","Check connections", "You're not connected to a to pull logs from.");
     }
   } else {
     logPuller.set_log_options(logs_options);
+    if (!logPuller.device){
+      logPuller.set_device(solo);
+    }
     process.nextTick(()=>{
-      logPuller.start_log_pull() //Should pull from devices specified in
+      logPuller.start_log_pull(solo); //Should pull from devices specified in Solo object
     });
-
     return
-  }
+  };
 };
 
 
@@ -80,7 +89,7 @@ function build_logs_options(){
     collect_all_logs:false,
     num_logs:0,
     create_zip:false,
-    flight_notes:""
+    log_notes:""
   };
 
   //Get the output path
@@ -108,11 +117,11 @@ function build_logs_options(){
   var notes = $('#flight-notes').val();
   console.log("Flight notes: ", notes);
 
-  logs_options.flight_notes = notes;
+  logs_options.log_notes = notes;
 
   //Create the name for the log folder using today's date
-  var date = new Date();
-  logs_options.log_folder_name =logs_options.output_path +"/" + date.getFullYear() + "_" + (date.getMonth() + 1).toString() + "_" + date.getDate() + "_logs";
+
+  logs_options.log_folder_name =logs_options.output_path +"/" + helpers.generate_date_string() + "_logs";
 
   return logs_options;
 }
@@ -146,9 +155,12 @@ function logs_options_enabled(enabled){
   $('#collect-logs-button').prop('disabled', false);
 };
 
-function updateLogsProgress(newVal){
+function updateLogsProgress(newVal, message){
   //Updates progress bar to reflect newVal
-  console.log("updating progress bar. New val: " + newVal);
+  console.log("updating progress bar. New val: " + newVal + " message: " + message);
   var logs_progress_bar = $('#logs-progress-bar');
   newVal > 100 ? logs_progress_bar.width(100) : logs_progress_bar.width(newVal + "%");
+  if(message){
+    $('#logs-progress-message').html(message);
+  } else $('#logs-progress-message').html('');
 }

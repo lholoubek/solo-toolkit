@@ -36,8 +36,14 @@ module.exports = {
       } else {
         return false;
       };
+  },
+
+  generate_date_string: function(){
+    // Returns date string to use for log folders and such
+    var date = new Date();
+    return date.getFullYear() + "_" + (date.getMonth() + 1).toString() + "_" + date.getDate();
   }
-};
+}
 
 if (require.main === module){
   console.log(is_logfile('shotlog.5'));

@@ -141,8 +141,6 @@ function update_error_message(message){
 
 function update_complete(){
   display_overlay('')
-
-
 }
 
 function param_reset(){
