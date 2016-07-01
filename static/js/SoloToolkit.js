@@ -194,6 +194,8 @@ function getDirectory(input_element){
   });
 };
 
+// Templates and views
+
 $(document).ready(function load_templates(){
   //Renders all templates on initialization and drops them into their divs
   $('#system-view').html(system_info_template(solo.versions));

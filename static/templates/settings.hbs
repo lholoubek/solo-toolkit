@@ -13,23 +13,14 @@
       </div>
     </div>
   <!--container for settings table-->
-  <div class="mui-col-sm-10 mui-col-md-10 mui-col-lg-10">
+  <div class="mui-col-sm-12 mui-col-md-12 mui-col-lg-10">
     <!-- Calibration Segment -->
     <legend>Calibration</legend>
     <div class="settings-table">
       <table class="mui-table settings-table">
           <tbody>
-            <!-- accel cal -->
-            <!-- <tr>
-              <th><button id="accel-calibration-button" class="btn-primary mui-btn">Accel calibration</button></th>
-              <th>
-                <div class="">
-                  <div class="action-description mui--text-subhead">Recalibrate the accelerometer on Solo</div>
-                </div>
-              </th>
-            </tr>
-            <tr> -->
-              <th><button id="stick-calibration-button" class="btn-primary mui-btn">Stick calibration</button></th>
+            <tr>
+              <th class="settings-button-holder"><button id="stick-calibration-button" class="btn-primary mui-btn">Stick calibration</button></th>
               <th>
                 <div class="settings-cell settings-description">
                   <div class="action-description mui--text-subhead">Initiate a stick calibration procedure on the Solo controller</div>
@@ -47,53 +38,25 @@
         <tbody>
           <!-- Factory reset -->
           <tr>
-            <th><button id="factory-reset-button" class="btn-primary mui-btn">Factory reset</button></th>
+            <th class="settings-button-holder"><button id="factory-reset-button" class="btn-primary mui-btn">Factory reset</button></th>
             <th>
               <div class="">
-                <div class="action-description mui--text-subhead">Restore Solo to factor firmware. Will require re-pairing.</div>
+                <div class="action-description mui--text-subhead">Downgrades to original factory version and does a Settings Reset. Pairing and update required.</div>
               </div>
             </th>
           </tr>
           <!-- System settings reset -->
           <tr>
-            <th><button id="settings-reset-button" class="btn-primary mui-btn">Settings reset</button></th>
+            <th class="settings-button-holder"><button id="settings-reset-button" class="btn-primary mui-btn">Settings reset</button></th>
             <th>
               <div class="">
-                <div class="action-description mui--text-subhead">Restores all Solo settings to defaults. Does not require re-pairing.</div>
+                <div class="action-description mui--text-subhead">Restores system to a clean form of the current version, deleting new files or changes to settings. Pairing required.</div>
               </div>
             </th>
           </tr>
         </tody>
       </table>
     </div>
-
-    <!-- Pixhawk settings segment -->
-    <!-- PIXHAWK SETTINGS ARE DISABLED FOR NOW
-    <legend>Pixhawk Settings</legend>
-    <div class="settings-table">
-      <table class="mui-table settings-table">
-          <tbody>
-            <tr>
-              <th><button id="param-reset-button" class="btn-primary mui-btn">Param Reset</button></th>
-              <th>
-                <div class="">
-                  <div class="action-description mui--text-subhead">Reset all Pixhawk parameters.</div>
-                </div>
-              </th>
-            </tr>
-            <tr>
-              <th><button id='reboot-button' class="btn-primary mui-btn">Reboot</button></th>
-              <th>
-                <div class="settings-cell settings-description">
-                  <div class="action-description mui--text-subhead">Reboot the Pixhawk system (will not completely reboot Solo)</div>
-                </div>
-              </th>
-            </tr>
-          </tbody>
-      </table>
-    </div>
-
-    PIXHAWK UPDATING DISABLED FOR NOW-->
 
       <!-- Firmware updates-->
       <legend>Update firmware</legend>
@@ -122,38 +85,17 @@
       <div class="settings-table">
         <table class="mui-table settings-table">
             <tbody>
-              <!--Pixhawk Param reset row-->
               <tr>
-                <th><button id="update-firmware-button" class="btn-primary mui-btn">Update firmware</button></th>
+                <th class="settings-button-holder"><button id="update-firmware-button" class="btn-primary mui-btn">Update firmware</button></th>
                 <th>
                   <div class="">
                     <div class="action-description mui--text-subhead">Flash selected firmware to Solo.</div>
                   </div>
                 </th>
               </tr>
-
             </tbody>
         </table>
       </div>
-
-
-
-    <!-- Motor arming segment-->
-    <!--
-    <legend>Motor testing</legend>
-    <div class="settings-table">
-      <table class="mui-table settings-table">
-          <tbody>
-            <tr>
-              <th><button class="btn-primary mui-btn">Arm motors</button></th>
-              <th>
-                <div class="">
-                  <div class="action-description mui--text-subhead">Arm Solo motors. USE CAUTION!</div>
-                </div>
-              </th>
-            </tr>
-          </tbody>
-      </table>
-    </div> -->
+      
     <script type="text/javascript" src="./build/js/settings.js"></script>
   </div>

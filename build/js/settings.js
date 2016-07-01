@@ -83,8 +83,12 @@ $('#update-firmware-button').click(function () {
         sh.create_updater_handlers(SoloUpdater, update_settings_progress, update_error_message);
         var ControllerUpdater = new Updater('controller');
         sh.create_updater_handlers(ControllerUpdater, update_settings_progress, update_error_message);
-        SoloUpdater.set_next(ControllerUpdater.update()); // We want to update both devices so we need to give SoloUpdater a next callback
+        SoloUpdater.on('update-started', function () {
+          console.log("received update-started from Solo. Starting controller update...");
+          ControllerUpdater.update();
+        }); // We want to update both devices so we need to give SoloUpdater a next callback
         var first_updater = SoloUpdater;
+        console.log("Updaters configured...");
       }
       break;
     case "solo only":
@@ -117,9 +121,8 @@ $('#update-firmware-button').click(function () {
       break;
   }
 
+  // Updater objects are created, now we check the firmware path for validity and start the update
   update_devices.path = $('#firmware-location').val(); // get the user-selected firmware folder from the form
-  console.log(update_devices.path.length);
-  console.log("Firmware path: ", update_devices.path);
   sh.check_firmware_path(update_devices, function (invalid_path_message) {
     update_error_message(invalid_path_message);
     return;

@@ -16,8 +16,8 @@ module.exports = class Updater extends EventEmitter {
       this.transfer(()=>{
         this.check_md5(()=>{
           this.init(()=>{
+            console.log("updated started on " + this.name);
             this.emit('update-started'); // update has started, we can disconnect
-            if(this.next) this.next();
           });
         })
       });

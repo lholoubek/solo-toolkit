@@ -216,6 +216,9 @@ function create_updater_handlers(updater, progress_updater, error_messager, comp
   });
   updater.on('update-started', ()=>{
     progress_updater(0, updater.name + " update started.");
+    setTimeout(2000, ()=>{  // Clear the message after 2 seconds
+      progress_updater(0);
+    });
   });
   updater.on('progress', (newVal, message)=>{
     progress_updater(newVal, message);
@@ -223,7 +226,6 @@ function create_updater_handlers(updater, progress_updater, error_messager, comp
   updater.on('error', (error)=>{
     error_messager(error);
   });
-  updater.on("update-complete", complete_message);
 }
 
 function version_from_file_list(device, file_list){

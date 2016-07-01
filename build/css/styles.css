@@ -402,6 +402,9 @@ input[type=checkbox]:checked ~ label .check {
 .settings-cell.settings-description {
   width: 100%; }
 
+.settings-button-holder {
+  width: 22%; }
+
 .firmware-select {
   padding-top: 0px;
   margin-bottom: 5px; }

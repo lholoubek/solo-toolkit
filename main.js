@@ -12,8 +12,10 @@ const MenuItem = electron.MenuItem;
 
 // If we're developing the app we'll use electron-connect and open the dev tools by default
 const DEVELOP = (process.env.ELECTRON_DEVELOP === "true");
+const VERSION = app.getVersion();
 console.log("DEVELOP - " + DEVELOP);
-global.sharedConfig = {dev_env:DEVELOP};
+console.log("version: ", VERSION);
+global.sharedConfig = {dev_env:DEVELOP, version:VERSION};
 console.log(global.sharedConfig);
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -33,8 +35,6 @@ ipcMain.on('open-dir-dialog', function(event, arg) {
     var dirPath = dialog.showOpenDialog(mainWindow, { properties: [ 'openDirectory', 'multiSelections' ]})
     event.sender.send('open-dir-dialog-reply', dirPath);
 });
-
-
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.

@@ -141,15 +141,9 @@ module.exports = function (_EventEmitter) {
             var count = 0;
             var length = file_list.length;
 
-            //DEBUGGING
-            // console.log("Filtered list: " + file_list.toString());
-            // console.log("Number of files to collect: " + length);
-            // console.log("Dropping files here: " + log_folder_path);
-            //
             async.whilst(function () {
               if (count < length - 1 && !self.isCancelled) {
                 //if we haven't pulled all the files and the job hasn't been cancelled
-                console.log("continuing in the whilst loop...");
                 return true;
               } else {
                 console.log("breaking whilst loop...");
@@ -157,9 +151,7 @@ module.exports = function (_EventEmitter) {
               }
             }, function (async_cb) {
               count++;
-              console.log("Count: " + count);
               var filename = file_list[count];
-              console.log("Pulling: " + filename);
               //Pull the next file from filter_list and sftp it over
               sftp.fastGet("/log/" + filename, log_folder_path + "/" + filename, { concurrency: 1 }, function (err) {
                 if (err) {
