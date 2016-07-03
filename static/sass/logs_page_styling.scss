@@ -23,6 +23,12 @@
   color: $secondary-text-color;
 }
 
+::-webkit-resizer {
+  // hides the resizer; replaced with a custom resizer
+  // display: none;
+}
+
+
 .logs-select {
   padding-top: 15px;
   margin-bottom: 5px;
@@ -39,7 +45,6 @@
 .location-chooser-text {
   border-bottom-color: $divider-color;
 }
-
 
 .mui-select {
   margin-right: 7px;
