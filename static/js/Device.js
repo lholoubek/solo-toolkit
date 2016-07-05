@@ -20,6 +20,8 @@ module.exports = class Device extends EventEmitter{
     this.controller_connection = new Client();
     this.solo_connection = new Client();
 
+
+// Controller connection config
     this.controller_connection_params = {
         host: '10.1.1.1',
         port: 22,
@@ -44,17 +46,25 @@ module.exports = class Device extends EventEmitter{
         self.controller_connection.end(); //end the connection if we have an error
         failureConnectCallback("controller");
     });
+
     this.controller_connection.on('close', function(){
         console.log("Connection to controller closed");
         disconnectCallback('controller');
     });
 
+    this.controller_connection.on('exit', ()=>{
+      console.log("Connection to controller exited");
+      disconnectCallback('controller');
+    });
+
+
+    // Solo connection config
     this.solo_connection_params = {
         host: '10.1.1.10',
         port: 22,
         username: 'root',
         password: 'TjSDBkAu',
-        readyTimeout: 500
+        readyTimeout: 2000
     }
 
     this.solo_connection.on('ready', function(er) {
@@ -72,6 +82,7 @@ module.exports = class Device extends EventEmitter{
             self.get_wifi_info();
         }
     });
+
     this.solo_connection.on('error', function(er){
         console.log("Error connecting to solo");
         console.log(er);
@@ -83,8 +94,14 @@ module.exports = class Device extends EventEmitter{
         console.log("Connection to Solo closed");
         disconnectCallback('solo');
     });
-  }
 
+    this.solo_connection.on('exit', function(){
+      console.log("Connection to solo exited");
+      disconnectCallback('solo');
+    });
+}
+
+// General methods
   connect_to_controller() {
     console.log("connect_to_controller called");
     this.controller_connection.connect(this.controller_connection_params);
@@ -164,7 +181,7 @@ module.exports = class Device extends EventEmitter{
       self.emit('updated_versions');
     });
   }
-  
+
   get_gimbal_version(){
     //We can't get gimbal version from sololink_config :(
     //Pull it from a file instead

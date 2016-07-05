@@ -1,7 +1,9 @@
+// Builds Electron for Mac
 const packager = require('electron-packager');
 
-// BUILD OPTIONS
+// BUILD OPTIONS––––––––––
 const VERSION = "0.1.2";
+// –––––––––––––––––––––––
 
 let options = {
   dir: ".",
@@ -12,9 +14,10 @@ let options = {
   icon: "./build/assets/icon/solo_toolkit.icns",
   ignore: "node_modules/(babel-preset-es2015|node-sass|babel-*|gulp|gulp-*|electron-packager)",
   name: "Solo Toolkit",
+  out: "./packaged"
 }
 
-process.env.ELECTRON_DEVELOP = "false";
+process.env.ELECTRON_DEVELOP = "true";
 console.log(`Building version ${VERSION} for Mac...`);
 console.log("Dev mode set: " + process.env.ELECTRON_DEVELOP);
 packager(options, (err)=>{

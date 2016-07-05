@@ -9,3 +9,6 @@ build/templates
 build/templates/*
 npm-debug.log
 Solo Toolkit-darwin*
+.env*
+packaged
+packaged/*

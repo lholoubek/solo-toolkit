@@ -110,12 +110,9 @@ module.exports = class Updater extends EventEmitter {
         this.emit('error', 'Failed to prepare update on Solo');
         return;
       }
-      stream.on('exit', (code)=>{
-        if (code == 0){
-          console.log(`Successfully applied update on ${this.name}`);
-          callback();
-        }
-      })
+      this.device.connection.end();
+      console.log(`Successfully applied update on ${this.name}`);
+      callback();
     })
   }
 

@@ -39,8 +39,8 @@ function calibrate_sticks(connection){
 };
 
 function reset_check_confirm(reset_type){
-  if (solo.controllerConnected){
-   let connected_devices = solo.soloConnected ? "controller and Solo" :"controller";
+  if (device.controllerConnected){
+   let connected_devices = device.soloConnected ? "controller and Solo" :"controller";
    let reset_message = "Select reset to initiate a " + reset_type + " reset of " + connected_devices;
    display_overlay('settings', reset_type + " reset", reset_message, {cancel_button: true, button_text:"Reset"});
    let cancel_button = $("#optional-button");
@@ -56,9 +56,9 @@ function reset_check_confirm(reset_type){
        }
        setTimeout(()=>{
          console.log("Calling " + reset_type + " reset in 2s...");
-         if(solo.soloConnected){
-           reset({controller:solo.controller_connection, solo:solo.solo_connection}, reset_type);
-         } else reset({controller:solo.controller_connection}, reset_type);  //factory resetting controller only
+         if(device.soloConnected){
+           reset({controller:device.controller_connection, solo:device.solo_connection}, reset_type);
+         } else reset({controller:device.controller_connection}, reset_type);  //factory resetting controller only
        }, 2000);
      display_overlay('settings', "Initiating " + reset_type + " reset", "Starting " + reset_type +" reset of " + connected_devices +", please wait...", modal_options);
    });
@@ -200,7 +200,7 @@ function update_file_filter(device, file_list){
   return update_files;
 }
 
-function create_updater_handlers(updater, progress_updater, error_messager, complete_message){
+function create_updater_handlers(updater, progress_updater, error_messager){
   // @param {Object} Updater - instance of the Updater class
   // this function sets up event handlers for various Updater events
   updater.on('transfer-error', ()=>{
@@ -216,9 +216,9 @@ function create_updater_handlers(updater, progress_updater, error_messager, comp
   });
   updater.on('update-started', ()=>{
     progress_updater(0, updater.name + " update started.");
-    setTimeout(2000, ()=>{  // Clear the message after 2 seconds
+    setTimeout(()=>{  // Clear the message after 2 seconds
       progress_updater(0);
-    });
+    }, 5000);
   });
   updater.on('progress', (newVal, message)=>{
     progress_updater(newVal, message);

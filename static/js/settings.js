@@ -58,10 +58,6 @@ $('#update-firmware-button').click(()=>{
   var option = $('#firmware-devices-select option:selected').text().toLowerCase().trim();
   var update_devices = {solo:{}, controller:{}, path:''};
 
-  //DEBUGGING!!!!!!!!
-  // solo.controllerConnected = true;
- // DEBUGGING!!!!
-
   switch (option){
     //Determine which devices are being updated by reviewing the user-selected option
     case "controller and solo":
@@ -82,11 +78,15 @@ $('#update-firmware-button').click(()=>{
         var ControllerUpdater = new Updater('controller');
         sh.create_updater_handlers(ControllerUpdater, update_settings_progress, update_error_message);
         SoloUpdater.on('update-started', ()=>{
-          console.log("received update-started from Solo. Starting controller update...");
+          console.log("Solo update complete; starting update on controller");
           ControllerUpdater.update();
-        });  // We want to update both devices so we need to give SoloUpdater a next callback
+        })
+        ControllerUpdater.on('update-started', ()=>{
+          controller_update_complete();
+        });
+
         var first_updater = SoloUpdater;
-        console.log("Updaters configured...");
+
       }
       break;
     case "solo only":
@@ -101,6 +101,10 @@ $('#update-firmware-button').click(()=>{
         var SoloUpdater = new Updater('solo');
         sh.create_updater_handlers(SoloUpdater, update_settings_progress, update_error_message);
         var first_updater = SoloUpdater;
+        SoloUpdater.on('update-started', ()=>{
+          console.log("received update-started from Solo. Starting controller update...");
+          solo_update_complete();
+        });
       }
       break;
     case "controller only":
@@ -113,8 +117,12 @@ $('#update-firmware-button').click(()=>{
         update_devices.controller.update = true;
         update_devices.controller.connection = solo.controller_connection;
         var ControllerUpdater = new Updater('controller');
-        sh.create_updater_handlers(ControllerUpdater, update_settings_progress, update_error_message, update_complete);
+        sh.create_updater_handlers(ControllerUpdater, update_settings_progress, update_error_message);
         var first_updater = ControllerUpdater;
+        ControllerUpdater.on('update-started', ()=>{
+          console.log("received update-started event for controller");
+          controller_update_complete();
+        });
       }
       break;
   }
@@ -142,13 +150,23 @@ function update_error_message(message){
   display_overlay("error","Firmware update error", message)
 };
 
-function update_complete(){
-  display_overlay('')
+function solo_update_complete(){
+  display_overlay('settings', "Solo update started", "Solo update is in progress. Wait for Solo to connect to the controller.")
 }
 
-function param_reset(){
-  console.log("param_reset called");
-};
+function controller_update_complete(){
+  console.log("controller_update_complete()");
+  let options = {
+    image: "<img src='./build/assets/img/factory_reset_complete.png' class='settings-image' alt='updating'>"
+  }
+  display_overlay("settings", "Update started", "Update has started. Reconnect when Controller indicates update has completed.", options);
+}
+
+function settings_interface_enabled(enabled){
+  
+
+
+}
 
 function update_settings_progress(newVal, message){
   // console.log("update_settings_progress", newVal, message);

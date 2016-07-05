@@ -10,8 +10,16 @@ const globalShortcut = require('electron').globalShortcut;
 const Menu = electron.Menu;
 const MenuItem = electron.MenuItem;
 
+
+// TODO - doing some work on the build system. Will write a bunch of config variables to /build/.env.json to be loaded and parsed by the app
+// This will replace current method of using environment variables
+const ENV = require('./build/.env.json');
+console.log(ENV);
+console.log(ENV.dev_env);
+
 // If we're developing the app we'll use electron-connect and open the dev tools by default
 const DEVELOP = (process.env.ELECTRON_DEVELOP === "true");
+
 const VERSION = app.getVersion();
 console.log("DEVELOP - " + DEVELOP);
 console.log("version: ", VERSION);
@@ -20,7 +28,7 @@ console.log(global.sharedConfig);
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-var mainWindow = null;
+let mainWindow = null;
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
@@ -51,7 +59,6 @@ app.on('ready', function() {
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 
-  // Commenting out electron connect code to check if that's causing packaged app to fail
   if (DEVELOP) client.create(mainWindow, {sendBounds: true});
 
   // Open the DevTools.
@@ -72,3 +79,10 @@ app.on('will-quit', () => {
   // Unregister all shortcuts.
   globalShortcut.unregisterAll();
 });
+
+app.on('activate', function () {
+  // Create a new window when the window has been closed but the user clicks on the dock icon
+  if (mainWindow === null) {
+    createWindow()
+  }
+})

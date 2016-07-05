@@ -237,10 +237,12 @@ module.exports = class LogPuller extends EventEmitter{
       // });
       zipper.pipe(out_stream);
       zipper.directory(zipdir_path, zipdir); //put the files in the root of the zipdir
-      zipper.finalize(()=>{
-        console.log("zipped");
+      console.log("made it past zipper.directory...");
+      out_stream.on('close', ()=>{ //When we call finalize() below, the 'close' event will be emitted.
+        console.log("zipfile write stream closed");
         cb();
-      });
+      })
+      zipper.finalize();
     } else cb();
   }
   //end of class

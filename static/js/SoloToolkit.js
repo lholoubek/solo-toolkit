@@ -1,4 +1,4 @@
-console.log("running button_handler.js");
+console.log("running SoloToolkit.js");
 const ipcRenderer = require('electron').ipcRenderer;
 const Device = require('./build/js/Device');
 const Mousetrap = require('Mousetrap');
@@ -230,7 +230,7 @@ let remove_all_active_sidebar = function(){
 let system_info_button = $('#system_info_button');
 system_info_button.click(()=>{view_system_info()});
 function view_system_info(){
-    //If the info page is active, render the menu with the latest versions from the solo object
+    //If the info page is active, render the menu with the latest versions from the device object
     console.log('view_system_info()');
     let html = system_info_template(solo.versions);
     $("#logs-view").hide();

@@ -28,10 +28,6 @@ gulp.task('move-templates', ()=>{
   .pipe(gulp.dest('./build/templates'));
 });
 
-gulp.task('start', () => {
-  electron.start();
-});
-
 gulp.task('watcher', () => {
   electron.start();
   //Watch js files

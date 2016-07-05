@@ -40,6 +40,13 @@ logPuller.on('folder-already-exists', ()=>{
   display_overlay('error', "Log folder exists", "A duplicate log folder already exists in this location. Rename that folder or select a new location.");
 });
 
+logPuller.on('log-pull-complete', ()=>{
+  updateLogsProgress(0, 'Done transferring logs');
+  setTimeout(()=>{
+    updateLogsProgress(0);
+  }, 4000);
+});
+
 //Begin log pulling when the button is clicked
 $('#collect-logs-button').on('click', init_log_pull);
 function init_log_pull(){
