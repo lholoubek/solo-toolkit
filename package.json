@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "export ELECTRON_DEVELOP=true && gulp",
     "package-mac": "node ./packager/package-mac.js",
-    "clean": "rm -r './packaged'"
+    "clean": "rm -r './dist'"
   },
   "devDependencies": {
     "archiver": "^1.0.0",

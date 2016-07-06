@@ -11,7 +11,7 @@ module.exports = class LogPuller extends EventEmitter{
     super();
     //var self = this;
     console.log("Created new logpuller");
-    this.isCancelled = false;
+    this.cancelled = false;
     this.options = {};
   }
   set_log_options(options){
@@ -73,12 +73,12 @@ module.exports = class LogPuller extends EventEmitter{
   pull_logs(connection, device_name, path, option, cb){
     //@param {object} connection - SSH connection
     //@param {String} log_folder_path - path to log folder
-    //@param {function} callback - callback to call when complete
+    //@param {function} cb - callback to call when complete
     //using passed connection, this function sets up sftp connection
     //pulls log files into correct path, then calls callback
     var self = this;
 
-    if (!self.isCancelled && option){
+    if (!self.cancelled && option){
       var log_folder_path = path;  //depending on options, this folder will already exists when it's created with create_log_folders()
       connection.sftp(function(err, sftp){
         console.log("Trying to connect to pull logs");
@@ -92,7 +92,6 @@ module.exports = class LogPuller extends EventEmitter{
             self.cancel();
             throw err;
           }
-
           var filtered_list = _.map(list, (val)=>{return val.filename}, self);
           var file_list = _.filter(filtered_list, (filename)=>{
             //Helper method that takes a list of all files in the /log dir on Solo or Artoo and returns array of filenames based on user selected options
@@ -113,7 +112,7 @@ module.exports = class LogPuller extends EventEmitter{
 
           async.whilst(
             ()=>{
-              if (count < length -1 && !self.isCancelled) {  //if we haven't pulled all the files and the job hasn't been cancelled
+              if (count < length -1 && !self.cancelled) {  //if we haven't pulled all the files and the job hasn't been cancelled
                 return true;
               } else {
                 console.log("breaking whilst loop...");
@@ -131,7 +130,6 @@ module.exports = class LogPuller extends EventEmitter{
                   async_cb(err);
                 } else{
                   var progress = Math.round(count/length*100);
-                  console.log("Progress: " + progress);
                   self.progressCallback(progress, `Transferring log from ${device_name}: ${filename}`); //update the progress bar on the way through
                   async_cb(null);
                 }
@@ -161,9 +159,12 @@ module.exports = class LogPuller extends EventEmitter{
     this.progressCallback(0, "Log transfer cancelled");
     setTimeout(2500, this.progressCallback(0, ''));
     this.emit('cancelled');
-    this.isCancelled = true;
+    this.cancelled = true;
   };
 
+  isCancelled(){
+    return this.cancelled;
+  }
 
   create_log_folders(context){
     //Synchronous log folder creation
@@ -221,7 +222,7 @@ module.exports = class LogPuller extends EventEmitter{
 
   zip_logs_dir(cb){
     //Zip the log files
-    if (this.options.create_zip && !this.isCancelled){
+    if (this.options.create_zip && !this.cancelled){
       console.log("zipping logfiles...");
       var zipdir_path = this.options.log_folder_name;  //step up one level from the folder with logs
       console.log("zipdir_path - ", zipdir_path);

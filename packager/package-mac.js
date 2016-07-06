@@ -2,7 +2,7 @@
 const packager = require('electron-packager');
 
 // BUILD OPTIONS––––––––––
-const VERSION = "0.1.2";
+const VERSION = "0.1.3";
 // –––––––––––––––––––––––
 
 let options = {
@@ -13,8 +13,8 @@ let options = {
   "build-version": VERSION,
   icon: "./build/assets/icon/solo_toolkit.icns",
   ignore: "node_modules/(babel-preset-es2015|node-sass|babel-*|gulp|gulp-*|electron-packager)",
-  name: "Solo Toolkit",
-  out: "./packaged"
+  name: "Solo Toolkit-" + VERSION + '-',
+  out: "./dist"
 }
 
 process.env.ELECTRON_DEVELOP = "true";
