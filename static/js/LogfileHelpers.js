@@ -40,10 +40,11 @@ function is_logfile(name){
       };
 }
 
-function fileListFromDirList(dirList, collect_all_logs, num_logs){
+function fileListFromDirList(dirList, collect_all_logs, num_logs, collecting_geodata){
     var filtered_list = _.map(dirList, (val)=>{return val.filename});
+    console.log(filtered_list);
     var file_list = _.filter(filtered_list, (filename)=>{
-      if(is_logfile(filename)){
+      if(is_logfile(filename)||collecting_geodata){
         if(collect_all_logs){
           return true;
         } else if (log_less_than_max(filename,num_logs)) {
@@ -65,11 +66,11 @@ function asyncFilePull(sftp, file_list, base_path, out_path, isCancelled, progre
 
   async.whilst(
     ()=>{  //test
-      return (count < length -1 && !isCancelled());
+      return (count < length && !isCancelled());
     },
    (async_cb)=>{  // if test passed.
+     let filename = file_list[count];
      count++;
-     let filename = file_list[count]
      sftp.fastGet(base_path + `/${filename}`, out_path + `/${filename}`, {concurrency:1}, (err)=>{
        if (err) async_cb(err); // call the final function with an error
        else {

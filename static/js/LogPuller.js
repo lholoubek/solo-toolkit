@@ -86,7 +86,6 @@ module.exports = class LogPuller extends EventEmitter{
           self.cancel();
           throw err;
         }
-
         let base_path = '/log';
         let progress = (percentage)=>{  // Wrap progress updater because we're not passing device_name to asyncFilePull()
           if (percentage == 0){
@@ -96,14 +95,13 @@ module.exports = class LogPuller extends EventEmitter{
         let isCancelled = ()=>{  // Wrap this method so we don't have to pass context to the helper function to call this method
           return self.isCancelled();
         }
-
         sftp.readdir(base_path, (err, list)=>{  // /log contains logs on solo and controller
           if (err) {
             console.log("Couldn't find /log directory to pull files from");
             self.cancel();
             throw err;
           }
-          let file_list = helpers.fileListFromDirList(list, self.options.collect_all_logs, self.options.num_logs);
+          let file_list = helpers.fileListFromDirList(list, self.options.collect_all_logs, self.options.num_logs, false);
           helpers.asyncFilePull(sftp, file_list, base_path, log_folder_path, isCancelled, progress, ()=>{
             if (device_name == "solo"){ // If we're pulling logs from Solo, check to see if we have any R10C data available
               base_path = '/data/r10c';
@@ -112,8 +110,10 @@ module.exports = class LogPuller extends EventEmitter{
                   console.log("couldn't find R10C data on Solo");
                   cb();
                 } else {
-                  file_list = helpers.fileListFromDirList(list, true, null);
-                  helpers.asyncFilePull(sftp, file_list, base_path, Path.dirname(log_folder_path), isCancelled, ()=>{},()=>{
+                  console.log(list);
+                  file_list = helpers.fileListFromDirList(list, true, null, true);
+                  console.log("Should be some text files: " + file_list);
+                  helpers.asyncFilePull(sftp, file_list, base_path, Path.dirname(log_folder_path) + "/geodata", isCancelled, ()=>{},()=>{
                     cb();
                   });
                 }
@@ -158,6 +158,7 @@ module.exports = class LogPuller extends EventEmitter{
       if (this.options.solo_logs){
         this.options.solo_log_folder_path = self.options.log_folder_name + "/solo";
         fs.mkdirSync(this.options.solo_log_folder_path);
+        fs.mkdirSync(this.options.log_folder_name + "/geodata");
       }
       return true;
     } catch(err){
