@@ -92,23 +92,17 @@ module.exports = class LogPuller extends EventEmitter{
             self.cancel();
             throw err;
           }
-          var filtered_list = _.map(list, (val)=>{return val.filename}, self);
-          var file_list = _.filter(filtered_list, (filename)=>{
-            //Helper method that takes a list of all files in the /log dir on Solo or Artoo and returns array of filenames based on user selected options
-            if(helpers.is_logfile(filename)){
-              if(self.options.collect_all_logs){
-                return true;
-              } else if (helpers.log_less_than_max(filename,self.options.num_logs)) {
-                return true;
-              } else {
-                return false;
-              }
-            } else {
-              return false;
-            }
-          }, self);  //need to pass self as context here because file_list_filter accesses options
-          var count = 0;
-          var length = file_list.length;
+
+          // dirList
+          // collect_all_logs
+          // num_logs
+
+          let file_list = helpers.fileListFromDirList(list, self.options.collect_all_logs, self.options.num_logs)
+
+          console.log("file list: " + file_list);
+
+          let count = 0;
+          let length = file_list.length;
 
           async.whilst(
             ()=>{

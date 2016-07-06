@@ -164,7 +164,6 @@ function logs_options_enabled(enabled){
 
 function updateLogsProgress(newVal, message){
   //Updates progress bar to reflect newVal
-  console.log("updating progress bar. New val: " + newVal + " message: " + message);
   var logs_progress_bar = $('#logs-progress-bar');
   newVal > 100 ? logs_progress_bar.width(100) : logs_progress_bar.width(newVal + "%");
   if(message){
