@@ -58,6 +58,39 @@ function fileListFromDirList(dirList, collect_all_logs, num_logs){
     return file_list;
 }
 
+function asyncFilePull(sftp, file_list, base_path, out_path, isCancelled, progress, callback){
+
+  let count = 0;
+  let length = file_list.length;
+
+  async.whilst(
+    ()=>{  //test
+      return (count < length -1 && !isCancelled());
+    },
+   (async_cb)=>{  // if test passed.
+     count++;
+     let filename = file_list[count]
+     sftp.fastGet(base_path + `/${filename}`, out_path + `/${filename}`, {concurrency:1}, (err)=>{
+       if (err) async_cb(err); // call the final function with an error
+       else {
+         let percentage = Math.round(count/length*100);
+         progress(percentage);
+         async_cb(null);
+       }
+     });
+    },
+    (err)=>{ // if err we'll get an error; otherwise completed
+      if (err){
+        console.log("Logpull complete (final callback called) but with error: ");
+        console.log(err);
+      } else {
+        console.log("completed logpull successfully");
+        progress(0);
+        callback();
+      }
+    });
+}
+
 function generate_date_string(){
     // Returns date string to use for log folders and such
     var date = new Date();
@@ -68,6 +101,7 @@ module.exports = {
   log_less_than_max: log_less_than_max,
   is_logfile: is_logfile,
   fileListFromDirList: fileListFromDirList,
+  asyncFilePull: asyncFilePull,
   generate_date_string: generate_date_string
 }
 

@@ -80,66 +80,39 @@ module.exports = class LogPuller extends EventEmitter{
 
     if (!self.cancelled && option){
       var log_folder_path = path;  //depending on options, this folder will already exists when it's created with create_log_folders()
-      connection.sftp(function(err, sftp){
+      connection.sftp((err, sftp)=>{
         console.log("Trying to connect to pull logs");
         if (err) {
           self.cancel();
           throw err;
         }
-        sftp.readdir('/log', (err, list)=>{  // /log contains logs on solo and controller
+
+        let base_path = '/log';
+
+        sftp.readdir(base_path, (err, list)=>{  // /log contains logs on solo and controller
           if (err) {
             console.log("Couldn't find /log directory to pull files from");
             self.cancel();
             throw err;
           }
 
-          // dirList
-          // collect_all_logs
-          // num_logs
+          let file_list = helpers.fileListFromDirList(list, self.options.collect_all_logs, self.options.num_logs);
 
-          let file_list = helpers.fileListFromDirList(list, self.options.collect_all_logs, self.options.num_logs)
+          let progress = (percentage)=>{
+            if (percentage == 0){
+              self.progressCallback(0, "Done transferring files from " + device_name);
+            } else self.progressCallback(percentage, `Transfering files from ${device_name}...`);
+          }
 
-          console.log("file list: " + file_list);
+          let isCancelled = ()=>{  // need to map to this method so we don't have to pass context to the helper function to call this method
+            return self.isCancelled();
+          }
 
-          let count = 0;
-          let length = file_list.length;
-
-          async.whilst(
-            ()=>{
-              if (count < length -1 && !self.cancelled) {  //if we haven't pulled all the files and the job hasn't been cancelled
-                return true;
-              } else {
-                console.log("breaking whilst loop...");
-                return false;
-              }
-            },
-            function(async_cb){
-              count++;
-              var filename = file_list[count];
-              //Pull the next file from filter_list and sftp it over
-              sftp.fastGet("/log/" + filename, log_folder_path + "/" + filename, {concurrency:1},function(err){
-                if (err) {
-                  console.log("Something blew up transferring files");
-                  console.log(err);
-                  async_cb(err);
-                } else{
-                  var progress = Math.round(count/length*100);
-                  self.progressCallback(progress, `Transferring log from ${device_name}: ${filename}`); //update the progress bar on the way through
-                  async_cb(null);
-                }
-              });
-            },
-            function(err){
-              if (err){
-                console.log("Logpull complete (final callback called) but with error: ");
-                console.log(err);
-              } else {
-                  console.log("logpull completed successfully!");
-                  self.progressCallback(100, "Done transferring logs");
-                  cb();
-              }
-            });
+          helpers.asyncFilePull(sftp, file_list, base_path, log_folder_path, isCancelled, progress, ()=>{
+            cb();
+          });
         });
+
       });
     } else {
       console.log("didn't want to collect logs from ", device_name);

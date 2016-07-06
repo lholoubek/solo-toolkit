@@ -54,7 +54,7 @@ function init_log_pull(){
   var logs_options = build_logs_options();
 
   //Make sure cancelled is false - user just started this (not cancelled yet)
-  logPuller.isCancelled = false;
+  logPuller.cancelled = false;
 
   //Check to see if we have SSH connections to use for pulling logs
   var haveConnections = checkConnections(logs_options);
