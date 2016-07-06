@@ -38,7 +38,7 @@ gulp.task('watcher', () => {
   //watch html
   gulp.watch(['./index.html'], electron.reload);
   //watch templates
-  gulp.watch(['./static/templates/*.hbs'], electron.restart);
+  gulp.watch(['./static/templates/*.hbs'], ['move-templates', electron.restart]);
 });
 
 gulp.task('default',['sass-compile','js-compile', 'move-templates','watcher']);

@@ -87,11 +87,9 @@ module.exports = class LogPuller extends EventEmitter{
           throw err;
         }
         let base_path = '/log';
-        let progress = (percentage)=>{  // Wrap progress updater because we're not passing device_name to asyncFilePull()
-          if (percentage == 0){
-            self.progressCallback(0, "Done transferring files from " + device_name);
-          } else self.progressCallback(percentage, `Transfering files from ${device_name}...`);
-        }
+
+        // partially apply our progressCallback before passing it to asyncFilePull
+        let progress = percentage => self.progressCallback(percentage, `Transfering files from ${device_name}...`);
         let isCancelled = ()=>{  // Wrap this method so we don't have to pass context to the helper function to call this method
           return self.isCancelled();
         }
