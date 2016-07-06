@@ -2,7 +2,7 @@
 const packager = require('electron-packager');
 
 // BUILD OPTIONS––––––––––
-const VERSION = "0.1.3";
+const VERSION = "0.1.4";
 // –––––––––––––––––––––––
 
 let options = {

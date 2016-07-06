@@ -66,7 +66,7 @@ module.exports = class LogPuller extends EventEmitter{
             this.emit('cancelled');
           });
         });
-      })
+      });
     });
   };
 
@@ -88,6 +88,14 @@ module.exports = class LogPuller extends EventEmitter{
         }
 
         let base_path = '/log';
+        let progress = (percentage)=>{  // Wrap progress updater because we're not passing device_name to asyncFilePull()
+          if (percentage == 0){
+            self.progressCallback(0, "Done transferring files from " + device_name);
+          } else self.progressCallback(percentage, `Transfering files from ${device_name}...`);
+        }
+        let isCancelled = ()=>{  // Wrap this method so we don't have to pass context to the helper function to call this method
+          return self.isCancelled();
+        }
 
         sftp.readdir(base_path, (err, list)=>{  // /log contains logs on solo and controller
           if (err) {
@@ -95,24 +103,24 @@ module.exports = class LogPuller extends EventEmitter{
             self.cancel();
             throw err;
           }
-
           let file_list = helpers.fileListFromDirList(list, self.options.collect_all_logs, self.options.num_logs);
-
-          let progress = (percentage)=>{
-            if (percentage == 0){
-              self.progressCallback(0, "Done transferring files from " + device_name);
-            } else self.progressCallback(percentage, `Transfering files from ${device_name}...`);
-          }
-
-          let isCancelled = ()=>{  // need to map to this method so we don't have to pass context to the helper function to call this method
-            return self.isCancelled();
-          }
-
           helpers.asyncFilePull(sftp, file_list, base_path, log_folder_path, isCancelled, progress, ()=>{
-            cb();
+            if (device_name == "solo"){ // If we're pulling logs from Solo, check to see if we have any R10C data available
+              base_path = '/data/r10c';
+              sftp.readdir(base_path, (err, list)=>{
+                if (err) {
+                  console.log("couldn't find R10C data on Solo");
+                  cb();
+                } else {
+                  file_list = helpers.fileListFromDirList(list, true, null);
+                  helpers.asyncFilePull(sftp, file_list, base_path, Path.dirname(log_folder_path), isCancelled, ()=>{},()=>{
+                    cb();
+                  });
+                }
+              })
+            } else cb(); // If we're not pulling from Solo (we're pulling from controller), return here
           });
         });
-
       });
     } else {
       console.log("didn't want to collect logs from ", device_name);
