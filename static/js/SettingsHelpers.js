@@ -39,9 +39,9 @@ function calibrate_sticks(connection){
 };
 
 function reset_check_confirm(reset_type){
-  if (device.controllerConnected){
-   let connected_devices = device.soloConnected ? "controller and Solo" :"controller";
-   let reset_message = "Select reset to initiate a " + reset_type + " reset of " + connected_devices;
+  if (solo.controllerConnected){
+   let connected_devices = solo.soloConnected ? "controller and Solo" :"controller";
+   let reset_message = "Select reset to initiate a " + reset_type+ " reset of " + connected_devices;
    display_overlay('settings', reset_type + " reset", reset_message, {cancel_button: true, button_text:"Reset"});
    let cancel_button = $("#optional-button");
    let confirm_button = $('#modal-button');
@@ -56,9 +56,9 @@ function reset_check_confirm(reset_type){
        }
        setTimeout(()=>{
          console.log("Calling " + reset_type + " reset in 2s...");
-         if(device.soloConnected){
-           reset({controller:device.controller_connection, solo:device.solo_connection}, reset_type);
-         } else reset({controller:device.controller_connection}, reset_type);  //factory resetting controller only
+         if(solo.soloConnected){
+           reset({controller:solo.controller_connection, solo:solo.solo_connection}, reset_type);
+         } else reset({controller:solo.controller_connection}, reset_type);  //factory resetting controller only
        }, 2000);
      display_overlay('settings', "Initiating " + reset_type + " reset", "Starting " + reset_type +" reset of " + connected_devices +", please wait...", modal_options);
    });
@@ -73,7 +73,7 @@ function reset(device, reset_type){
   //@param
   //requests a factory reset for controller and optionally Solo
   console.log("reset()");
-  let command = reset_type == 'factory' ? '--factory-reset':'--settings-reset';
+  let command = reset_type.toLowerCase() == 'factory' ? '--factory-reset':'--settings-reset';
   console.log("Command: ", command);
   let modal_options = {
     cancel_button: false,
@@ -87,6 +87,7 @@ function reset(device, reset_type){
         return;
       }
       stream.on('exit', (code)=>{
+        console.log("solo reset command exit code: " + code);
         if(code == 0){
           console.log("Solo reset successfully");
           device.solo.end();
@@ -102,6 +103,7 @@ function reset(device, reset_type){
         return
       }
       stream.on('exit', (code)=>{
+        console.log("solo reset command exit code: " + code);
         if(code == 0 ){
             console.log("Controller reset successfully");
             device.controller.end();
@@ -110,6 +112,20 @@ function reset(device, reset_type){
       });
   });
 };
+
+function send_sololink_command(device_name, command, connection, callback){
+  //@param {String} device - "solo" or 'controller'
+  //@param {Object} ssh connection - ssh session with solo or controller
+  //@param {function} callback -  callback function accepting stream and error
+  console.log("send_sololink_command - ", device_name, command);
+  connection.exec('sololink_config '+ command, (err, stream)=>{
+    if (err) {
+      console.error("Blew up trying to send command to " + device_name + " " + command);
+      callback(device_name, err);
+    }
+    callback(device_name, err, stream);
+  })
+}
 
 function factory_reset_notify(device_name, command){
   //called when a factory reset has been initiated successfully on a device
@@ -122,20 +138,6 @@ function factory_reset_notify(device_name, command){
                   reset_type + ' reset initiated. Re-connect when controller indicates that factory reset has completed.',
                   {image:"<img src='./build/assets/img/factory_reset_complete.png' class='settings-image' alt='stick calibration'>",
                                                                             cancel_button: false});
-}
-
-function send_sololink_command(device_name, command, connection, callback){
-  //@param {String} device - "solo" or 'controller'
-  //@param {Object} ssh connection - ssh session with solo or controller
-  //@param {function} callback -  callback function accepting stream and error
-  console.log("send_sololink_command - ", device_name, command);
-  connection.exec('sololink_config '+ command, (err, stream)=>{
-    if (err) {
-      console.error("Blew up trying to send command to " + device_name + " " + command);
-      callback(device_name, err);
-    }
-    callback(err, stream);
-  })
 }
 
 function check_firmware_path(update_devices, invalid_callback, valid_callback){

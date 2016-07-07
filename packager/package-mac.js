@@ -1,8 +1,9 @@
 // Builds Electron for Mac
 const packager = require('electron-packager');
+const package = require('../package.json');
 
 // BUILD OPTIONS––––––––––
-const VERSION = "0.1.4";
+const VERSION = package.version;
 // –––––––––––––––––––––––
 
 let options = {
@@ -13,7 +14,7 @@ let options = {
   "build-version": VERSION,
   icon: "./build/assets/icon/solo_toolkit.icns",
   ignore: "node_modules/(babel-preset-es2015|node-sass|babel-*|gulp|gulp-*|electron-packager)",
-  name: "Solo Toolkit-" + VERSION + '-',
+  name: "Solo Toolkit",
   out: "./dist"
 }
 

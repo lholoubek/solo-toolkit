@@ -37,11 +37,11 @@ $('#stick-calibration-button').click(()=>{
 });
 
 $('#factory-reset-button').click(()=>{
-  sh.reset_check_confirm("factory");
+  sh.reset_check_confirm("Factory");
  });
 
  $('#settings-reset-button').click(()=>{
-   sh.reset_check_confirm('settings');
+   sh.reset_check_confirm('Settings');
  });
 
 //reboot button
@@ -57,6 +57,8 @@ $('#update-firmware-button').click(()=>{
   //First determine which devices the user wants to update by grabbing value from the select form
   var option = $('#firmware-devices-select option:selected').text().toLowerCase().trim();
   var update_devices = {solo:{}, controller:{}, path:''};
+
+
 
   switch (option){
     //Determine which devices are being updated by reviewing the user-selected option
@@ -83,10 +85,9 @@ $('#update-firmware-button').click(()=>{
         })
         ControllerUpdater.on('update-started', ()=>{
           controller_update_complete();
+          settings_interface_enabled(true);
         });
-
         var first_updater = SoloUpdater;
-
       }
       break;
     case "solo only":
@@ -104,6 +105,7 @@ $('#update-firmware-button').click(()=>{
         SoloUpdater.on('update-started', ()=>{
           console.log("received update-started from Solo. Starting controller update...");
           solo_update_complete();
+          settings_interface_enabled(true);
         });
       }
       break;
@@ -122,6 +124,7 @@ $('#update-firmware-button').click(()=>{
         ControllerUpdater.on('update-started', ()=>{
           console.log("received update-started event for controller");
           controller_update_complete();
+          settings_interface_enabled(true);
         });
       }
       break;
@@ -143,6 +146,7 @@ $('#update-firmware-button').click(()=>{
       ControllerUpdater.set_local_path(update_devices.path);
     }
     first_updater.update();
+    settings_interface_enabled(false); // Update is started; disable the interface
   });
 });
 
@@ -163,9 +167,11 @@ function controller_update_complete(){
 }
 
 function settings_interface_enabled(enabled){
-  
-
-
+  $('.settings-table').find('button').prop("disabled", !enabled);
+  $('.firmware-select').find('select').prop('disabled', !enabled);
+  $('.firmware-select').find('button').prop('disabled', !enabled);
+  $('#open-firmware-dir').prop('disabled', !enabled);
+  $('#firmware-location').prop('disabeld', !enabled);
 }
 
 function update_settings_progress(newVal, message){
