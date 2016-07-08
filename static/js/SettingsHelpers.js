@@ -123,7 +123,7 @@ function send_sololink_command(device_name, command, connection, callback){
       console.error("Blew up trying to send command to " + device_name + " " + command);
       callback(device_name, err);
     }
-    callback(device_name, err, stream);
+    callback(err, stream);
   })
 }
 
@@ -228,6 +228,7 @@ function create_updater_handlers(updater, progress_updater, error_messager){
   });
   updater.on('error', (error)=>{
     error_messager(error);
+    settings_interface_enabled(true);;
   });
 }
 

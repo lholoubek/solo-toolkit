@@ -30,6 +30,7 @@ module.exports = class Updater extends EventEmitter {
     //Sets up the device for the update using Sololink config
     sh.send_sololink_command(`${this.name}`, "--update-prepare sololink", this.device.connection, (err, stream)=>{
       if (err) {
+        console.log(err);
         this.emit('error','Failed to prepare update on Solo');
         return;
       }
