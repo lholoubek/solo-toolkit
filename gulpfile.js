@@ -6,6 +6,7 @@ const rename = require('gulp-rename');
 const concat = require('gulp-concat');
 const cmd_exec = require('child_process').exec;
 const babel = require('gulp-babel');
+const fs = require('fs');
 
 gulp.task('sass-compile', function () {
   gulp.src('./static/sass/styles.scss')
@@ -39,6 +40,17 @@ gulp.task('watcher', () => {
   gulp.watch(['./index.html'], electron.reload);
   //watch templates
   gulp.watch(['./static/templates/*.hbs'], ['move-templates', electron.restart]);
+});
+
+// Task to clean the /dist foldre
+gulp.task('clean', ()=>{
+  let dist_path = "./dist";
+  fs.rmdir(dist_path, (err)=>{
+    if (err) console.log("Clean: /dist directory didn't exist or wrong path.");
+    else {
+      console.log("Clean task complete");
+    }
+  })
 });
 
 gulp.task('default',['sass-compile','js-compile', 'move-templates','watcher']);

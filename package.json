@@ -4,8 +4,8 @@
   "main": "main.js",
   "scripts": {
     "dev": "export ELECTRON_DEVELOP=true && gulp",
-    "package-mac": "node ./packager/package-mac.js",
-    "clean": "rm -r './dist'"
+    "package": "node ./packager/package.js",
+    "clean": "gulp clean"
   },
   "devDependencies": {
     "archiver": "^1.0.0",

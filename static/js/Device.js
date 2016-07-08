@@ -27,7 +27,8 @@ module.exports = class Device extends EventEmitter{
         port: 22,
         username: 'root',
         password: 'TjSDBkAu',
-        readyTimeout: 2000
+        readyTimeout: 2000,
+        keepaliveInterval: 2000
     }
 
     this.controller_connection.on('ready', function(er) {
@@ -51,12 +52,10 @@ module.exports = class Device extends EventEmitter{
         console.log("Connection to controller closed");
         disconnectCallback('controller');
     });
-
-    this.controller_connection.on('exit', ()=>{
-      console.log("Connection to controller exited");
-      disconnectCallback('controller');
+    this.controller_connection.on('exit', function(){
+        console.log("Connection to controller exited");
+        disconnectCallback('controller');
     });
-
 
     // Solo connection config
     this.solo_connection_params = {
@@ -94,10 +93,14 @@ module.exports = class Device extends EventEmitter{
         console.log("Connection to Solo closed");
         disconnectCallback('solo');
     });
-
     this.solo_connection.on('exit', function(){
       console.log("Connection to solo exited");
-      disconnectCallback('solo');
+      failureConnectCallback('solo');
+    });
+
+    this.solo_connection.on('end', function(){
+      console.log("Connection to solo exited");
+      failureConnectCallback('solo');
     });
 }
 

@@ -215,6 +215,7 @@ function create_updater_handlers(updater, progress_updater, error_messager){
   });
   updater.on('update-error', (message)=>{
     error_messager("Error initiating update on " + updater.name);
+    settings_interface_enabled(true);
   });
   updater.on('update-started', ()=>{
     progress_updater(0, updater.name + " update started.");
