@@ -1,6 +1,6 @@
 {
   "name": "Solo_Toolkit",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "main": "main.js",
   "scripts": {
     "dev": "export ELECTRON_DEVELOP=true && gulp",
@@ -25,7 +25,8 @@
     "jquery": "^2.2.0",
     "mousetrap": "^1.5.3",
     "node-sass": "^3.7.0",
-    "remote": "^0.2.6"
+    "remote": "^0.2.6",
+    "rimraf": "^2.5.3"
   },
   "dependencies": {
     "async": "^2.0.0-rc.3",

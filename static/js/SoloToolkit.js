@@ -45,6 +45,8 @@ function successConnecting(device){
   };
 };
 function failureConnecting(device){
+  // Called if we encounter an error trying to connect to either Solo or controller
+  // Will display a 'failure connecting' message to the user
   console.log("Error or disconnection from " + device);
   $("#" + device + "-connection-status").html(" disconnected");
   $("." + device + "-connection").removeClass("active");
@@ -53,7 +55,9 @@ function failureConnecting(device){
     connectButtonEnabled();
   }
 };
-function successDisconnecting(device){
+function successDisconnecting(device, message){
+  // Called if we successfully disconnect from a device (like when Disconnect button pressed)
+  // Will not display a message to the user
   console.log("Successfully disconnected from " + device);
   $("#" + device + "-connection-status").html(" disconnected");
   $("." + device + "-connection").removeClass("active");
@@ -62,6 +66,9 @@ function successDisconnecting(device){
     solo.controllerConnected = false;
   } else {
     solo.soloConnected = false;
+  }
+  if (message){
+    display_overlay("connection", `Disconnected from ${message}`, `Check connections.`);
   }
 }
 
@@ -87,7 +94,6 @@ function connection_error_message(device_name){
     } else {
       display_overlay("connection", "Could not connect to Solo", "No connection to Solo is available. Try power cycling Solo.");
     }
-  //mui.overlay('off');
 };
 
 
@@ -194,8 +200,8 @@ function getDirectory(input_element){
   });
 };
 
-// Templates and views
 
+// Templates and views
 $(document).ready(function load_templates(){
   //Renders all templates on initialization and drops them into their divs
   $('#system-view').html(system_info_template(solo.versions));
@@ -267,7 +273,7 @@ function load_settings(){
   $('#system_settings_button > p').addClass('active');
 };
 
-//jqury to open and close the sidebar menu
+//jQuery to open and close the sidebar menu
 jQuery(function($) {
   let $bodyEl = $('body'),
       $sidedrawerEl = $('#sidedrawer');

@@ -43,9 +43,15 @@ module.exports = class Device extends EventEmitter{
     });
     this.controller_connection.on('error', function(er){
         console.log("Error connecting to controller");
-        console.log(er);
         self.controller_connection.end(); //end the connection if we have an error
-        failureConnectCallback("controller");
+        if (er.toString() == "Error: Keepalive timeout"){  // if the connection times out, the wifi network got switched or device was shut off
+          console.log("Timeout; controller must have disconnected");
+          // If controller timed out, Solo won't be connected
+          self.disconnect();
+          disconnectCallback('controller', 'Controller and Solo');
+        } else {
+          failureConnectCallback("controller");
+        }
     });
 
     this.controller_connection.on('close', function(){
@@ -63,7 +69,8 @@ module.exports = class Device extends EventEmitter{
         port: 22,
         username: 'root',
         password: 'TjSDBkAu',
-        readyTimeout: 2000
+        readyTimeout: 2000,
+        keepaliveInterval: 2000
     }
 
     this.solo_connection.on('ready', function(er) {
@@ -72,21 +79,25 @@ module.exports = class Device extends EventEmitter{
         } else {
             console.log('Solo :: ready');
             self.soloConnected = true;
+            successConnectCallback('solo');
             //When the Solo connection has been established, get the versions
-            self.get_sololink_version(()=>{
-              successConnectCallback("solo");  //Once we've parsed the vehicle versions, update!
-            });
+            self.get_sololink_version();
             self.get_pixhawk_version();
             self.get_gimbal_version();
             self.get_wifi_info();
         }
     });
 
-    this.solo_connection.on('error', function(er){
+    this.solo_connection.on('error', (er)=>{
         console.log("Error connecting to solo");
-        console.log(er);
-        failureConnectCallback("solo");
-        self.solo_connection.end();
+        if (er.toString() == "Error: Keepalive timeout"){
+          if (this.controllerConnected){
+            disconnectCallback('solo', "Solo");  // Controller is connected but Solo got shutdown or battery pulled
+          }
+        } else if (this.controllerConnected){  // controller is connected and it wasn't a keepalive timeout - we weren't able to connect
+            failureConnectCallback("solo");
+            self.solo_connection.end();
+        }
     });
 
     this.solo_connection.on('close', function(){
@@ -100,7 +111,7 @@ module.exports = class Device extends EventEmitter{
 
     this.solo_connection.on('end', function(){
       console.log("Connection to solo exited");
-      failureConnectCallback('solo');
+      disconnectCallback('solo');
     });
 }
 
@@ -116,11 +127,11 @@ module.exports = class Device extends EventEmitter{
 
   disconnect(){
     console.log("disconnect()");
-    if (this.controllerConnected === true){
+    if (this.controllerConnected){
       this.controller_connection.end();
       this.controllerConnected = false;
     }
-    if (this.soloConnected === true) {
+    if (this.soloConnected) {
       this.solo_connection.end();
       this.soloConnected = false;
     }
@@ -163,15 +174,13 @@ module.exports = class Device extends EventEmitter{
     });
   };
 
-  get_sololink_version(callback){
-    //This one takes a callback so we can tell UI that Solo is connected
+  get_sololink_version(){
     console.log("get_sololink_version()");
     var command = 'sololink_config --get-version sololink';
     var self = this;
     this.sololink_config_request(this.solo_connection, command, function(version){
       self.versions.sololink_version = version;
       self.emit('updated_versions');
-      callback();
     });
   }
 

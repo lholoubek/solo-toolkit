@@ -7,6 +7,7 @@ const concat = require('gulp-concat');
 const cmd_exec = require('child_process').exec;
 const babel = require('gulp-babel');
 const fs = require('fs');
+const rimraf = require('rimraf');
 
 gulp.task('sass-compile', function () {
   gulp.src('./static/sass/styles.scss')
@@ -44,8 +45,10 @@ gulp.task('watcher', () => {
 
 // Task to clean the /dist foldre
 gulp.task('clean', ()=>{
-  let dist_path = "./dist";
-  fs.rmdir(dist_path, (err)=>{
+  let dist_path = __dirname + "/dist";
+  console.log(dist_path);
+  rimraf(dist_path, (err)=>{
+    console.log(err);
     if (err) console.log("Clean: /dist directory didn't exist or wrong path.");
     else {
       console.log("Clean task complete");

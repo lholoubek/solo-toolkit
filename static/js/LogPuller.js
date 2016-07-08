@@ -207,9 +207,6 @@ module.exports = class LogPuller extends EventEmitter{
       var zipper = Archiver.create('zip', {});
 
       var out_stream = fs.createWriteStream(zipfile, {flags: 'w'});
-      // out_stream.on('close', ()=>{
-      //   console.log("stream closed...");
-      // });
       zipper.pipe(out_stream);
       zipper.directory(zipdir_path, zipdir); //put the files in the root of the zipdir
       console.log("made it past zipper.directory...");
