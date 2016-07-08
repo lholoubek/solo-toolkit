@@ -3,10 +3,10 @@ const fs = require('fs');
 const process = require('process');
 const async = require('async');
 const _ = require('underscore');
-const helpers = require('./build/js/LogfileHelpers');
+const helpers = require('./app/js/LogfileHelpers');
 
 
-const LogPuller = require('./build/js/LogPuller');
+const LogPuller = require('./app/js/LogPuller');
 
 //removed class from here into separate module
 var logPuller = new LogPuller();

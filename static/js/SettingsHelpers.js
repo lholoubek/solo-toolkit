@@ -17,7 +17,7 @@ function calibrate_sticks(connection){
         stream.end();
         clear_overlay();
       }, 30000);
-      let modal_options = {image:"<img src='./build/assets/img/stick_cal.gif' class='settings-image' alt='stick calibration'>", button_text:"Complete"};
+      let modal_options = {image:"<img src='./app/assets/img/stick_cal.gif' class='settings-image' alt='stick calibration'>", button_text:"Complete"};
       display_overlay("settings",
                       "Stick Calibration",
                       "Calibrate your sticks by moving all sticks to every position.",
@@ -136,7 +136,7 @@ function factory_reset_notify(device_name, command){
   display_overlay('settings',
                   reset_type + ' reset',
                   reset_type + ' reset initiated. Re-connect when controller indicates that factory reset has completed.',
-                  {image:"<img src='./build/assets/img/factory_reset_complete.png' class='settings-image' alt='stick calibration'>",
+                  {image:"<img src='./app/assets/img/factory_reset_complete.png' class='settings-image' alt='stick calibration'>",
                                                                             cancel_button: false});
 }
 

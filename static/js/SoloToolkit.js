@@ -1,6 +1,6 @@
 console.log("running SoloToolkit.js");
 const ipcRenderer = require('electron').ipcRenderer;
-const Device = require('./build/js/Device');
+const Device = require('./app/js/Device');
 const Mousetrap = require('Mousetrap');
 const _ = require('Underscore')
 
@@ -116,7 +116,7 @@ function display_overlay(type, heading, body, options){
   param {Object} options - optional options Object
   Example -
   {
-    image: "<img src='./build/assets/img/stick_cal.gif' class='settings-image' alt='stick calibration'>",
+    image: "<img src='./app/assets/img/stick_cal.gif' class='settings-image' alt='stick calibration'>",
     cancel_button: true,   //off by default
     confirm_button: true,  //true by default
     button_text: "Confirm"

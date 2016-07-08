@@ -1,12 +1,12 @@
 node_modules/
-build/js
-build/js/**
-build/js/*
+app/js
+app/js/**
+app/js/*
 # build
-build/css
-build/css/**
-build/templates
-build/templates/*
+app/css
+app/css/**
+app/templates
+app/templates/*
 npm-debug.log
 Solo Toolkit-darwin*
 .env*

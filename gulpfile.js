@@ -9,10 +9,30 @@ const babel = require('gulp-babel');
 const fs = require('fs');
 const rimraf = require('rimraf');
 
+const env_file = "./app/.env.json";
+
+// Set up the .env file for development
+const dev_environment = {
+    dev_env: true,
+}
+const prod_environment = {
+  dev_env: false,
+}
+
+gulp.task('dev-env', ()=>{
+  let out_env = JSON.stringify(dev_environment);
+  fs.writeFile(env_file, out_env, ()=>{});
+});
+
+gulp.task('prod-env', ()=>{
+  let out_env = JSON.stringify(prod_environment);
+  fs.writeFile(env_file, out_env, ()=>{});
+});
+
 gulp.task('sass-compile', function () {
   gulp.src('./static/sass/styles.scss')
     .pipe(sass.sync().on('error', sass.logError))
-    .pipe(gulp.dest('./build/css'));
+    .pipe(gulp.dest('./app/css'));
 });
 
 gulp.task('js-compile', () => {
@@ -22,12 +42,12 @@ gulp.task('js-compile', () => {
       .pipe(babel({
   		 	presets: ['es2015']
   		 }))
-      .pipe(gulp.dest('./build/js'));
+      .pipe(gulp.dest('./app/js'));
 });
 
 gulp.task('move-templates', ()=>{
   return gulp.src('./static/templates/*')
-  .pipe(gulp.dest('./build/templates'));
+  .pipe(gulp.dest('./app/templates'));
 });
 
 gulp.task('watcher', () => {
@@ -56,4 +76,4 @@ gulp.task('clean', ()=>{
   })
 });
 
-gulp.task('default',['sass-compile','js-compile', 'move-templates','watcher']);
+gulp.task('default',['dev-env','sass-compile','js-compile', 'move-templates','watcher']);

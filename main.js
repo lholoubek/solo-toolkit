@@ -11,18 +11,15 @@ const Menu = electron.Menu;
 const MenuItem = electron.MenuItem;
 
 
-// TODO - doing some work on the build system. Will write a bunch of config variables to /build/.env.json to be loaded and parsed by the app
+// TODO - doing some work on the build system. Will write a bunch of config variables to /app/.env.json to be loaded and parsed by the app
 // This will replace current method of using environment variables
-const ENV = require('./build/.env.json');
-console.log(ENV);
-console.log(ENV.dev_env);
+const ENV = require('./app/.env.json');
+
 
 // If we're developing the app we'll use electron-connect and open the dev tools by default
-const DEVELOP = (process.env.ELECTRON_DEVELOP === "true");
-
+const DEVELOP = (ENV.dev_env);
 const VERSION = app.getVersion();
-console.log("DEVELOP - " + DEVELOP);
-console.log("version: ", VERSION);
+
 global.sharedConfig = {dev_env:DEVELOP, version:VERSION};
 console.log(global.sharedConfig);
 

@@ -1,6 +1,6 @@
 const readline = require('readline');
-const sh = require('./build/js/SettingsHelpers');
-const Updater = require("./build/js/Updater");
+const sh = require('./app/js/SettingsHelpers');
+const Updater = require("./app/js/Updater");
 
 $('#open-firmware-dir').click(()=>{
   console.log("Opening firmware location choose");
@@ -161,7 +161,7 @@ function solo_update_complete(){
 function controller_update_complete(){
   console.log("controller_update_complete()");
   let options = {
-    image: "<img src='./build/assets/img/factory_reset_complete.png' class='settings-image' alt='updating'>"
+    image: "<img src='./app/assets/img/factory_reset_complete.png' class='settings-image' alt='updating'>"
   }
   display_overlay("settings", "Update started", "Update has started. Reconnect when Controller indicates update has completed.", options);
 }
