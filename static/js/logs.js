@@ -2,7 +2,6 @@ const events = require('events').EventEmitter;
 const fs = require('fs');
 const process = require('process');
 const async = require('async');
-const _ = require('underscore');
 const helpers = require('./app/js/LogfileHelpers');
 
 

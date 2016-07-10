@@ -1,5 +1,4 @@
 "use strict";
-const _ = require('Underscore');
 const EventEmitter = require('events');
 const readline = require('readline');
 const sh = require('./SettingsHelpers');

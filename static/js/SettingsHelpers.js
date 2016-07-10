@@ -1,5 +1,3 @@
-const _ = require('Underscore');
-
 function calibrate_sticks(connection){
   console.log("calibrate_sticks()");
   connection.shell(function(err, stream){
@@ -187,13 +185,13 @@ function update_file_filter(device, file_list){
   let tar_ending = ".gz";
   let md5_ending = "md5";
   let update_files = {};
-  let tarball = _.some(file_list, (file)=>{
+  let tarball = file_list.some((file)=>{
     if (file.indexOf(device) >= 0 && file.indexOf(tar_ending, file.length - tar_ending.length) > 0){ //true if at least one file in the list includes the device and tar.gz
       if (!update_files.tarball) update_files.tarball = file;  // prevent duplication
       return true;
     } else return false;
   });
-  let md5 = _.some(file_list, (file)=>{
+  let md5 = file_list.some((file)=>{
     if (file.indexOf(device) >= 0 && file.indexOf(md5_ending, file.length - md5_ending.length) > 0){ // true if at least one file in the list includes device and md5
       if (!update_files.md5) update_files.md5 = file; // prevent duplication if we have multiple files
       return true;

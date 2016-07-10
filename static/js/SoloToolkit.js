@@ -2,7 +2,6 @@ console.log("running SoloToolkit.js");
 const ipcRenderer = require('electron').ipcRenderer;
 const Device = require('./app/js/Device');
 const Mousetrap = require('Mousetrap');
-const _ = require('Underscore')
 
 //Solo + controller device
 let solo = new Device(successConnecting, successDisconnecting, failureConnecting);
@@ -308,5 +307,5 @@ jQuery(function($) {
 //   function printSizes(){
 //     console.log("Window size - height: " + window.outerHeight.toString() + " width: " + window.outerWidth.toString());
 //   }
-//   $(window).resize(_.debounce(printSizes, 1000));
+//   $(window).resize(printSizes, 1000);
 // })

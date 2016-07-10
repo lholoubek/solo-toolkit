@@ -4,7 +4,6 @@ This module contains functions that help filter lists of logfiles.
 This module should be imported and used by the LogPuller class to filter log file names.
 */
 
-const _ = require('underscore');
 const async = require('async');
 
 function log_less_than_max(filename, max){
@@ -41,9 +40,9 @@ function is_logfile(name){
 }
 
 function fileListFromDirList(dirList, collect_all_logs, num_logs, collecting_geodata){
-    var filtered_list = _.map(dirList, (val)=>{return val.filename});
+    var filtered_list = dirList.map((val)=>{return val.filename});
     console.log(filtered_list);
-    var file_list = _.filter(filtered_list, (filename)=>{
+    var file_list = filtered_list.filter((filename)=>{
       if(is_logfile(filename)||collecting_geodata){
         if(collect_all_logs){
           return true;
