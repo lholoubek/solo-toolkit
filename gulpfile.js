@@ -11,23 +11,26 @@ const rimraf = require('rimraf');
 
 const env_file = "./app/.env.json";
 
-// Set up the .env file for development
-const dev_environment = {
-    dev_env: true,
-}
-const prod_environment = {
-  dev_env: false,
-}
+//Import our environment configs from ./packager/config.js
+const config = require("./packager/config");
 
+// Set environment to develop with auto reloading
 gulp.task('dev-env', ()=>{
-  let out_env = JSON.stringify(dev_environment);
+  let out_env = JSON.stringify(config.dev_environment);
   fs.writeFile(env_file, out_env, ()=>{});
 });
 
+// Set environment to production. Appropriate for packaging app.
 gulp.task('prod-env', ()=>{
-  let out_env = JSON.stringify(prod_environment);
+  let out_env = JSON.stringify(config.prod_environment);
   fs.writeFile(env_file, out_env, ()=>{});
 });
+
+// Set environment to packaged without auto reloading (auto reload creates error in packaged app)
+gulp.task('dev-env-packaged',()=>{
+  let out_env = JSON.stringify(config.development_environment_packaged);
+  fs.writeFile(env_file, out_env, ()=>{});
+})
 
 gulp.task('sass-compile', function () {
   gulp.src('./static/sass/styles.scss')
@@ -51,6 +54,7 @@ gulp.task('move-templates', ()=>{
 });
 
 gulp.task('watcher', () => {
+  // Start electron with the electron-connect server
   electron.start();
   //Watch js files
   gulp.watch(['./static/js/**/*.js'], ['js-compile', electron.restart]);

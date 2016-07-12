@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "export ELECTRON_DEVELOP=true && gulp",
     "package": "gulp prod-env && node ./packager/package.js",
-    "package-dev": "gulp dev-env && node ./packager/package.js",
+    "package-dev": "gulp dev-env-packaged && node ./packager/package.js",
     "clean": "gulp clean"
   },
   "devDependencies": {

@@ -10,18 +10,17 @@ const globalShortcut = require('electron').globalShortcut;
 const Menu = electron.Menu;
 const MenuItem = electron.MenuItem;
 
-
-// TODO - doing some work on the build system. Will write a bunch of config variables to /app/.env.json to be loaded and parsed by the app
-// This will replace current method of using environment variables
+// Pull environment coniguration
 const ENV = require('./app/.env.json');
 
-
-// If we're developing the app we'll use electron-connect and open the dev tools by default
-const DEVELOP = (ENV.dev_env);
+const DEVELOP = (ENV.dev);
 const VERSION = app.getVersion();
 
-global.sharedConfig = {dev_env:DEVELOP, version:VERSION};
-console.log(global.sharedConfig);
+//Create a global object accessible in the renderer process (via remote.getGlobal())
+global.env = {dev:DEVELOP,
+              version:VERSION,
+              auto_reload: ENV.auto_reload
+              };
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -44,6 +43,23 @@ ipcMain.on('open-dir-dialog', function(event, arg) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
+  createMainWindow();
+});
+
+app.on('will-quit', () => {
+  // Unregister all shortcuts.
+  globalShortcut.unregisterAll();
+});
+
+app.on('activate', function () {
+  // Create a new window when the window has been closed but the user clicks on the dock icon
+  if (mainWindow === null) {
+    createMainWindow()
+  }
+})
+
+function createMainWindow(){
+  // Creates a browser window
   //Set basic window options
   var window_options = {
     "minWidth": 770,
@@ -56,7 +72,7 @@ app.on('ready', function() {
   // and load the index.html of the app.
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 
-  if (DEVELOP) client.create(mainWindow, {sendBounds: true});
+  if (ENV.auto_reload) client.create(mainWindow, {sendBounds: true});
 
   // Open the DevTools.
   if (DEVELOP) {
@@ -70,16 +86,4 @@ app.on('ready', function() {
     // when you should delete the corresponding element.
     mainWindow = null;
   });
-});
-
-app.on('will-quit', () => {
-  // Unregister all shortcuts.
-  globalShortcut.unregisterAll();
-});
-
-app.on('activate', function () {
-  // Create a new window when the window has been closed but the user clicks on the dock icon
-  if (mainWindow === null) {
-    createWindow()
-  }
-})
+}

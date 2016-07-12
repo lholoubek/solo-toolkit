@@ -1,8 +1,8 @@
 const {remote} = require('electron');
 const {Menu, MenuItem} = remote;
 
-const DEVELOP = remote.getGlobal("sharedConfig").dev_env;
-const VERSION = remote.getGlobal("sharedConfig").version;
+const DEVELOP = remote.getGlobal("env").dev;
+const VERSION = remote.getGlobal("env").version;
 console.log("in system menu DEVELOP - " + DEVELOP);
 console.log("in system menu VERSION - " + VERSION);
 
