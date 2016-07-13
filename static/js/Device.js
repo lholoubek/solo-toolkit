@@ -1,6 +1,7 @@
 console.log("Running state.js");
 var Client = require('ssh2').Client;
 const EventEmitter = require('events');
+const readline = require('readline');
 
 module.exports = class Device extends EventEmitter{
   constructor(successConnectCallback, disconnectCallback, failureConnectCallback){
@@ -12,6 +13,8 @@ module.exports = class Device extends EventEmitter{
     this.versions = {
       sololink_version: " – ",
       gimbal_version: " – ",
+      ak_version: " – ",
+      shotmanager_version: " – ",
       pixhawk_version: " – ",
       controller_version: " – ",
       ssid: " – ",
@@ -83,7 +86,12 @@ module.exports = class Device extends EventEmitter{
             //When the Solo connection has been established, get the versions
             self.get_sololink_version();
             self.get_pixhawk_version();
-            self.get_gimbal_version();
+            // Get GoPro gimbal version, if there is one
+            self.get_version_from_file('/AXON_VERSION', 'gimbal_version');
+            // Get AK version, if AK installed
+            self.get_version_from_file('/AK_VERSION', 'ak_version');
+            // Get shotmanager version
+            self.get_version_from_file('/log/shotlog.log', 'shotmanager_version');
             self.get_wifi_info();
         }
     });
@@ -194,33 +202,41 @@ module.exports = class Device extends EventEmitter{
     });
   }
 
-  get_gimbal_version(){
+  get_version_from_file(filename, component){
     //We can't get gimbal version from sololink_config :(
     //Pull it from a file instead
-    console.log("get_gimbal_version()");
+    console.log("get_version_from_file");
+    console.log(filename);
+    console.log(component);
     var self = this;
-    var filename = '/AXON_VERSION';
-    var gimbal_version = '';
+    let out_version = '';
 
     this.solo_connection.sftp(function(err, sftp){
       if (err) return;
       sftp.stat(filename, (err, stat)=>{
         if (err) {  // No gimbal attached. We don't have a GoPro gimbal
-          console.log("No GoPro gimbal attached");
-          self.versions.gimbal_version = "Not available";
+          console.log(`No file for ${filename}`);
+          self.versions[component] = "Not available";
           self.emit('updated_versions');
         } else { // The gimbal version file exists. Pull it and parse it.
-            var file = sftp.createReadStream(filename);
-            var data = '';
-            var chunk = '';
-            file.on('readable', function() {
-              while ((chunk=file.read()) != null) {
-                  data += chunk;
+            let fileRead = sftp.createReadStream(filename);
+            let data = '';
+            let line = readline.createInterface({
+              input: fileRead,
+              output:null
+            });
+
+            line.on('line', (line)=>{
+              if (data.length < 1){
+                data = line;
               }
             });
-            file.on('end', function() {
-              var gimbal_version = data.split('\n')[0].trim(); //just the value on the first line
-              self.versions.gimbal_version = gimbal_version;
+
+            fileRead.on('end', ()=>{
+              out_version = data.toString().match(/(\d.\d.\d)/)[0];
+              console.log("Regex version number: " + out_version);
+              self.versions[component] = out_version;
+              console.log(self.versions.ak_version);
               self.emit('updated_versions');
             });
           };

@@ -175,6 +175,8 @@ module.exports = class LogPuller extends EventEmitter{
     let version_strings = [
       "Sololink: " + versions.sololink_version,
       "Gimbal: " + versions.gimbal_version,
+      "AccessoryKit: " + versions.ak_version,
+      "Shotmanager: " + versions.shotmanager_version,
       "Pixhawk: " + versions.pixhawk_version,
       "Controller: " + versions.controller_version
     ];
