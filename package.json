@@ -1,6 +1,6 @@
 {
   "name": "Solo_Toolkit",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "main": "main.js",
   "scripts": {
     "dev": "export ELECTRON_DEVELOP=true && gulp",
