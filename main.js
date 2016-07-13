@@ -61,9 +61,13 @@ app.on('activate', function () {
 function createMainWindow(){
   // Creates a browser window
   //Set basic window options
-  var window_options = {
+  let window_options = {
     "minWidth": 770,
     "minHeight": 450,
+    width:800,
+    height: 650,
+    // frame: false,
+    // titleBarStyle: 'hidden'
   };
 
   // Create the browser window.

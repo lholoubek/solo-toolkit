@@ -272,36 +272,6 @@ function load_settings(){
   $('#system_settings_button > p').addClass('active');
 };
 
-//jQuery to open and close the sidebar menu
-jQuery(function($) {
-  let $bodyEl = $('body'),
-      $sidedrawerEl = $('#sidedrawer');
-
-  function showSidedrawer() {
-    // show overlay
-    let options = {
-      onclose: function() {
-        $sidedrawerEl
-          .removeClass('active')
-          .appendTo(document.body);
-      }
-    };
-    let $overlayEl = $(mui.overlay('on', options));
-    // show element
-    $sidedrawerEl.appendTo($overlayEl);
-    setTimeout(function() {
-      $sidedrawerEl.addClass('active');
-    }, 20);
-  }
-
-  function hideSidedrawer() {
-    $bodyEl.toggleClass('hide-sidedrawer');
-  }
-
-  $('.js-show-sidedrawer').on('click', showSidedrawer);
-  $('.js-hide-sidedrawer').on('click', hideSidedrawer);
-});
-
 //IF enabled, this code will print the size of the window when it changes
 // $(document).ready(()=>{
 //   function printSizes(){
