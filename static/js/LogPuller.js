@@ -147,27 +147,40 @@ module.exports = class LogPuller extends EventEmitter{
     var self = context;
     console.log("create_log_folder() called - trying to create a folder for the logs");
     console.log("folder name: " + self.options.log_folder_name);
-    try {
-      fs.mkdirSync(self.options.log_folder_name);
-      if(this.options.controller_logs){
-        this.options.controller_log_folder_path = self.options.log_folder_name + "/controller";
-        fs.mkdirSync(this.options.controller_log_folder_path);
+
+    let created = false;
+    let count = 2;
+    while (!created){
+      try {
+        fs.mkdirSync(self.options.log_folder_name);
+        created = true;  //the log folder was created successfully
+        if(this.options.controller_logs){
+          this.options.controller_log_folder_path = self.options.log_folder_name + "/controller";
+          fs.mkdirSync(this.options.controller_log_folder_path);
+        }
+        if (this.options.solo_logs){
+          this.options.solo_log_folder_path = self.options.log_folder_name + "/solo";
+          fs.mkdirSync(this.options.solo_log_folder_path);
+          fs.mkdirSync(this.options.log_folder_name + "/geodata");
+        }
+      } catch(err){
+        if(err.code != 'EEXIST') {  // We had an erro trying to create the log folder
+          console.log("Unknown error trying to create log folder - ", err);
+          return false
+        } else {
+          let dirName = self.options.log_folder_name;
+          let newDirName = dirName
+          if (dirName.endsWith(")")){
+            newDirName = dirName.slice(0, dirName.lastIndexOf('('));
+          }
+          console.log(`newDirName: ${newDirName}`);
+          self.options.log_folder_name = newDirName + ` (${count})`;
+          count += 1;
+        }
       }
-      if (this.options.solo_logs){
-        this.options.solo_log_folder_path = self.options.log_folder_name + "/solo";
-        fs.mkdirSync(this.options.solo_log_folder_path);
-        fs.mkdirSync(this.options.log_folder_name + "/geodata");
-      }
-      return true;
-    } catch(err){
-      console.log("err in folder creation: ", err);
-      if (err.code != 'EEXIST'){
-        console.log("Unknown error trying to create log folder - ", err);
-      } else {
-          console.log("Log folder already exists. ");
-      }
-      return false;
     }
+    // success creating the log folders; return true
+    return true;
   };
 
   add_log_notes(cb){
