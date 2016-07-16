@@ -12,41 +12,23 @@ function log_less_than_max(filename, max){
   //@return {bool} – True if this logfile is less than max
   //If only one '.' in log, we definitely want it (it's the first log)
   if (max){
-    if(!filename.includes('.', filename.indexOf('.') + 1)){
+    //Pull the number off the end and compare it
+    var log_num = filename.substring(filename.lastIndexOf('.') + 1, filename.length);
+    log_num = parseInt(log_num);
+    if (!(log_num> max)){
       return true;
-    } else {
-      //Pull the number off the end and compare it
-      var log_num = filename.substring(filename.lastIndexOf('.') + 1, filename.length);
-      log_num = parseInt(log_num);
-      if (!(log_num> max)){
-        return true;
-      }
-    };
-    return false;
+    }
   } else {
     return true;
   }
 }
 
-function is_logfile(name){
-    //@param {String} name – filename
-    //@return {bool} -
-    //If the file is a logfile, return true. If not (like if it's a dir), return false
-      if (name.includes('log') && name.indexOf('.') > 0){
-        return true;
-      } else {
-        return false;
-      };
-}
-
-function fileListFromDirList(dirList, collect_all_logs, num_logs, collecting_geodata){
-    var filtered_list = dirList.map((val)=>{return val.filename});
-    console.log(filtered_list);
-    var file_list = filtered_list.filter((filename)=>{
-      if(is_logfile(filename)||collecting_geodata){
+function fileListFromDirList(dirList, collect_all_logs, num_logs){
+    var file_list = dirList.filter((file)=>{  //returns array with only filenames and optionally filtered by max
+      if(!file.attrs.isDirectory()){
         if(collect_all_logs){
           return true;
-        } else if (log_less_than_max(filename,num_logs)) {
+        } else if (log_less_than_max(file.filename,num_logs)) {
           return true;
         } else {
           return false;
@@ -55,7 +37,9 @@ function fileListFromDirList(dirList, collect_all_logs, num_logs, collecting_geo
         return false;
       }
     });
-    return file_list;
+    var filtered_list = file_list.map((val)=>{return val.filename}); //map file objects to
+    console.log(filtered_list);
+    return filtered_list;
 }
 
 function asyncFilePull(sftp, file_list, base_path, out_path, isCancelled, progress, callback){
@@ -99,7 +83,6 @@ function generate_date_string(){
 
 module.exports = {
   log_less_than_max: log_less_than_max,
-  is_logfile: is_logfile,
   fileListFromDirList: fileListFromDirList,
   asyncFilePull: asyncFilePull,
   generate_date_string: generate_date_string

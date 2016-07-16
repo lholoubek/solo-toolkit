@@ -99,7 +99,7 @@ module.exports = class LogPuller extends EventEmitter{
             self.cancel();
             throw err;
           }
-          let file_list = helpers.fileListFromDirList(list, self.options.collect_all_logs, self.options.num_logs, false);
+          let file_list = helpers.fileListFromDirList(list, self.options.collect_all_logs, self.options.num_logs);
           helpers.asyncFilePull(sftp, file_list, base_path, log_folder_path, isCancelled, progress, ()=>{
             if (device_name == "solo"){ // If we're pulling logs from Solo, check to see if we have any R10C data available
               base_path = '/data/r10c';
@@ -109,7 +109,7 @@ module.exports = class LogPuller extends EventEmitter{
                   cb();
                 } else {
                   console.log(list);
-                  file_list = helpers.fileListFromDirList(list, true, null, true);
+                  file_list = helpers.fileListFromDirList(list, true, null);
                   console.log("Should be some text files: " + file_list);
                   helpers.asyncFilePull(sftp, file_list, base_path, Path.dirname(log_folder_path) + "/geodata", isCancelled, ()=>{},()=>{
                     cb();
