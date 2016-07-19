@@ -8,7 +8,7 @@ console.log("in system menu VERSION - " + VERSION);
 
 //Menu strings and contents
 let version_string = "v" + VERSION;
-if (DEVELOP) version_string += "-dev";
+if (DEVELOP) version_string += "-dev"; // Version string is displayed as the version when the user clicks 'About' from the app menu
 version_string += "\n\n\n";
 let about_string = "Solo Toolkit is an application to configure your Solo. Use it to view Solo system information, pull logs, and configure various system settings.";
 
@@ -79,8 +79,6 @@ let devToolsMenu = {label: "Open developer tools",
 
 
 if (DEVELOP){
-  console.log("Develop flag in menu");
-  console.log(menu_template[2].submenu);
   menu_template[2].submenu.push({type:"separator"});
   menu_template[2].submenu.push(devToolsMenu);
 }
