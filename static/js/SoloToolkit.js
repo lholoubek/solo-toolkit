@@ -1,6 +1,6 @@
 const ipcRenderer = require('electron').ipcRenderer;
 const Device = require('./app/js/Device');
-const Mousetrap = require('Mousetrap');
+const Mousetrap = require('mousetrap');
 const {remote} = require("electron");
 
 //Solo + controller device
