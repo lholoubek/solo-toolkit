@@ -1,4 +1,4 @@
-console.log("Running state.js");
+Logger.log("Running state.js");
 var Client = require('ssh2').Client;
 const EventEmitter = require('events');
 const readline = require('readline');
@@ -36,19 +36,19 @@ module.exports = class Device extends EventEmitter{
 
     this.controller_connection.on('ready', function(er) {
         if(er){
-          console.log("Connection ready but error with controller");
+          Logger.log("Connection ready but error with controller");
         } else {
-            console.log('Controller :: ready');
+            Logger.log('Controller :: ready');
             self.controllerConnected = true;
             successConnectCallback("controller");
             self.get_controller_version();
         }
     });
     this.controller_connection.on('error', function(er){
-        console.log("Error connecting to controller");
+        Logger.log("Error connecting to controller");
         self.controller_connection.end(); //end the connection if we have an error
         if (er.toString() == "Error: Keepalive timeout"){  // if the connection times out, the wifi network got switched or device was shut off
-          console.log("Timeout; controller must have disconnected");
+          Logger.log("Timeout; controller must have disconnected");
           // If controller timed out, Solo won't be connected
           self.disconnect();
           disconnectCallback('controller', 'Controller and Solo');
@@ -58,11 +58,11 @@ module.exports = class Device extends EventEmitter{
     });
 
     this.controller_connection.on('close', function(){
-        console.log("Connection to controller closed");
+        Logger.log("Connection to controller closed");
         disconnectCallback('controller');
     });
     this.controller_connection.on('exit', function(){
-        console.log("Connection to controller exited");
+        Logger.log("Connection to controller exited");
         disconnectCallback('controller');
     });
 
@@ -78,9 +78,9 @@ module.exports = class Device extends EventEmitter{
 
     this.solo_connection.on('ready', function(er) {
         if(er){
-          console.log("Error connecting to solo");
+          Logger.log("Error connecting to solo");
         } else {
-            console.log('Solo :: ready');
+            Logger.log('Solo :: ready');
             self.soloConnected = true;
             successConnectCallback('solo');
             //When the Solo connection has been established, get the versions
@@ -97,7 +97,7 @@ module.exports = class Device extends EventEmitter{
     });
 
     this.solo_connection.on('error', (er)=>{
-        console.log("Error connecting to solo");
+        Logger.log("Error connecting to solo");
         if (er.toString() == "Error: Keepalive timeout"){
           if (this.controllerConnected){
             disconnectCallback('solo', "Solo");  // Controller is connected but Solo got shutdown or battery pulled
@@ -109,32 +109,32 @@ module.exports = class Device extends EventEmitter{
     });
 
     this.solo_connection.on('close', function(){
-        console.log("Connection to Solo closed");
+        Logger.log("Connection to Solo closed");
         disconnectCallback('solo');
     });
     this.solo_connection.on('exit', function(){
-      console.log("Connection to solo exited");
+      Logger.log("Connection to solo exited");
       failureConnectCallback('solo');
     });
 
     this.solo_connection.on('end', function(){
-      console.log("Connection to solo exited");
+      Logger.log("Connection to solo exited");
       disconnectCallback('solo');
     });
 }
 
 // General methods
   connect_to_controller() {
-    console.log("connect_to_controller called");
+    Logger.log("connect_to_controller called");
     this.controller_connection.connect(this.controller_connection_params);
   };
   connect_to_solo(){
-    console.log("Connect to solo called");
+    Logger.log("Connect to solo called");
     this.solo_connection.connect(this.solo_connection_params);
   };
 
   disconnect(){
-    console.log("disconnect()");
+    Logger.log("disconnect()");
     if (this.controllerConnected){
       this.controller_connection.end();
       this.controllerConnected = false;
@@ -147,12 +147,12 @@ module.exports = class Device extends EventEmitter{
 
   sololink_config_request(connection, command, callback){
     //takes SSH connection and returns response from sololink_config
-    console.log("sololink_config_request ", command);
+    Logger.log("sololink_config_request ", command);
     var version = '';
     connection.exec(command, function(err, stream){
       stream.on('data', function(data, stderr){
         if(stderr){
-          console.log(command + " failed: " + stderr);
+          Logger.log(command + " failed: " + stderr);
         }
         version = data.toString().trim();
         callback(version);
@@ -161,7 +161,7 @@ module.exports = class Device extends EventEmitter{
   }
 
   get_wifi_info(){
-    console.log("get_controller_version()");
+    Logger.log("get_controller_version()");
     var self = this;
     this.sololink_config_request(this.controller_connection, 'sololink_config --get-wifi-ssid', function(ssid){
       self.versions.ssid = ssid;
@@ -173,7 +173,7 @@ module.exports = class Device extends EventEmitter{
   }
 
   get_controller_version(){
-    console.log("get_controller_version()");
+    Logger.log("get_controller_version()");
     var self = this;
     var command = 'sololink_config --get-version artoo';
     this.sololink_config_request(this.controller_connection, command, function(version){
@@ -183,7 +183,7 @@ module.exports = class Device extends EventEmitter{
   };
 
   get_sololink_version(){
-    console.log("get_sololink_version()");
+    Logger.log("get_sololink_version()");
     var command = 'sololink_config --get-version sololink';
     var self = this;
     this.sololink_config_request(this.solo_connection, command, function(version){
@@ -193,7 +193,7 @@ module.exports = class Device extends EventEmitter{
   }
 
   get_pixhawk_version(){
-    console.log("get_pixhawk_version()");
+    Logger.log("get_pixhawk_version()");
     var self = this;
     var command = 'sololink_config --get-version pixhawk';
     this.sololink_config_request(this.solo_connection, command, function(version){
@@ -205,9 +205,9 @@ module.exports = class Device extends EventEmitter{
   get_version_from_file(filename, component){
     //We can't get gimbal version from sololink_config :(
     //Pull it from a file instead
-    console.log("get_version_from_file");
-    console.log(filename);
-    console.log(component);
+    Logger.log("get_version_from_file");
+    Logger.log(filename);
+    Logger.log(component);
     var self = this;
     let out_version = '';
 
@@ -215,7 +215,7 @@ module.exports = class Device extends EventEmitter{
       if (err) return;
       sftp.stat(filename, (err, stat)=>{
         if (err) {  // No gimbal attached. We don't have a GoPro gimbal
-          console.log(`No file for ${filename}`);
+          Logger.log(`No file for ${filename}`);
           self.versions[component] = "Not available";
           self.emit('updated_versions');
         } else { // The gimbal version file exists. Pull it and parse it.
@@ -234,9 +234,9 @@ module.exports = class Device extends EventEmitter{
 
             fileRead.on('end', ()=>{
               out_version = data.toString().match(/(\d.\d.\d)/)[0];
-              console.log("Regex version number: " + out_version);
+              Logger.log("Regex version number: " + out_version);
               self.versions[component] = out_version;
-              console.log(self.versions.ak_version);
+              Logger.log(self.versions.ak_version);
               self.emit('updated_versions');
             });
           };

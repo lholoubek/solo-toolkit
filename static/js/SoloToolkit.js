@@ -1,11 +1,12 @@
-console.log("running SoloToolkit.js");
 const ipcRenderer = require('electron').ipcRenderer;
 const Device = require('./app/js/Device');
 const Mousetrap = require('Mousetrap');
+const {remote} = require("electron");
 
 //Solo + controller device
 let solo = new Device(successConnecting, successDisconnecting, failureConnecting);
 
+// Create Device instance for controller and device
 solo.on('updated_versions', ()=>{
   //Re-load the system info page when we get updated version info
   if($('#system_info_button').hasClass('active')){ //if the system info mode is active, reload it to show the new data
@@ -13,14 +14,15 @@ solo.on('updated_versions', ()=>{
   }
 });
 
+// Connect navbar and sidebar
 let connect_button = $('#connect-button');
 $("#connect-progress-bar").hide();
 connect_button.on('click', connectButtonClicked);
 
 function connectButtonClicked(){
-  console.log("clicked " + connect_button.html() + " button!");
+  Logger.info('Clicked connect button!');
   if (!solo.controllerConnected && !solo.soloConnected){
-    console.log("Solo connected: " + solo.soloConnected + " Controller connected: " + solo.controllerConnected);
+    Logger.log('info',"Solo connected: " + solo.soloConnected + " Controller connected: " + solo.controllerConnected);
     solo.connect_to_controller();
     //If controller connects successfully, connection to Solo is attempted.
     connectButtonDisabled();
@@ -33,7 +35,7 @@ function connectButtonClicked(){
 
 //Connection status callbacks
 function successConnecting(device){
-  console.log("Connected successfully to " + device);
+  Logger.log('info',"Connected successfully to " + device);
   //Update the connection info in the bottom right of the app
   $("#" + device + "-connection-status").html(" connected");
   $("." + device + "-connection").addClass("active");
@@ -46,7 +48,7 @@ function successConnecting(device){
 function failureConnecting(device){
   // Called if we encounter an error trying to connect to either Solo or controller
   // Will display a 'failure connecting' message to the user
-  console.log("Error or disconnection from " + device);
+  Logger.log('info',"Error or disconnection from " + device);
   $("#" + device + "-connection-status").html(" disconnected");
   $("." + device + "-connection").removeClass("active");
   connection_error_message(device);
@@ -57,7 +59,7 @@ function failureConnecting(device){
 function successDisconnecting(device, message){
   // Called if we successfully disconnect from a device (like when Disconnect button pressed)
   // Will not display a message to the user
-  console.log("Successfully disconnected from " + device);
+  Logger.log('info',"Successfully disconnected from " + device);
   $("#" + device + "-connection-status").html(" disconnected");
   $("." + device + "-connection").removeClass("active");
   if (device === "controller"){ //If we're not connected to controller, good chance we're not going to be connected to Solo
@@ -104,7 +106,7 @@ let overlay_options = {
 };
 
 function display_overlay(type, heading, body, options){
-  console.log("display_overlay()");
+  Logger.log('info',"display_overlay()");
   /*param (String) type - type of modal (defaults to error)
   Available types:
   'error' - error dialog
@@ -149,8 +151,8 @@ function display_overlay(type, heading, body, options){
   let optional_button = $('#optional-button');
   let optional_image_el = $("#optional-image-el");
   if (options){
-    console.log("Overlay options passed: ");
-    console.log(options);
+    Logger.log('info',"Overlay options passed: ");
+    Logger.log('info',options);
     if (!options.cancel_button){
       optional_button.hide();
     }
@@ -164,19 +166,19 @@ function display_overlay(type, heading, body, options){
       $('#modal-button').hide();
     }
   } else {
-    console.log("No options passed to display_overlay");
+    Logger.log('info',"No options passed to display_overlay");
     optional_button.hide();
     optional_image_el.html('');
   }
 
   $("#modal-button").click(()=>{
-    console.log("close dialog button clicked");
+    Logger.log('info',"close dialog button clicked");
     clear_overlay(modal_dialog);
   });
 };
 
 function clear_overlay(){
-  console.log("clear_overlay()");
+  Logger.log('info',"clear_overlay()");
   //@param {Object} dialog - DOM element used to create an overlay, typically the modal_dialog
   mui.overlay('off');
 }
@@ -185,13 +187,13 @@ function clear_overlay(){
 function getDirectory(input_element){
   //Takes an input html and then requests a dialog chooser
   //When response received from main thread with path, this drops a value in the input
-  console.log("getDirectory()");
+  Logger.log('info',"getDirectory()");
   let selected_dir = '';
   ipcRenderer.send('open-dir-dialog');
   //Listen for one return event to get the path back from the main thread
   ipcRenderer.once('open-dir-dialog-reply', function(e, response){
     if (response.length < 1) {
-      console.log("cancelled directory open");
+      Logger.log('info',"cancelled directory open");
     } else {
       selected_dir = response[0];
       input_element.val(selected_dir);
@@ -222,7 +224,7 @@ $(document).ready(()=>{
 //SIDEBAR
 //Toggle the active class on sidebar items
 let remove_all_active_sidebar = function(){
-  console.log("remove_all_active_sidebar");
+  Logger.log('info',"remove_all_active_sidebar");
   //Generic helper for styling sidebar items
   $("#system_info_button").removeClass('active');
   $('#system_info_button >p').removeClass('active');
@@ -236,7 +238,7 @@ let system_info_button = $('#system_info_button');
 system_info_button.click(()=>{view_system_info()});
 function view_system_info(){
     //If the info page is active, render the menu with the latest versions from the device object
-    console.log('view_system_info()');
+    Logger.log('info','view_system_info()');
     let html = system_info_template(solo.versions);
     $("#logs-view").hide();
     $('#settings-view').hide();
@@ -250,7 +252,7 @@ function view_system_info(){
 let log_collection_button = $('#log_collection_button');
 log_collection_button.click(()=>{load_log_collection()});
 function load_log_collection(){
-  console.log("load_log_collection()");
+  Logger.log('info',"load_log_collection()");
   //Hide other views and show this one
   $('#system-view').hide();
   $('#settings-view').hide();
@@ -263,7 +265,7 @@ function load_log_collection(){
 let system_settings_button = $('#system_settings_button');
 system_settings_button.click(()=>{load_settings()});
 function load_settings(){
-  console.log("load_settings()");
+  Logger.log('info',"load_settings()");
   $('#system-view').hide();
   $("#logs-view").hide();
   $('#settings-view').show();
@@ -275,7 +277,7 @@ function load_settings(){
 //IF enabled, this code will print the size of the window when it changes
 // $(document).ready(()=>{
 //   function printSizes(){
-//     console.log("Window size - height: " + window.outerHeight.toString() + " width: " + window.outerWidth.toString());
+//     Logger.log('info',"Window size - height: " + window.outerHeight.toString() + " width: " + window.outerWidth.toString());
 //   }
 //   $(window).resize(printSizes, 1000);
 // })

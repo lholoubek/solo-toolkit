@@ -10,7 +10,7 @@ module.exports = class LogPuller extends EventEmitter{
   constructor(device) {
     super();
     //var self = this;
-    console.log("Created new logpuller");
+    Logger.info('created LogPuller instance')
     this.cancelled = false;
     this.options = {};
   }
@@ -47,8 +47,7 @@ module.exports = class LogPuller extends EventEmitter{
     // - Emits event to notify UI that log pulling has started
     // - Calls pull_logs for Solo and/or controller, depending on selected option
     var self = this;
-    console.log("start_log_pull");
-    console.log('emitting start-pull');
+    Logger.info("LogPuller: start_log_pull")
     if (this.create_log_folders(self) == false){
       this.emit('folder-already-exists');
       return;
@@ -60,7 +59,6 @@ module.exports = class LogPuller extends EventEmitter{
         // This is the callback called by this.pull_logs when it finishes pulling logs
         self.add_log_notes(()=>{  // Add log notes (skips if there are none)
           self.zip_logs_dir(()=>{ // zip up the logs folder
-            console.log("Completed start_log_pull()");
             self.progressCallback(100, "All logs pulled");
             setTimeout(1000, self.progressCallback(0));
             this.emit('cancelled');
@@ -81,7 +79,7 @@ module.exports = class LogPuller extends EventEmitter{
     if (!self.cancelled && option){
       var log_folder_path = path;  //depending on options, this folder will already exists when it's created with create_log_folders()
       connection.sftp((err, sftp)=>{
-        console.log("Trying to connect to pull logs");
+        Logger.info('Trying to connect to pull logs');
         if (err) {
           self.cancel();
           throw err;
@@ -95,7 +93,7 @@ module.exports = class LogPuller extends EventEmitter{
         }
         sftp.readdir(base_path, (err, list)=>{  // /log contains logs on solo and controller
           if (err) {
-            console.log("Couldn't find /log directory to pull files from");
+            Logger.warn("Couldn't find /log directory to pull files from")
             self.cancel();
             throw err;
           }
@@ -105,12 +103,12 @@ module.exports = class LogPuller extends EventEmitter{
               base_path = '/data/r10c';
               sftp.readdir(base_path, (err, list)=>{
                 if (err) {
-                  console.log("couldn't find R10C data on Solo");
+                  Logger.warn("couldn't find R10C data on Solo");
                   cb();
                 } else {
-                  console.log(list);
+                  Logger.log('info',list);
                   file_list = helpers.fileListFromDirList(list, true, null);
-                  console.log("Should be some text files: " + file_list);
+                  Logger.log('info',"Should be some text files: " + file_list);
                   helpers.asyncFilePull(sftp, file_list, base_path, Path.dirname(log_folder_path) + "/geodata", isCancelled, ()=>{},()=>{
                     cb();
                   });
@@ -121,14 +119,14 @@ module.exports = class LogPuller extends EventEmitter{
         });
       });
     } else {
-      console.log("didn't want to collect logs from ", device_name);
+      Logger.log('info',"didn't want to collect logs from ", device_name);
       cb();
     }
   };
 
   cancel(){
     //Cancels any current logpull operation
-    console.log("LogPuller.cancel()");
+    Logger.log('info',"LogPuller.cancel()");
     this.progressCallback(0, "Log transfer cancelled");
     setTimeout(2500, this.progressCallback(0, ''));
     this.emit('cancelled');
@@ -145,8 +143,8 @@ module.exports = class LogPuller extends EventEmitter{
     //Creates subfolders as needed for controller and solo logs based on options
     // Returns true if successful, false if not
     var self = context;
-    console.log("create_log_folder() called - trying to create a folder for the logs");
-    console.log("folder name: " + self.options.log_folder_name);
+    Logger.log('info',"create_log_folder() called - trying to create a folder for the logs");
+    Logger.log('info',"folder name: " + self.options.log_folder_name);
 
     let created = false;
     let count = 2;
@@ -165,7 +163,7 @@ module.exports = class LogPuller extends EventEmitter{
         }
       } catch(err){
         if(err.code != 'EEXIST') {  // We had an erro trying to create the log folder
-          console.log("Unknown error trying to create log folder - ", err);
+          Logger.log('info',"Unknown error trying to create log folder - ", err);
           return false
         } else {
           let dirName = self.options.log_folder_name;
@@ -173,7 +171,7 @@ module.exports = class LogPuller extends EventEmitter{
           if (dirName.endsWith(")")){
             newDirName = dirName.slice(0, dirName.lastIndexOf('('));
           }
-          console.log(`newDirName: ${newDirName}`);
+          Logger.log('info',`newDirName: ${newDirName}`);
           self.options.log_folder_name = newDirName + ` (${count})`;
           count += 1;
         }
@@ -200,10 +198,10 @@ module.exports = class LogPuller extends EventEmitter{
     }
 
     fs.writeFile(this.options.log_folder_name + "/Notes.txt", version_message, (err)=>{
-      console.log(this.options.log_folder_name + "/Notes.txt");
+      Logger.log('info',this.options.log_folder_name + "/Notes.txt");
       if (err){
-        console.log("Failed to write notes.txt");
-        console.log(err);
+        Logger.log('info',"Failed to write notes.txt");
+        Logger.log('info',err);
       }
       cb();
     });
@@ -212,21 +210,21 @@ module.exports = class LogPuller extends EventEmitter{
   zip_logs_dir(cb){
     //Zip the log files
     if (this.options.create_zip && !this.cancelled){
-      console.log("zipping logfiles...");
+      Logger.log('info',"zipping logfiles...");
       var zipdir_path = this.options.log_folder_name;  //step up one level from the folder with logs
-      console.log("zipdir_path - ", zipdir_path);
+      Logger.log('info',"zipdir_path - ", zipdir_path);
       var zipdir = "/" + this.options.log_folder_name.split("/")[this.options.log_folder_name.split("/").length - 1];  //get just the timestamp filename
-      console.log("zipdir - ", zipdir);
+      Logger.log('info',"zipdir - ", zipdir);
       var zipfile = this.options.output_path + zipdir + ".zip";
-      console.log('zipfile - ', zipfile);
+      Logger.log('info','zipfile - ', zipfile);
       var zipper = Archiver.create('zip', {});
 
       var out_stream = fs.createWriteStream(zipfile, {flags: 'w'});
       zipper.pipe(out_stream);
       zipper.directory(zipdir_path, zipdir); //put the files in the root of the zipdir
-      console.log("made it past zipper.directory...");
+      Logger.log('info',"made it past zipper.directory...");
       out_stream.on('close', ()=>{ //When we call finalize() below, the 'close' event will be emitted.
-        console.log("zipfile write stream closed");
+        Logger.log('info',"zipfile write stream closed");
         cb();
       })
       zipper.finalize();

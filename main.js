@@ -19,7 +19,8 @@ const VERSION = app.getVersion();
 //Create a global object accessible in the renderer process (via remote.getGlobal())
 global.env = {dev:DEVELOP,
               version:VERSION,
-              auto_reload: ENV.auto_reload
+              auto_reload: ENV.auto_reload,
+              packaged: ENV.packaged
               };
 
 // Keep a global reference of the window object, if you don't, the window will

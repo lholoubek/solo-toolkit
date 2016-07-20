@@ -8,16 +8,20 @@
 // dev_environment
 exports.dev_environment = {
     dev: true,
-    auto_reload: true
+    auto_reload: true,
+    packaged: false
+}
+
+// dev_environment_packaged
+exports.dev_environment_packaged = {
+  dev: true,
+  auto_reload: false,
+  packaged: true
 }
 
 // prod_environment
 exports.prod_environment = {
   dev: false,
-  auto_reload: false
+  auto_reload: false,
+  packaged: true
 }
-
-// dev_environment_packaged
-const dev_env_packaged = exports.dev_environment;
-dev_env_packaged.auto_reload = false;
-exports.dev_environment_packaged = dev_env_packaged;
