@@ -78,7 +78,9 @@ function asyncFilePull(sftp, file_list, base_path, out_path, isCancelled, progre
 function generate_date_string(){
     // Returns date string to use for log folders
     var date = new Date();
-    return date.getFullYear() + "_" + (date.getMonth() + 1).toString() + "_" + date.getDate() + "_" + date.getHours() + ":" + date.getMinutes();
+    let date_string = date.getFullYear() + "_" + (date.getMonth() + 1).toString() + "_" + date.getDate() + "_" + date.getHours() + "_" + date.getMinutes();
+    console.log(date_string);
+    return date_string;
 }
 
 module.exports = {
@@ -89,6 +91,5 @@ module.exports = {
 }
 
 if (require.main === module){
-  console.log(is_logfile('shotlog.5'));
-  console.log(log_less_than_max('shotlog.log.2',3));
+  console.log(generate_date_string());
 };
