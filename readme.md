@@ -1,5 +1,7 @@
 ![Solo Toolkit](./readme/logo.png)
 
+**Update: [This blog post](http://lukasholoubek.com/introducing-solo-toolkit/) provides more information on how Solo Toolkit works**
+
 # Solo Toolkit
 A desktop-based collection of utilities for the 3DR Solo drone.
 
